@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>教员工作台 | 智慧家教桥</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ✨ 超级视觉优化版 CSS */
+        :root { 
+            --primary: #6366F1; 
+            --primary-light: #818CF8;
+            --accent: #F59E0B; 
+            --success: #10B981; 
+            --bg-dark: #0B0F19; 
+            --bg-card: rgba(22, 27, 40, 0.7); 
+            --text: #F8FAFC; 
+            --text-gray: #94A3B8; 
+            --border: rgba(255, 255, 255, 0.12); 
+            --glass: blur(25px);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.35);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0B0F19 0%, #1E1B4B 50%, #312E81 100%);
+            background-attachment: fixed;
+            color: var(--text); 
+            height: 100vh; 
+            display:flex; 
+            overflow:hidden; 
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+            z-index: -2;
+            pointer-events: none;
+        }
+        .aurora-bg { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; 
+            pointer-events: none; 
+            overflow: hidden;
+        }
+        .blob { 
+            position: absolute; 
+            filter: blur(100px); 
+            opacity: 0.5; 
+            animation: float 15s infinite ease-in-out alternate;
+            border-radius: 50%;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, -50px) scale(1.1); }
+        }
+        .blob-1 { 
+            top: -15%; 
+            left: -10%; 
+            width: 600px; 
+            height: 600px; 
+            background: linear-gradient(135deg, var(--primary), #A855F7);
+            animation-delay: 0s;
+        }
+        .blob-2 { 
+            bottom: -10%; 
+            right: -10%; 
+            width: 500px; 
+            height: 500px; 
+            background: linear-gradient(135deg, var(--accent), #D97706);
+            animation-delay: 5s;
+        }
+        .sidebar { 
+            width: 260px; 
+            background: rgba(11, 15, 25, 0.75); 
+            backdrop-filter: blur(25px) saturate(180%);
+            border-right: 1.5px solid var(--border); 
+            padding: 30px 20px; 
+            display:flex; 
+            flex-direction:column; 
+            z-index: 10;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+        }
+        .logo { 
+            font-size: 1.3rem; 
+            font-weight: 900; 
+            margin-bottom: 40px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            color: white; 
+            padding-left: 10px;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
+        .nav-item { 
+            padding: 14px 20px; 
+            color: var(--text-gray); 
+            cursor: pointer; 
+            border-radius: 16px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500; 
+            font-size: 0.95rem;
+            position: relative;
+        }
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            background: linear-gradient(90deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .nav-item.active::before {
+            opacity: 1;
+        }
+        .nav-item:hover { 
+            background: rgba(255,255,255,0.08);
+            color: white;
+            transform: translateX(5px);
+        }
+        .nav-item.active { 
+            color: #818CF8; 
+            border-left: 3px solid #818CF8;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        .main { flex: 1; padding: 40px; overflow-y: auto; position: relative; }
+        .view { display: none; animation: fadeIn 0.4s ease; } .view.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:translateY(0); } }
+        .card { 
+            background: var(--bg-card);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1.5px solid var(--border); 
+            padding: 35px; 
+            border-radius: 24px; 
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        .page-title { 
+            font-size: 2rem; 
+            font-weight: 800; 
+            margin-bottom: 30px; 
+            display:flex; 
+            align-items:center; 
+            justify-content:space-between;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .welcome-banner { 
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #A855F7 100%);
+            background-size: 200% 200%;
+            animation: bannerGradient 5s ease infinite;
+            border-radius: 24px; 
+            padding: 45px; 
+            color: white; 
+            margin-bottom: 35px; 
+            box-shadow: 
+                0 16px 48px rgba(79, 70, 229, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes bannerGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .vip-card-box { background: linear-gradient(135deg, #1e1b4b 0%, #0F172A 100%); border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 20px; padding: 25px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
+        .vip-card-box::after { content:''; position:absolute; top:-50%; right:-10%; width:250px; height:250px; background:radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%); border-radius:50%; pointer-events:none; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); padding: 25px; border-radius: 20px; transition:0.3s; }
+        .stat-card.gold { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(0,0,0,0)); border-color: rgba(245,158,11,0.3); }
+        .stat-val { font-size: 2.2rem; font-weight: 800; margin: 10px 0; }
+        .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 20px; border-radius: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition:0.2s; }
+        .list-item:hover { background: rgba(255,255,255,0.06); transform: translateX(5px); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; } .form-group { margin-bottom: 0; } .form-label { display: block; margin-bottom: 8px; color: var(--text-gray); font-size: 0.9rem; } .form-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; padding: 14px; border-radius: 12px; outline:none; transition:0.3s; font-size: 1rem; } .form-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.4); } .full-width { grid-column: span 2; }
+        .btn { 
+            padding: 12px 28px; 
+            border-radius: 14px; 
+            border: none; 
+            cursor: pointer; 
+            color: white; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display:inline-flex; 
+            align-items:center; 
+            gap:8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn:hover { 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light), #A855F7);
+            background-size: 200% 200%;
+            animation: btnGradient 3s ease infinite;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        @keyframes btnGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .btn-gold { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; }
+        .btn-success { background: rgba(16, 185, 129, 0.2); color: #10B981; border:1px solid rgba(16, 185, 129, 0.3); }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-link { background: transparent; color: var(--text-gray); border: 1px solid var(--border); }
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            top:0; 
+            left:0; 
+            width:100%; 
+            height:100%; 
+            background:rgba(0,0,0,0.88); 
+            backdrop-filter:blur(20px) saturate(180%);
+            z-index:2000; 
+            justify-content:center; 
+            align-items:center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal { 
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(30px) saturate(180%);
+            border: 1.5px solid var(--border); 
+            width: 500px; 
+            padding: 48px; 
+            border-radius: 28px;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 60px rgba(99, 102, 241, 0.2);
+            animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .chat-layout { height: 600px; display: flex; background: var(--bg-card); border-radius: 24px; overflow: hidden; border: 1px solid var(--border); }
+        .chat-side { width: 280px; border-right: 1px solid var(--border); background: rgba(0,0,0,0.2); overflow-y: auto; }
+        .chat-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .chat-item:hover, .chat-item.active { background: rgba(99,102,241,0.1); }
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.1); }
+        .chat-header { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: bold; background: rgba(0,0,0,0.2); }
+        .chat-msgs { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg-bubble { max-width: 70%; padding: 10px 15px; border-radius: 15px; line-height: 1.5; font-size: 0.95rem; }
+        .msg-left { align-self: flex-start; background: #334155; color: white; border-bottom-left-radius: 2px; }
+        .msg-right { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+        .chat-input-area { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: rgba(0,0,0,0.2); }
+        
+        /* 协议文本框样式 */
+        .contract-preview {
+            background: rgba(255,255,255,0.9); color: #333; padding: 20px; border-radius: 10px;
+            height: 200px; overflow-y: auto; font-size: 0.85rem; margin-bottom: 20px; text-align: left;
+        }
+
+        /* ✨✨✨ 新增：线上线下标签与备注样式 ✨✨✨ */
+        .badge-offline {
+            background: rgba(239, 68, 68, 0.2); 
+            color: #EF4444; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 0.8rem; 
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        .badge-online {
+            background: rgba(59, 130, 246, 0.2); 
+            color: #3B82F6; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 0.8rem; 
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        .req-box {
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            border-left: 3px solid var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="aurora-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-chalkboard-teacher" style="color:#818CF8"></i> 教员后台</div>
+        <div class="nav-item active" onclick="switchView('dashboard', this)"><i class="fas fa-chart-pie"></i> 概览仪表盘</div>
+        <div class="nav-item" onclick="switchView('bookings', this)"><i class="fas fa-calendar-check"></i> 预约管理</div>
+        <div class="nav-item" onclick="switchView('hall', this)"><i class="fas fa-search-dollar"></i> 需求大厅</div>
+        <div class="nav-item" onclick="switchView('notifs', this)"><i class="fas fa-bell"></i> 消息通知</div>
+        <div class="nav-item" onclick="switchView('chat', this)"><i class="fas fa-comment-alt"></i> 学员私信</div>
+        <div class="nav-item" onclick="switchView('profile', this)"><i class="fas fa-user-edit"></i> 资料设置</div>
+        <div class="nav-item" onclick="switchView('resources', this)"><i class="fas fa-folder-open"></i> 资源题库</div>
+        <div class="nav-item" onclick="logout()" style="margin-top:auto; color:#EF4444; background:rgba(239,68,68,0.1)"><i class="fas fa-sign-out-alt"></i> 退出登录</div>
+    </div>
+
+    <div class="main">
+        <div id="view-dashboard" class="view active">
+            <div class="welcome-banner">
+                <div style="font-size:2rem; font-weight:800; margin-bottom:10px;" id="welcomeMsg">欢迎回来</div>
+                <div style="opacity:0.9">今天也是充满希望的一天。您有 <strong id="dashPending" style="color:#FCD34D">0</strong> 个待处理预约。</div>
+            </div>
+            <div id="vipSection"></div>
+            <h3 style="margin-bottom:20px; color:var(--text-gray)">数据概览</h3>
+            <div class="stats-grid">
+                <div class="stat-card gold">
+                    <div style="font-size:0.9rem; color:#FCD34D; margin-bottom:5px;">账户余额 (可提现)</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="stat-val" style="color:#FCD34D">¥ <span id="dashIncome">0.00</span></div>
+                        <button class="btn btn-gold" style="padding:6px 15px; font-size:0.8rem;" onclick="openWithdrawModal()">提现</button>
+                    </div>
+                </div>
+                <div class="stat-card"><div style="font-size:0.9rem; color:var(--text-gray)">待履约课程</div><div class="stat-val" style="color:#3B82F6" id="dashClass">0</div></div>
+                <div class="stat-card"><div style="font-size:0.9rem; color:var(--text-gray)">累计服务学生</div><div class="stat-val" id="dashStudents">0</div></div>
+            </div>
+            <div class="card"><h3 style="margin-bottom:20px; color:var(--text-gray)">📌 紧急待办</h3><div id="todoList"></div></div>
+        </div>
+
+        <div id="view-bookings" class="view"><div class="page-title">预约管理</div><div id="bookingList"></div></div>
+
+        <div id="view-hall" class="view"><div class="page-title">需求抢单大厅</div><div class="card" id="hallList">正在加载需求...</div></div>
+
+        <div id="view-notifs" class="view"><div class="page-title">系统通知</div><div class="card" id="notifList">暂无通知</div></div>
+
+        <div id="view-chat" class="view">
+            <div class="page-title">学员沟通</div>
+            <div class="chat-layout">
+                <div class="chat-side" id="contactList"><div style="padding:20px;text-align:center;color:gray">加载中...</div></div>
+                <div class="chat-main">
+                    <div class="chat-header" id="chatHeader">请选择学员</div>
+                    <div class="chat-msgs" id="chatMsgs"></div>
+                    <div class="chat-input-area"><input id="msgInput" class="form-input" style="margin:0; border-radius:50px;" placeholder="输入消息..."><button class="btn btn-primary" style="border-radius:50px; width:50px; justify-content:center;" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-profile" class="view">
+            <div class="page-title">资料修改</div>
+            <div class="card">
+                <div style="text-align:center; margin-bottom:30px;">
+                    <img id="curAvatar" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--primary); margin-bottom:15px;">
+                    <br>
+                    <input type="file" id="upAvatar" style="display:none" onchange="previewImg()">
+                    <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="document.getElementById('upAvatar').click()">更换头像</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">课时费 (元/小时)</label><input type="number" id="upPrice" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">就读学校</label><input type="text" id="upSchool" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">主修专业</label><input type="text" id="upMajor" class="form-input"></div>
+                    <div class="form-group"><label class="form-label">擅长科目</label><input type="text" id="upSubject" class="form-input"></div>
+                    <div class="form-group full-width"><label class="form-label">教学风格</label><input type="text" id="upStyle" class="form-input"></div>
+                    <div class="form-group full-width"><label class="form-label">个人简介</label><textarea id="upIntro" class="form-input" rows="4"></textarea></div>
+                    <div class="form-group full-width"><label class="form-label">家教经验</label><textarea id="upExperience" class="form-input" rows="3"></textarea></div>
+                    <div class="form-group full-width"><label class="form-label">荣誉奖项</label><textarea id="upHonors" class="form-input" rows="3"></textarea></div>
+                </div>
+                <div style="margin-top:30px; text-align:right;"><button class="btn btn-primary" onclick="saveProfile()" style="padding:12px 40px; font-size:1rem;">保存所有修改</button></div>
+            </div>
+        </div>
+
+        <div id="view-resources" class="view"><div class="page-title">资源题库 <button class="btn btn-primary" onclick="document.getElementById('uploadModal').style.display='flex'">+ 上传新资源</button></div><div id="myResList" class="card"></div></div>
+    </div>
+
+    <div class="overlay" id="withdrawModal"><div class="modal"><h3>💰 申请提现</h3><div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:20px; text-align:center;"><div style="font-size:0.9rem; color:var(--text-gray)">可提现金额</div><div style="font-size:1.8rem; font-weight:bold; color:#FCD34D">¥ <span id="wdBalance">0.00</span></div></div><input type="number" id="wdAmount" class="form-input" placeholder="提现金额 (最低10元)" style="margin-bottom:15px;"><input type="text" id="wdAccount" class="form-input" placeholder="收款账号 (支付宝/微信)" style="margin-bottom:25px;"><div style="display:flex; gap:10px;"><button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="submitWithdraw()">确认申请</button><button class="btn" style="background:#334155; flex:1; justify-content:center;" onclick="document.getElementById('withdrawModal').style.display='none'">取消</button></div></div></div>
+    
+    <div class="overlay" id="uploadModal"><div class="modal"><h3 style="margin-bottom:20px;">📂 上传资料</h3><input type="text" id="resTitle" class="form-input" placeholder="资料标题" style="margin-bottom:15px;"><input type="number" id="resPrice" class="form-input" placeholder="售价 (元，0表示免费)" style="margin-bottom:15px;"><input type="file" id="resFile" class="form-input" style="padding:10px; margin-bottom:25px;"><div style="display:flex; gap:10px;"><button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="submitUpload()">确认发布</button><button class="btn" style="background:#334155; flex:1; justify-content:center;" onclick="document.getElementById('uploadModal').style.display='none'">取消</button></div></div></div>
+
+    <div class="overlay" id="contractModal">
+        <div class="modal" style="width:500px;">
+            <h3>📝 签署服务协议</h3>
+            <p style="color:var(--text-gray); margin-bottom:15px;">请仔细阅读并确认以下条款，签署后订单正式生效。</p>
+            <div class="contract-preview">
+                </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-success" style="flex:1; justify-content:center;" onclick="confirmContract()">✍️ 签署并接单</button>
+                <button class="btn" style="background:#334155; flex:1; justify-content:center;" onclick="document.getElementById('contractModal').style.display='none'">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let teacher = null;
+        let currentChatTarget = null;
+        let chatInterval = null;
+        let currentBookingId = null; 
+        let allBookings = []; // ✨ 新增：用于存储订单数据，方便弹窗调用
+
+        if(!localStorage.getItem('tutorId')) location.href='teacher_login.html'; 
+
+        fetch(`api/teacher_api.php?action=get_info&id=${localStorage.getItem('tutorId')}&_t=${Date.now()}`).then(r=>r.json()).then(d=>{
+            if(d.status==='error'){ alert('登录已过期'); logout(); return; }
+            teacher = d.data;
+            updateGreeting(); loadDashboardData(); loadBookings(); loadResources(); 
+            renderVIP();
+            
+            // 填充个人资料表单
+            document.getElementById('dashIncome').innerText = teacher.balance || '0.00';
+            document.getElementById('wdBalance').innerText = teacher.balance || '0.00';
+            document.getElementById('upPrice').value = teacher.price;
+            document.getElementById('upSchool').value = teacher.school;
+            document.getElementById('upMajor').value = teacher.major;
+            document.getElementById('upSubject').value = teacher.subject || '';
+            document.getElementById('upStyle').value = teacher.teaching_style;
+            document.getElementById('upIntro').value = teacher.intro;
+            document.getElementById('upExperience').value = teacher.experience;
+            document.getElementById('upHonors').value = teacher.honors;
+            let avatar = teacher.avatar || 'default_boy.png';
+            if(!avatar.includes('/')) avatar = 'assets/'+avatar;
+            document.getElementById('curAvatar').src = avatar;
+        });
+
+        function switchView(id, btn) {
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+            document.getElementById('view-'+id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+            btn.classList.add('active');
+            if(id==='chat') loadContacts(); 
+            if(id==='notifs') loadNotifs();
+            if(id==='hall') loadHall(); 
+        }
+
+        // ✨✨✨ 核心修改：预约列表加载 (显示详细信息) ✨✨✨
+        function loadBookings(){
+            fetch(`api/teacher_api.php?action=get_bookings&name=${encodeURIComponent(teacher.name)}&_t=${Date.now()}`).then(r=>r.json()).then(res=>{
+                allBookings = res.data; // 保存数据到全局变量
+                let h='';
+                if(res.data.length===0) h='<p style="text-align:center;color:gray;padding:30px;">暂无预约记录</p>';
+                else res.data.forEach(b=>{
+                    let btns='';
+                    let statusColor = '#10B981';
+                    
+                    // ✨ 1. 区分线上/线下标签
+                    let typeBadge = b.class_type === '线下上门' 
+                        ? `<span class="badge-offline"><i class="fas fa-home"></i> 线下上门</span>` 
+                        : `<span class="badge-online"><i class="fas fa-laptop"></i> 线上上课</span>`;
+
+                    // ✨ 2. 显示备注/地址信息
+                    let reqInfo = b.requirement ? `<div class="req-box"><i class="fas fa-map-marker-alt" style="margin-right:5px;"></i> 备注/地址: ${b.requirement}</div>` : '';
+
+                    // 按钮逻辑
+                    if(b.status==='待确认') btns=`<button class="btn btn-primary" onclick="openContractModal(${b.id})">接单</button><button class="btn btn-danger" onclick="handle(${b.id},'已拒绝')">拒</button>`;
+                    if(b.status==='已支付') {
+                        btns = `
+                            <button class="btn btn-link" style="padding:6px 10px; font-size:0.8rem; border:1px solid var(--border);" onclick="window.open('contract.html?id=${b.id}', '_blank')"><i class="fas fa-file-contract"></i> 协议</button>
+                            <button class="btn" style="background:linear-gradient(90deg, #3B82F6, #2563EB); margin-right:10px;" onclick="enterClassroom(${b.id}, 'teacher', '${encodeURIComponent(teacher.name)}')"><i class="fas fa-video"></i> 教室</button> 
+                            <button class="btn btn-success" onclick="finish(${b.id})">✅ 完课</button>`;
+                    }
+                    if(b.status==='已通过') { btns=`<span style="color:#F59E0B;font-size:0.9rem;">等待学生支付...</span>`; statusColor='#F59E0B'; }
+                    if(b.status==='已完成' || b.status==='待评价') btns=`<button class="btn btn-link" onclick="window.open('contract.html?id=${b.id}', '_blank')">查看协议</button>`;
+                    if(b.status==='已拒绝') statusColor='#EF4444';
+
+                    h+=`
+                    <div class="list-item" style="display:block;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="margin-bottom:5px;">
+                                    <strong>${b.user_phone}</strong> ${typeBadge}
+                                </div>
+                                <span style="font-size:0.85rem;color:#94A3B8">
+                                    <i class="far fa-clock"></i> ${b.lesson_time} · <span style="color:${statusColor}">${b.status}</span>
+                                </span>
+                            </div>
+                            <div style="margin-top:5px;">${btns}</div>
+                        </div>
+                        ${reqInfo}
+                    </div>`;
+                });
+                document.getElementById('bookingList').innerHTML=h;
+            });
+        }
+
+        // ✨✨✨ 核心修改：协议弹窗逻辑 (根据类型显示不同条款) ✨✨✨
+        function openContractModal(id) {
+            currentBookingId = id;
+            // 在全局数据中找到当前订单
+            const order = allBookings.find(b => b.id == id);
+            if(!order) return;
+
+            // document.getElementById('contractTutorName').innerText = teacher.name; // 这个元素在下面的innerHTML里动态生成
+            // document.getElementById('contractDate').innerText = new Date().toLocaleDateString();
+            
+            const previewDiv = document.querySelector('.contract-preview');
+            
+            // 动态生成协议内容，根据订单类型变化
+            if (order.class_type === '线下上门') {
+                previewDiv.innerHTML = `
+                    <h4 style="color:#EF4444; margin-bottom:10px;">🏠 线下上门家教服务协议 (预览)</h4>
+                    <p><strong>1. 服务模式：</strong> 乙方(教员)需前往甲方(学员)指定地点进行面对面教学。</p>
+                    <p><strong>2. 授课地址：</strong> <span style="font-weight:bold; text-decoration:underline;">${order.requirement || '以双方沟通为准'}</span></p>
+                    <p><strong>3. 安全承诺：</strong> 乙方承诺遵守交通规则，注意人身安全；甲方需保障教学场所环境安全、正规。</p>
+                    <p><strong>4. 违约责任：</strong> 任何一方如需取消课程，需提前24小时通知。乙方无故缺席需承担空跑费。</p>
+                    <p><strong>5. 资金托管：</strong> 甲方支付后资金由平台担保，确认完课后结算给乙方。</p>
+                    <br>
+                    <p><strong>教员签名：</strong> <span style="font-family:cursive; border-bottom:1px solid #666;">${teacher.name}</span> (电子签)</p>
+                    <p><strong>签署日期：</strong> ${new Date().toLocaleDateString()}</p>
+                `;
+            } else {
+                // 默认为线上
+                previewDiv.innerHTML = `
+                    <h4 style="color:#3B82F6; margin-bottom:10px;">💻 在线云课堂服务协议 (预览)</h4>
+                    <p><strong>1. 服务模式：</strong> 双方通过“智慧家教桥云教室”或第三方会议软件进行远程教学。</p>
+                    <p><strong>2. 网络保障：</strong> 双方应确保网络环境畅通。因网络故障导致无法上课，应协商补课。</p>
+                    <p><strong>3. 隐私保护：</strong> 未经允许，严禁私自录制课程视频并在网络上传播。</p>
+                    <p><strong>4. 课时费：</strong> 依据订单金额 ¥${order.price}/小时 进行结算。</p>
+                    <p><strong>5. 资金托管：</strong> 甲方支付后资金由平台担保，确认完课后结算给乙方。</p>
+                    <br>
+                    <p><strong>教员签名：</strong> <span style="font-family:cursive; border-bottom:1px solid #666;">${teacher.name}</span> (电子签)</p>
+                    <p><strong>签署日期：</strong> ${new Date().toLocaleDateString()}</p>
+                `;
+            }
+
+            document.getElementById('contractModal').style.display = 'flex';
+        }
+
+        function confirmContract() {
+            if(!currentBookingId) return;
+            handle(currentBookingId, '已通过');
+            document.getElementById('contractModal').style.display = 'none';
+        }
+
+        // ... 以下保持原代码不变 ...
+        function enterClassroom(orderId, role, encodedName) { window.open(`classroom.html?room=${orderId}&role=${role}&name=${encodedName}`, '_blank'); }
+        function openWithdrawModal() { document.getElementById('withdrawModal').style.display = 'flex'; }
+        function submitWithdraw(){ let a = document.getElementById('wdAmount').value; let ac = document.getElementById('wdAccount').value; if(!a || !ac) return alert('请输入提现金额和收款账号'); if(parseFloat(a) > parseFloat(teacher.balance)) return alert('余额不足'); let fd = new FormData(); fd.append('phone', teacher.phone); fd.append('amount', a); fd.append('method', 'alipay'); fd.append('account', ac); fetch('api/withdraw_api.php?action=request_withdrawal', {method:'POST', body:fd}).then(r=>r.json()).then(d=>{ if(d.status==='success'){ alert('申请已提交，请等待管理员审核'); location.reload(); } else alert(d.message); }); }
+        function loadHall(){fetch(`api/demand_api.php?action=get_hall_list&tutor_id=${teacher.id}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;color:gray;padding:30px;">暂无学生需求，请稍后再来</p>';else res.data.forEach(d=>{let btn=d.has_applied>0?`<button class="btn" style="background:#64748B;cursor:default;">已申请</button>`:`<button class="btn btn-primary" onclick="applyDemand(${d.id})">立即抢单</button>`;h+=`<div class="list-item"><div><div style="font-weight:bold;font-size:1.1rem;margin-bottom:5px;">${d.subject} (${d.grade})</div><div style="color:#FCD34D;font-weight:bold;margin-bottom:5px;">预算: ¥${d.budget}/h</div><div style="color:var(--text-gray);font-size:0.9rem;">要求: ${d.requirement}</div></div><div style="text-align:right;">${btn}</div></div>`;});document.getElementById('hallList').innerHTML=h;});}
+        function applyDemand(did){if(!confirm('确认抢单？学生将看到您的简历。'))return;let fd=new FormData();fd.append('tutor_id',teacher.id);fd.append('demand_id',did);fetch('api/demand_api.php?action=apply_demand',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('申请成功！请等待学生录用。');loadHall();}else alert(d.message);});}
+        function loadNotifs(){fetch(`api/user_api.php?action=get_notifications&phone=${teacher.phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;color:gray;padding:20px;">暂无新通知</p>';else res.data.forEach(n=>{h+=`<div class="list-item" style="justify-content:flex-start;gap:15px;"><div style="color:var(--primary);font-size:1.5rem;"><i class="fas fa-bell"></i></div><div><div style="font-size:1rem;margin-bottom:5px;">${n.content}</div><div style="font-size:0.8rem;color:#94A3B8">${n.create_time}</div></div></div>`;});document.getElementById('notifList').innerHTML=h;});}
+        function loadContacts(){fetch(`api/chat_api.php?action=get_contacts&role=teacher&phone=${teacher.phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style="padding:20px;text-align:center;">暂无</div>';else{res.data.forEach(c=>{let avatar=c.avatar||'default_boy.png';if(!avatar.includes('/'))avatar='assets/'+avatar;h+=`<div class="chat-item" onclick="startChat('${c.phone}','${c.name}')"><img src="${avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"><div><div style="font-weight:bold">${c.name}</div><div style="font-size:0.8rem;color:gray">${c.phone}</div></div></div>`;});}document.getElementById('contactList').innerHTML=h;});}
+        function startChat(p,n){currentChatTarget=p;document.getElementById('chatHeader').innerText=`与 ${n} 沟通中`;loadHistory();if(chatInterval)clearInterval(chatInterval);chatInterval=setInterval(loadHistory,3000);}
+        function loadHistory(){if(!currentChatTarget)return;fetch(`api/chat_api.php?action=get_history&me=${teacher.phone}&other=${currentChatTarget}`).then(r=>r.json()).then(res=>{let h='';res.data.forEach(m=>{let isMe=m.sender_phone===teacher.phone;h+=`<div class="msg-bubble ${isMe?'msg-right':'msg-left'}">${m.content}</div>`;});document.getElementById('chatMsgs').innerHTML=h;let div=document.getElementById('chatMsgs');div.scrollTop=div.scrollHeight;});}
+        function sendMsg(){let t=document.getElementById('msgInput').value;if(!t||!currentChatTarget)return;let fd=new FormData();fd.append('sender',teacher.phone);fd.append('receiver',currentChatTarget);fd.append('content',t);fetch('api/chat_api.php?action=send_msg',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){document.getElementById('msgInput').value='';loadHistory();}});}
+        function renderVIP(){const div=document.getElementById('vipSection');if(teacher.is_vip==1){div.innerHTML=`<div class="vip-card-box" style="border-color:#10B981"><div class="vip-info"><h3 style="color:#10B981"><i class="fas fa-crown"></i> 尊贵的金牌教员</h3><p>有效期至：${teacher.vip_expire_time}</p></div><button class="btn" style="background:rgba(255,255,255,0.1)" onclick="buyVIP()">续费 VIP</button></div>`;}else{div.innerHTML=`<div class="vip-card-box"><div class="vip-info"><h3><i class="far fa-gem"></i> 开通金牌教员 (VIP)</h3><p>立享 5% 低服务费率 + 首页流量特权 + 专属标识</p></div><button class="btn btn-gold" onclick="buyVIP()">立即开通 (¥299/月)</button></div>`;}}
+        function updateGreeting(){document.getElementById('welcomeMsg').innerText=`欢迎回来，${teacher.name} 老师`;}
+        function loadDashboardData(){fetch(`api/teacher_api.php?action=get_bookings&name=${encodeURIComponent(teacher.name)}&_t=${Date.now()}`).then(r=>r.json()).then(res=>{let list=res.data;document.getElementById('dashPending').innerText=list.filter(b=>b.status==='待确认').length;document.getElementById('dashClass').innerText=list.filter(b=>b.status==='已支付').length;document.getElementById('dashStudents').innerText=new Set(list.map(b=>b.user_phone)).size;let todoH='';let todos=list.filter(b=>b.status==='已支付');if(todos.length===0)todoH='<p style="color:#666; text-align:center;">暂无紧急待办</p>';else todos.forEach(b=>{todoH+=`<div class="list-item"><div>学员 ${b.user_phone} <br><span style="font-size:0.8rem;color:gray">${b.lesson_time}</span></div><button class="btn btn-success" onclick="finish(${b.id})">✅ 确认完课</button></div>`});document.getElementById('todoList').innerHTML=todoH;});}
+        function submitUpload(){let t=document.getElementById('resTitle').value;let p=document.getElementById('resPrice').value||0;let f=document.getElementById('resFile').files[0];if(!t||!f)return alert('完善信息');let fd=new FormData();fd.append('uploader_phone',teacher.phone);fd.append('title',t);fd.append('price',p);fd.append('file',f);fetch('api/teacher_api.php?action=upload_resource',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('发布成功');document.getElementById('uploadModal').style.display='none';loadResources();}else alert(d.message);});}
+        function handle(id,s){let fd=new FormData();fd.append('id',id);fd.append('status',s);fetch('api/teacher_api.php?action=handle_booking',{method:'POST',body:fd}).then(()=>{loadBookings();loadDashboardData();});}
+        function finish(id){if(!confirm('确认完课？'))return;let fd=new FormData();fd.append('id',id);fetch('api/teacher_api.php?action=finish_class',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('✅ 结算成功');loadBookings();loadDashboardData();location.reload();}else alert(d.message);});}
+        function buyVIP(){if(!confirm('确认花费 ¥299 开通 VIP？'))return;let fd=new FormData();fd.append('id',teacher.id);fd.append('buy_vip',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('🎉 恭喜！');location.reload();}else alert(d.message);});}
+        function saveProfile(){let fd=new FormData();fd.append('id',teacher.id);fd.append('school',document.getElementById('upSchool').value);fd.append('major',document.getElementById('upMajor').value);fd.append('subject',document.getElementById('upSubject').value);fd.append('price',document.getElementById('upPrice').value);fd.append('teaching_style',document.getElementById('upStyle').value);fd.append('intro',document.getElementById('upIntro').value);fd.append('experience',document.getElementById('upExperience').value);fd.append('honors',document.getElementById('upHonors').value);let f=document.getElementById('upAvatar').files[0];if(f)fd.append('avatar',f);fetch('api/teacher_api.php?action=update_info',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success')alert('资料已保存');else alert(d.message);});}
+        function delRes(id){if(confirm('删除？')){let fd=new FormData();fd.append('id',id);fetch('api/teacher_api.php?action=delete_resource',{method:'POST',body:fd}).then(()=>{loadResources();});}}
+        function loadResources(){fetch(`api/teacher_api.php?action=get_my_resources&phone=${teacher.phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;color:gray;padding:20px;">暂无</p>';else res.data.forEach(r=>{let p=parseFloat(r.price)>0?`<span style="color:#FCD34D">¥${r.price}</span>`:`<span style="color:#10B981">免费</span>`;h+=`<div class="list-item"><span>${r.title} ${p}</span><span style="color:#EF4444;cursor:pointer" onclick="delRes(${r.id})"><i class="fas fa-trash"></i></span></div>`;});document.getElementById('myResList').innerHTML=h;});}
+        function previewImg(){let f=document.getElementById('upAvatar').files[0];if(f)document.getElementById('curAvatar').src=URL.createObjectURL(f);}
+        function logout(){localStorage.removeItem('tutorId');location.href='teacher_login.html';}
+    </script>
+</body>
+</html>

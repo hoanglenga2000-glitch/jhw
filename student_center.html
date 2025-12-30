@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生中心 | 智慧家教桥</title>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- ✨ 超级视觉优化版 CSS --- */
+        :root { 
+            --primary: #6366F1; 
+            --primary-dark: #4F46E5;
+            --primary-light: #818CF8;
+            --accent: #A855F7; 
+            --gold: #F59E0B; 
+            --gold-dark: #D97706;
+            --bg-dark: #0B0F19; 
+            --bg-card: rgba(22, 27, 40, 0.7); 
+            --text: #F8FAFC; 
+            --border: rgba(255, 255, 255, 0.08); 
+            --glass: blur(25px);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.35);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.4);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0B0F19 0%, #1E1B4B 50%, #312E81 100%);
+            background-attachment: fixed;
+            color: var(--text); 
+            height: 100vh; 
+            display:flex; 
+            overflow:hidden; 
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+            z-index: -2;
+            animation: gradientShift 20s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .aurora-bg { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; 
+            pointer-events: none; 
+            overflow: hidden;
+        }
+        .blob { 
+            position: absolute; 
+            filter: blur(100px); 
+            opacity: 0.5; 
+            animation: float 15s infinite ease-in-out alternate;
+            border-radius: 50%;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, -50px) scale(1.1); }
+        }
+        .blob-1 { 
+            top: -15%; 
+            left: -10%; 
+            width: 600px; 
+            height: 600px; 
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            animation-delay: 0s;
+        }
+        .blob-2 { 
+            bottom: -10%; 
+            right: -10%; 
+            width: 500px; 
+            height: 500px; 
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            animation-delay: 5s;
+        }
+        .sidebar { 
+            width: 260px; 
+            background: rgba(11, 15, 25, 0.7); 
+            backdrop-filter: blur(25px) saturate(180%);
+            border-right: 1.5px solid var(--border); 
+            padding: 30px 20px; 
+            display:flex; 
+            flex-direction:column; 
+            z-index: 10;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+        }
+        .logo { 
+            font-size: 1.4rem; 
+            font-weight: 900; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            margin-bottom: 50px; 
+            cursor: pointer; 
+            padding-left: 10px;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
+        .nav-item { 
+            padding: 14px 20px; 
+            color: #94A3B8; 
+            cursor: pointer; 
+            border-radius: 16px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-weight: 500;
+            position: relative;
+        }
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            background: linear-gradient(90deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .nav-item.active::before {
+            opacity: 1;
+        }
+        .nav-item.active { 
+            color: white; 
+            border: 1.5px solid rgba(99,102,241,0.4);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        .nav-item:hover {
+            color: white;
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .main-content { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            position: relative;
+        }
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at top right, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .view { 
+            display: none; 
+            position: relative;
+            z-index: 1;
+        }
+        .view.active { 
+            display: block; 
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        @keyframes fadeIn { 
+            from { 
+                opacity: 0; 
+                transform: translateY(15px) scale(0.98); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            } 
+        }
+        .card { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1.5px solid var(--border); 
+            border-radius: 24px; 
+            padding: 35px; 
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .card:hover::before {
+            opacity: 1;
+        }
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* 钱包与积分卡 - 超级增强版 */
+        .wallet-row { 
+            display: grid; 
+            grid-template-columns: 1.5fr 1fr; 
+            gap: 25px; 
+            margin-bottom: 30px; 
+        }
+        .wallet-card { 
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.95), rgba(124, 58, 237, 0.9), rgba(168, 85, 247, 0.85));
+            background-size: 200% 200%;
+            animation: walletGradient 5s ease infinite;
+            border: 1.5px solid rgba(255,255,255,0.2); 
+            color: white; 
+            border-radius: 28px; 
+            padding: 32px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            height: 200px;
+            box-shadow: 
+                0 12px 40px rgba(79, 70, 229, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes walletGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .wallet-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: walletShine 3s linear infinite;
+        }
+        @keyframes walletShine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .points-card { 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.15));
+            border: 1.5px solid rgba(245, 158, 11, 0.4); 
+            color: var(--gold); 
+            border-radius: 28px; 
+            padding: 32px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            height: 200px; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 
+                0 12px 40px rgba(245, 158, 11, 0.25),
+                0 0 0 1px rgba(245, 158, 11, 0.2) inset;
+        }
+        .points-card::after { 
+            content: '\f005'; 
+            font-family: 'Font Awesome 6 Free'; 
+            font-weight: 900; 
+            position: absolute; 
+            right: -30px; 
+            bottom: -30px; 
+            font-size: 12rem; 
+            opacity: 0.08; 
+            color: var(--gold); 
+            pointer-events: none;
+            animation: starRotate 20s linear infinite;
+        }
+        @keyframes starRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .balance-num { 
+            font-size: 2.8rem; 
+            font-weight: 900; 
+            margin-top: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.02em;
+        }
+        
+        /* 商城网格 - 增强版 */
+        .mall-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 24px; 
+        }
+        .mall-item { 
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--border); 
+            border-radius: 20px; 
+            padding: 24px; 
+            text-align: center; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .mall-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .mall-item:hover::before {
+            opacity: 1;
+        }
+        .mall-item:hover { 
+            transform: translateY(-8px) scale(1.03);
+            border-color: var(--gold);
+            box-shadow: 
+                0 12px 32px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(245, 158, 11, 0.3),
+                0 0 30px rgba(245, 158, 11, 0.2);
+        }
+        .coin-icon { 
+            width: 60px; 
+            height: 60px; 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.15));
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 auto 18px; 
+            color: var(--gold); 
+            font-size: 1.8rem;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            transition: transform 0.4s ease;
+        }
+        .mall-item:hover .coin-icon {
+            transform: scale(1.15) rotate(10deg);
+        }
+
+        .list-item { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--border); 
+            padding: 22px; 
+            border-radius: 18px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .list-item:hover { 
+            transform: translateX(8px) translateY(-2px); 
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .btn { 
+            padding: 10px 24px; 
+            border-radius: 50px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: white; 
+            font-size: 0.9rem; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn:hover { 
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn:active { transform: translateY(-1px) scale(0.98); }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light), var(--accent));
+            background-size: 200% 200%;
+            animation: btnGradient 3s ease infinite;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        @keyframes btnGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .btn-primary:hover {
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+        }
+        .btn-glass { 
+            background: rgba(255,255,255,0.12); 
+            border: 1.5px solid rgba(255,255,255,0.25); 
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .btn-glass:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .btn-danger { 
+            background: rgba(239, 68, 68, 0.25); 
+            color: #EF4444; 
+            border: 1.5px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.35);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+        .btn-gold { 
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white; 
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .btn-gold:hover {
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.5);
+        }
+        .btn-success { 
+            background: rgba(16, 185, 129, 0.25); 
+            color: #10B981; 
+            border: 1.5px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        .btn-success:hover {
+            background: rgba(16, 185, 129, 0.35);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+        .btn-link { 
+            background: transparent; 
+            color: var(--text); 
+            border: 1.5px solid var(--border);
+        }
+        .btn-link:hover {
+            border-color: var(--primary);
+            color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 50px; width: fit-content; border: 1px solid var(--border); }
+        .tab-btn { background: transparent; border: none; color: #94A3B8; padding: 8px 24px; cursor: pointer; border-radius: 40px; }
+        .tab-btn.active { background: rgba(255,255,255,0.1); color: white; }
+        
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            top:0; 
+            left:0; 
+            width:100%; 
+            height:100%; 
+            background:rgba(0,0,0,0.88); 
+            backdrop-filter:blur(20px) saturate(180%);
+            z-index:2000; 
+            justify-content:center; 
+            align-items:center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal { 
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(30px) saturate(180%);
+            padding: 48px; 
+            border-radius: 28px; 
+            width: 470px; 
+            text-align: center; 
+            border: 1.5px solid var(--border);
+            max-height: 90vh; 
+            overflow-y: auto;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 60px rgba(99, 102, 241, 0.2);
+            animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .form-input { 
+            width: 100%; 
+            padding: 16px 20px; 
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--border); 
+            color: white; 
+            border-radius: 14px; 
+            margin: 12px 0; 
+            outline:none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            background: rgba(11, 15, 25, 0.95);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .fc { color: var(--text); } .fc-button-primary { background-color: var(--primary) !important; border: none !important; }
+        .fav-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+            gap: 24px; 
+        }
+        .fav-card { 
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--border); 
+            border-radius: 20px; 
+            padding: 24px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .fav-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .fav-card:hover::before {
+            opacity: 1;
+        }
+        .fav-card:hover { 
+            transform: translateY(-8px) scale(1.03);
+            border-color: var(--primary);
+            box-shadow: 
+                0 12px 32px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(99, 102, 241, 0.3),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+        .fav-avatar { 
+            width: 70px; 
+            height: 70px; 
+            border-radius: 50%; 
+            margin-bottom: 12px; 
+            object-fit: cover;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.4s ease;
+        }
+        .fav-card:hover .fav-avatar {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        /* 聊天样式 - 增强版 */
+        .chat-layout { 
+            height: 600px; 
+            display: flex; 
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 24px; 
+            overflow: hidden; 
+            border: 1.5px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .chat-side { 
+            width: 260px; 
+            border-right: 1.5px solid var(--border); 
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+            overflow-y: auto; 
+        }
+        .chat-item { 
+            padding: 16px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+        .chat-item:hover, .chat-item.active { 
+            background: linear-gradient(90deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1));
+            border-left: 3px solid var(--primary);
+            padding-left: 13px;
+        }
+        .chat-main { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            background: rgba(0,0,0,0.15);
+        }
+        .chat-header { 
+            padding: 18px 24px; 
+            border-bottom: 1.5px solid var(--border); 
+            font-weight: 700; 
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+            font-size: 1.1rem;
+        }
+        .chat-msgs { 
+            flex: 1; 
+            padding: 24px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 18px; 
+        }
+        .msg-bubble { 
+            max-width: 70%; 
+            padding: 12px 18px; 
+            border-radius: 18px; 
+            line-height: 1.6; 
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            animation: msgPopIn 0.3s ease;
+        }
+        @keyframes msgPopIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .msg-left { 
+            align-self: flex-start; 
+            background: linear-gradient(135deg, #334155, #475569);
+            color: white; 
+            border-bottom-left-radius: 4px;
+        }
+        .msg-right { 
+            align-self: flex-end; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white; 
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .chat-input-area { 
+            padding: 20px 24px; 
+            border-top: 1.5px solid var(--border); 
+            display: flex; 
+            gap: 12px; 
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 签到动画与支付按钮脉冲 */
+        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+        .btn-signin { animation: pulse-gold 2s infinite; }
+        .btn-signin.disabled { animation: none; filter: grayscale(1); cursor: default; }
+
+        /* 协议与收银台样式 */
+        .contract-paper {
+            background: #fff;
+            color: #333;
+            padding: 30px;
+            text-align: left;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border: 1px solid #ddd;
+        }
+        .contract-title { text-align: center; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .contract-section { margin-bottom: 15px; }
+        .contract-bold { font-weight: bold; }
+
+        /* 收银台布局 */
+        .checkout-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; height: 100%; }
+        .checkout-left, .checkout-right { display: flex; flex-direction: column; }
+        .checkout-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; height: 100%; overflow-y: auto; backdrop-filter: blur(10px); }
+        .checkout-info-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .price-large { font-size: 2.5rem; color: var(--gold); font-weight: 800; margin: 20px 0; text-align: right; }
+        
+        /* 支付成功动画 */
+        .success-checkmark { width: 80px; height: 80px; background: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .success-checkmark i { font-size: 40px; color: white; }
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* 全局 Loading 样式 */
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); }
+        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- ✨ 新增：电子签名与印章样式 --- */
+        .signature-box {
+            margin-top: 20px; padding: 20px;
+            border: 2px dashed #ccc; border-radius: 12px;
+            text-align: center; background: rgba(255, 255, 255, 0.02);
+            transition: 0.3s;
+        }
+        .signature-box.signed {
+            border-color: #10B981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+        /* 模拟手写签名 */
+        .hand-signature {
+            font-family: 'Brush Script MT', cursive; /* 优先使用手写体 */
+            font-size: 2rem; color: #333;
+            transform: rotate(-5deg); display: inline-block;
+            padding: 10px 20px; border-bottom: 2px solid #333;
+        }
+        /* 印章 */
+        .stamp-seal {
+            width: 120px; height: 120px;
+            border: 3px solid #EF4444; border-radius: 50%;
+            color: #EF4444; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            transform: rotate(-20deg) scale(0); /* 初始隐藏 */
+            opacity: 0;
+            position: absolute; bottom: 20px; right: 30px;
+            box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.3);
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+        .stamp-seal.show { transform: rotate(-20deg) scale(1); opacity: 0.8; }
+        .stamp-inner {
+            border: 1px solid #EF4444; width: 100px; height: 100px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            text-align: center; flex-direction: column;
+        }
+        .stamp-static {
+             position: absolute; bottom: 80px; right: 50px;
+            width: 100px; height: 100px;
+            border: 3px solid #EF4444; border-radius: 50%;
+            color: #EF4444; font-weight: 900; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 1.2rem; transform: rotate(-20deg);
+            opacity: 0.8; pointer-events: none;
+            text-transform: uppercase;
+            box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="aurora-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+    <div class="loading-overlay" id="globalLoading">
+        <div class="spinner"></div>
+        <div style="color: white; font-weight: bold;">处理中，请稍候...</div>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo" onclick="location.href='index.html'"><i class="fas fa-graduation-cap"></i> 学生中心</div>
+        <div class="nav-item active" onclick="switchView('home', this)"><i class="fas fa-th-large"></i> 概览 & 钱包</div>
+        <div class="nav-item" onclick="switchView('courses', this)" id="nav-courses"><i class="fas fa-book-open"></i> 我的课程</div>
+        <div class="nav-item" onclick="switchView('resources', this)"><i class="fas fa-folder-open"></i> 我的资料</div>
+        <div class="nav-item" onclick="switchView('demands', this)"><i class="fas fa-bullhorn"></i> 我的需求</div>
+        <div class="nav-item" onclick="switchView('calendar', this)"><i class="fas fa-calendar-alt"></i> 课程日历</div>
+        <div class="nav-item" onclick="switchView('favorites', this)"><i class="fas fa-heart"></i> 我的收藏</div>
+        <div class="nav-item" onclick="switchView('notifs', this)"><i class="fas fa-bell"></i> 消息通知 <span id="navDot" style="width:8px;height:8px;background:red;border-radius:50%;display:none;margin-left:auto"></span></div>
+        <div class="nav-item" onclick="switchView('messages', this)"><i class="fas fa-comment-dots"></i> 我的私信</div>
+        <div class="nav-item" onclick="switchView('profile', this)"><i class="fas fa-user-cog"></i> 个人资料</div>
+        <div class="nav-item" onclick="location.href='index.html'" style="margin-top:auto; color:#EF4444">返回首页</div>
+    </div>
+
+    <div class="main-content">
+        <div id="view-home" class="view active">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                <h2 style="margin:0;">👋 欢迎回来，<span id="uNameDisplay">同学</span></h2>
+                <button class="btn btn-gold btn-signin" id="signinBtn" onclick="doSignin()"><i class="fas fa-calendar-check"></i> 每日签到</button>
+            </div>
+            
+            <div class="wallet-row">
+                <div class="wallet-card">
+                    <div><div style="font-size:0.9rem; opacity:0.8;">钱包余额 (CNY)</div><div class="balance-num">¥ <span id="uBalance">0.00</span></div></div>
+                    <button class="btn btn-glass" onclick="recharge()">立即充值</button>
+                </div>
+                <div class="points-card">
+                    <div><div style="font-size:0.9rem; opacity:0.8;">会员积分 (Points)</div><div class="balance-num" style="font-size:2.5rem"><span id="uPoints">0</span></div></div>
+                    <div style="font-size:0.85rem; opacity:0.8;">积少成多，兑换好礼</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom:20px; color:var(--gold)"><i class="fas fa-gift"></i> 积分商城 <span style="font-size:0.8rem; color:gray; font-weight:normal; margin-left:10px;">兑换后自动放入券包</span></h3>
+                <div class="mall-grid" id="mallList">加载中...</div>
+            </div>
+
+            <div class="card" style="margin-top:30px;"><h3 style="margin-bottom:20px; color:#94A3B8"><i class="fas fa-ticket-alt"></i> 我的优惠券</h3><div id="couponList" style="display:flex; gap:15px; flex-wrap:wrap;">正在加载...</div></div>
+            <div class="card" style="margin-top:30px;"><h3 style="margin-bottom:20px; color:#94A3B8">💸 账单明细</h3><div id="billList"></div></div>
+        </div>
+
+        <div id="view-courses" class="view">
+            <h2 style="margin-bottom:30px;">我的课程</h2>
+            <div class="card">
+                <div class="tab-bar"><button class="tab-btn active" onclick="filterCourses('all', this)" id="tab-all">全部</button><button class="tab-btn" onclick="filterCourses('pay', this)" id="tab-pay">待支付</button><button class="tab-btn" onclick="filterCourses('wait', this)" id="tab-wait">待上课</button><button class="tab-btn" onclick="filterCourses('review', this)">待评价</button></div>
+                <div id="courseList"></div>
+            </div>
+        </div>
+
+        <div id="view-resources" class="view"><h2 style="margin-bottom:30px;">📂 我的资料库</h2><div class="card"><p style="color:#94A3B8; margin-bottom:20px;">这里存放您在商城购买的所有学习资料，支持永久重复下载。</p><div id="myResList">加载中...</div></div></div>
+
+        <div id="view-demands" class="view"><h2 style="margin-bottom:30px;">📣 我的需求 <button class="btn btn-primary" style="float:right" onclick="document.getElementById('demandModal').style.display='flex'">+ 发布新需求</button></h2><div class="card"><div id="demandList">加载中...</div></div></div>
+
+        <div id="view-calendar" class="view"><h2 style="margin-bottom:30px;">📅 课程日历</h2><div class="card" style="background:#161B28;"><div id='calendar'></div></div></div>
+        
+        <div id="view-favorites" class="view"><h2 style="margin-bottom:30px;">❤️ 我收藏的老师</h2><div class="card"><div class="fav-grid" id="favList"></div></div></div>
+
+        <div id="view-notifs" class="view"><h2 style="margin-bottom:30px;">🔔 系统通知</h2><div class="card" id="notifList">暂无通知</div></div>
+
+        <div id="view-messages" class="view"><h2 style="margin-bottom:30px;">💬 师生私信</h2><div class="chat-layout"><div class="chat-side" id="contactList"><div style="padding:20px; color:gray; text-align:center;">加载中...</div></div><div class="chat-main"><div class="chat-header" id="chatHeader">请选择老师开始聊天</div><div class="chat-msgs" id="chatMsgs"></div><div class="chat-input-area"><input id="msgInput" class="form-input" style="margin:0; border-radius:30px;" placeholder="输入消息..."><button class="btn btn-primary" style="border-radius:30px; width:50px; justify-content:center;" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button></div></div></div></div>
+
+        <div id="view-profile" class="view"><div class="card" style="max-width:600px;"><h3>资料设置</h3><br><input type="text" id="upName" class="form-input" placeholder="昵称"><button class="btn btn-primary" onclick="saveProfile()" style="width:100%">保存</button></div></div>
+
+        <div id="view-checkout" class="view">
+            <h2 style="margin-bottom:30px;"><i class="fas fa-cash-register"></i> 收银台</h2>
+            <div class="checkout-layout">
+                <div class="checkout-left">
+                    <div class="checkout-box" style="position:relative;">
+                        <h3 style="margin-bottom:20px; color:var(--primary);">1. 签署服务协议</h3>
+                        
+                        <div class="contract-paper" id="checkoutContractContent" style="height: 350px;">
+                        </div>
+
+                        <div id="signActionArea" class="signature-box">
+                            <p style="color:#94A3B8; margin-bottom:15px; font-size:0.9rem;">
+                                请阅读上方协议，确认无误后点击下方按钮进行电子签署
+                            </p>
+                            <button id="btn-do-sign" class="btn btn-primary" onclick="signContract()">
+                                <i class="fas fa-file-signature"></i> 点击签署 / Sign
+                            </button>
+                            </div>
+
+                        <div id="signedDisplayArea" class="signature-box signed" style="display:none;">
+                            <p style="color:#10B981; margin-bottom:10px;">
+                                <i class="fas fa-check-circle"></i> 协议已签署
+                            </p>
+                            <div class="hand-signature" id="myHandSignature">User Name</div>
+                            <div style="font-size:0.8rem; color:gray; margin-top:5px;">
+                                签署时间：<span id="signedTime"></span>
+                            </div>
+                        </div>
+
+                        <div id="contractStamp" class="stamp-seal">
+                            <div class="stamp-inner">智慧家教<br>协议专用章</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkout-right">
+                    <div class="checkout-box">
+                        <h3 style="margin-bottom:20px; color:var(--accent);">2. 确认订单 & 支付</h3>
+                        <div style="margin-bottom:30px;">
+                            <div class="checkout-info-row"><span>授课老师</span><span id="coTutor" style="font-weight:bold"></span></div>
+                            <div class="checkout-info-row"><span>授课方式</span><span id="coClassType" style="font-weight:bold; color:var(--primary)"></span></div>
+                            <div class="checkout-info-row"><span>上课时间</span><span id="coTime"></span></div>
+                            <div class="checkout-info-row"><span>订单原价</span><span id="coOriginal"></span></div>
+                        </div>
+                        
+                        <div style="margin-bottom:30px;">
+                            <label style="display:block; margin-bottom:10px; color:#94A3B8;">使用优惠券</label>
+                            <select id="coCouponSelect" class="form-input" onchange="calcCheckoutPrice()"></select>
+                        </div>
+
+                        <div style="margin-top:auto;">
+                            <div style="text-align:right; color:#94A3B8;">实付金额</div>
+                            <div class="price-large">¥ <span id="coFinal">0.00</span></div>
+                            
+                            <button id="btn-final-pay" class="btn btn-primary" 
+                                    style="width:100%; padding:15px; font-size:1.1rem; opacity:0.5; cursor:not-allowed; filter: grayscale(1);" 
+                                    disabled 
+                                    onclick="confirmCheckout()">
+                                🔒 请先在左侧签署协议
+                            </button>
+                            <button class="btn btn-link" style="width:100%; margin-top:10px;" onclick="switchView('courses')">取消支付</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="demandModal"><div class="modal"><h3>📝 发布家教需求</h3><input type="text" id="dmSubject" class="form-input" placeholder="科目"><input type="text" id="dmGrade" class="form-input" placeholder="年级"><input type="number" id="dmBudget" class="form-input" placeholder="预算"><textarea id="dmReq" class="form-input" rows="3" placeholder="详细要求"></textarea><button class="btn btn-primary" style="width:100%" onclick="postDemand()">立即发布</button><button class="btn" style="background:transparent; color:gray; margin-top:10px" onclick="document.getElementById('demandModal').style.display='none'">取消</button></div></div>
+    <div class="overlay" id="applyModal"><div class="modal" style="width:600px;"><h3 style="margin-bottom:20px;">🙋‍♂️ 应聘老师列表</h3><div id="applyList" style="max-height:400px; overflow-y:auto; text-align:left;"></div><button class="btn" style="background:transparent; color:gray; margin-top:15px" onclick="document.getElementById('applyModal').style.display='none'">关闭</button></div></div>
+    <div class="overlay" id="reviewModal"><div class="modal"><h3>🌟 课程评价</h3><select id="ratingSelect" class="form-input" style="text-align:center;"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option></select><input type="text" id="reviewContent" class="form-input" placeholder="写点评价吧..."><button class="btn btn-primary" style="width:100%" onclick="submitReview()">提交</button><button class="btn" style="background:transparent; color:gray; margin-top:10px" onclick="document.getElementById('reviewModal').style.display='none'">取消</button></div></div>
+    <div class="overlay" id="msgDetailModal"><div class="modal" style="width:500px; text-align:left;"><h3 id="msgDetailTitle" style="margin-bottom:20px; color:var(--accent);">消息详情</h3><div id="msgDetailContent" style="line-height:1.8; color:var(--text-gray); white-space: pre-wrap; max-height:400px; overflow-y:auto;"></div><div style="text-align:center; margin-top:30px;"><button class="btn btn-primary" onclick="document.getElementById('msgDetailModal').style.display='none'">关闭</button></div></div></div>
+
+    <div class="overlay" id="contractViewModal">
+        <div class="modal" style="width: 700px; position:relative;">
+            <h3 style="margin-bottom:20px; color:white;">📃 已签署协议</h3>
+            <div class="contract-paper" id="viewContractContent"></div>
+            <div class="stamp-static">已签署</div>
+            <button class="btn" style="background:transparent; color:gray; margin-top:10px" onclick="document.getElementById('contractViewModal').style.display='none'">关闭窗口</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="paySuccessModal">
+        <div class="modal" style="text-align:center; width: 400px;">
+            <div class="success-checkmark"><i class="fas fa-check"></i></div>
+            <h2 style="margin-bottom:10px; color:white;">支付成功！</h2>
+            <p style="color:#94A3B8; margin-bottom:25px;">¥ <span id="successAmount">0.00</span> 已支付，协议已自动归档</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="flex:1; background:rgba(255,255,255,0.1); border:1px solid var(--border);" onclick="location.href='index.html'">返回首页</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="goToWaitClass()">查看课程</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="refundModal">
+        <div class="modal">
+            <h3>💸 申请退款</h3>
+            <div style="text-align:left; margin-top:15px; margin-bottom:5px; color:#94A3B8; font-size:0.9rem;">退款原因</div>
+            <select id="refundReason" class="form-input">
+                <option value="老师未按时上课">老师未按时上课</option>
+                <option value="教学质量不满意">教学质量不满意</option>
+                <option value="时间冲突/协商一致">时间冲突/协商一致</option>
+                <option value="其他原因">其他原因</option>
+            </select>
+            <div style="text-align:left; margin-top:10px; margin-bottom:5px; color:#94A3B8; font-size:0.9rem;">详细说明</div>
+            <textarea id="refundDesc" class="form-input" rows="3" placeholder="请详细描述具体情况，以便快速审核..."></textarea>
+            <button class="btn btn-primary" style="width:100%" onclick="doRefundSubmit()">提交申请</button>
+            <button class="btn" style="background:transparent; color:gray; margin-top:10px" onclick="document.getElementById('refundModal').style.display='none'">取消</button>
+        </div>
+    </div>
+
+    <script>
+        const phone = localStorage.getItem('userPhone');
+        let allBookings = [], myCoupons = [], calendar = null;
+        let currentReviewId = 0, currentRefundId = 0;
+        let checkoutData = {}; 
+        let currentChatTarget = null;
+        let chatInterval = null;
+        
+        // ✨ 新增：协议签署状态变量
+        let isCurrentContractSigned = false; 
+
+        if(!phone) location.href='index.html';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInfo(); loadCourses(); loadBills(); loadCoupons(); checkNotifs(); initCalendar();
+            loadPointsData();
+            const params = new URLSearchParams(window.location.search);
+            if(params.get('view') === 'courses') switchView('courses', document.getElementById('nav-courses'));
+        });
+
+        function switchView(id, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-'+id).classList.add('active');
+            if(btn) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); btn.classList.add('active'); }
+            if(id === 'calendar' && calendar) setTimeout(() => { calendar.render(); }, 100);
+            if(id === 'favorites') loadFavorites();
+            if(id === 'messages') loadContacts(); 
+            if(id === 'notifs') loadNotifs();
+            if(id === 'resources') loadMyResources();
+            if(id === 'demands') loadDemands();
+        }
+
+        // --- 全局 Loading 控制 ---
+        function showLoading() { document.getElementById('globalLoading').style.display = 'flex'; }
+        function hideLoading() { document.getElementById('globalLoading').style.display = 'none'; }
+
+        // --- 核心逻辑修改：课程渲染与收银台入口 ---
+        function filterCourses(type, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            
+            let list = allBookings;
+            if (type === 'pay') list = allBookings.filter(b => b.status === '已通过');
+            if (type === 'wait') list = allBookings.filter(b => b.status === '已支付' || b.status === '退款中');
+            if (type === 'review') list = allBookings.filter(b => b.status === '待评价');
+            
+            let h = '';
+            if (list.length === 0) h = '<div style="text-align:center;padding:50px;color:#64748B"><i class="fas fa-box-open" style="font-size:3rem;margin-bottom:15px;opacity:0.5"></i><br>暂无相关订单</div>';
+            else {
+                list.forEach(b => {
+                    let btnHtml = '';
+                    let badge = `<span class="badge" style="background:#334155;color:gray">${b.status}</span>`;
+                    let myName = document.getElementById('uNameDisplay').innerText;
+                    
+                    // 获取订单类型，若无则默认为线上
+                    let cType = b.class_type || '线上教学';
+                    
+                    // ✨ 传递 cType 到生成协议的函数
+                    let viewContractBtn = `<button class="btn btn-link" style="padding:6px 10px; font-size:0.8rem; border:1px solid var(--border); margin-right:5px;" onclick="viewSignedContract(${b.id}, '${b.tutor_name}', '${b.lesson_time}', '${b.price}', '${cType}')"><i class="fas fa-file-contract"></i> 查看协议</button>`;
+
+                    if (b.status === '已通过') {
+                        badge = '<span class="badge" style="background:rgba(245,158,11,0.2);color:#F59E0B">待支付</span>';
+                        // ✨ 传递 cType 到收银台
+                        btnHtml = `<button class="btn btn-primary" onclick="goToCheckout(${b.id}, ${b.price}, '${b.tutor_name}', '${b.lesson_time}', '${cType}')">去支付 ¥${b.price}</button>`;
+                    }
+                    if (b.status === '已支付') {
+                        badge = '<span class="badge" style="background:rgba(16,185,129,0.2);color:#10B981">待上课</span>';
+                        btnHtml = `
+                            <div style="display:flex; gap:10px; justify-content:flex-end; align-items:center;">
+                                ${viewContractBtn}
+                                <button class="btn" style="background:linear-gradient(90deg, #3B82F6, #2563EB);" onclick="enterClassroom(${b.id}, 'student', '${encodeURIComponent(myName)}')"><i class="fas fa-video"></i> 教室</button>
+                                <button class="btn btn-danger" style="font-size:0.8rem;padding:6px 10px;" onclick="applyRefundModal(${b.id})">退款</button>
+                            </div>`;
+                    }
+                    if (b.status === '退款中') {
+                        badge = '<span class="badge" style="background:rgba(239,68,68,0.2);color:#EF4444">退款审核中</span>';
+                        btnHtml = '<span style="color:gray;font-size:0.8rem">请耐心等待</span>';
+                    }
+                    if (b.status === '待评价') {
+                        badge = '<span class="badge" style="background:rgba(168,85,247,0.2);color:#A855F7">待评价</span>';
+                        btnHtml = `
+                            ${viewContractBtn}
+                            <button class="btn btn-primary" onclick="openReview(${b.id})">去评价</button>`;
+                    }
+                    if (b.status === '已完成') {
+                         btnHtml = `${viewContractBtn} <span style="color:gray;font-size:0.8rem;margin-left:10px;">已结课</span>`;
+                    }
+                    
+                    // 显示上课方式标签
+                    let typeLabel = cType === '线下上门' 
+                        ? `<span style="font-size:0.8rem; color:#EF4444; border:1px solid #EF4444; padding:0 4px; border-radius:4px; margin-left:5px;">线下</span>`
+                        : `<span style="font-size:0.8rem; color:#3B82F6; border:1px solid #3B82F6; padding:0 4px; border-radius:4px; margin-left:5px;">线上</span>`;
+
+                    h += `<div class="list-item">
+                            <div>
+                                <div style="font-weight:bold;font-size:1.1rem;margin-bottom:5px;">${b.tutor_name} 老师 ${typeLabel}</div>
+                                <div style="color:#94A3B8;font-size:0.9rem"><i class="far fa-clock"></i> ${b.lesson_time}</div>
+                            </div>
+                            <div style="text-align:right">
+                                <div style="margin-bottom:8px">${badge}</div>
+                                ${btnHtml}
+                            </div>
+                          </div>`;
+                });
+            }
+            document.getElementById('courseList').innerHTML = h;
+        }
+
+        function enterClassroom(orderId, role, encodedName) {
+            window.open(`classroom.html?room=${orderId}&role=${role}&name=${encodedName}`, '_blank');
+        }
+
+        function applyRefundModal(id) {
+            currentRefundId = id;
+            document.getElementById('refundReason').value = "老师未按时上课";
+            document.getElementById('refundDesc').value = "";
+            document.getElementById('refundModal').style.display = 'flex';
+        }
+
+        function doRefundSubmit() {
+            let reason = document.getElementById('refundReason').value;
+            let desc = document.getElementById('refundDesc').value;
+            if(!desc) { alert('请填写详细说明'); return; }
+            
+            showLoading();
+            let fd = new FormData();
+            fd.append('id', currentRefundId);
+            fd.append('phone', phone);
+            fd.append('reason', reason + ": " + desc);
+            
+            fetch('api/user_api.php?action=apply_refund', {method:'POST', body:fd})
+            .then(r=>r.json())
+            .then(d => {
+                hideLoading();
+                if(d.status === 'success') {
+                    document.getElementById('refundModal').style.display = 'none';
+                    alert('✅ 申请提交成功，请等待平台审核');
+                    loadCourses();
+                } else {
+                    alert('提交失败: ' + d.message);
+                }
+            });
+        }
+
+        // --- ✨ 收银台逻辑升级版 (动态生成协议) ---
+        function generateContractHtml(id, tutorName, time, price, classType) {
+            let studentName = document.getElementById('uNameDisplay').innerText;
+            let today = new Date().toLocaleDateString();
+            
+            // 根据 classType 动态变化条款
+            let isOffline = (classType === '线下上门');
+            let typeText = isOffline ? "线下上门 (面对面授课)" : "在线视频教学";
+            
+            // 差异化条款
+            let specificTerms = "";
+            if(isOffline) {
+                specificTerms = `
+                    1. 乙方(教员)应按时到达约定地点授课，往返途中注意交通安全。<br>
+                    2. 甲方(学员)应提供安全、安静、正规的教学场所。<br>
+                    3. 如需取消课程，双方需提前24小时协商，否则需承担相应的空跑费或违约金。<br>
+                    4. 丙方平台仅提供信息撮合与资金托管，不承担线下不可抗力风险。
+                `;
+            } else {
+                specificTerms = `
+                    1. 双方应确保网络环境畅通，提前调试好设备。<br>
+                    2. 授课过程中，未经对方允许，不得私自录制、传播课程视频。<br>
+                    3. 如因网络故障导致无法上课，双方应友好协商补课时间。
+                `;
+            }
+
+            return `
+                <div class="contract-title">智慧家教桥课程服务协议 (${isOffline ? '线下版' : '线上版'})</div>
+                <div class="contract-section">
+                    <span class="contract-bold">协议编号：</span> AGR-${new Date().getFullYear()}-${id.toString().padStart(6,'0')}<br>
+                    <span class="contract-bold">日期：</span> ${today}
+                </div>
+                <div class="contract-section">
+                    <span class="contract-bold">甲方（学生）：</span> ${studentName}<br>
+                    <span class="contract-bold">乙方（教员）：</span> ${tutorName}<br>
+                    <span class="contract-bold">丙方（平台）：</span> 智慧家教桥平台
+                </div>
+                <div class="contract-section">
+                    <p>鉴于甲方希望通过丙方平台获取乙方的家教服务，三方经友好协商，达成如下协议：</p>
+                </div>
+                <div class="contract-section">
+                    <span class="contract-bold">第一条 服务内容</span><br>
+                    1. 乙方将按照以下约定提供家教服务：<br>
+                    &nbsp;&nbsp;&nbsp; - 授课时间：${time}<br>
+                    &nbsp;&nbsp;&nbsp; - 授课方式：<span style="font-weight:bold; color:${isOffline?'#d93025':'#6366F1'}">${typeText}</span><br>
+                    &nbsp;&nbsp;&nbsp; - 服务费用：人民币 ${price} 元
+                </div>
+                <div class="contract-section">
+                    <span class="contract-bold">第二条 权利义务与特别约定</span><br>
+                    ${specificTerms}
+                </div>
+                <div class="contract-section">
+                    <span class="contract-bold">第三条 资金结算</span><br>
+                    1. 甲方支付后资金由平台托管。课程结束且无异议后，资金结算给乙方。
+                </div>
+                <div style="margin-top:30px; border-top:1px dashed #ccc; padding-top:10px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <div>甲方签字：<u>${studentName}</u></div>
+                        <div>乙方签字：<u>${tutorName}</u></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goToCheckout(id, price, tutorName, lessonTime, classType) {
+            checkoutData = { id, price, tutorName, lessonTime, classType };
+            
+            // 填充右侧数据
+            document.getElementById('coTutor').innerText = tutorName;
+            document.getElementById('coTime').innerText = lessonTime;
+            document.getElementById('coOriginal').innerText = '¥ ' + parseFloat(price).toFixed(2);
+            document.getElementById('coClassType').innerText = classType || '线上教学';
+            
+            // 生成左侧协议HTML
+            document.getElementById('checkoutContractContent').innerHTML = generateContractHtml(id, tutorName, lessonTime, price, classType);
+            
+            // --- 核心修改：重置签署状态 ---
+            isCurrentContractSigned = false;
+            
+            // 1. 显示签署按钮，隐藏已签署状态
+            document.getElementById('signActionArea').style.display = 'block';
+            document.getElementById('signedDisplayArea').style.display = 'none';
+            
+            // 2. 隐藏印章
+            document.getElementById('contractStamp').classList.remove('show');
+            
+            // 3. 锁定支付按钮
+            const payBtn = document.getElementById('btn-final-pay');
+            payBtn.disabled = true;
+            payBtn.style.opacity = '0.5';
+            payBtn.style.cursor = 'not-allowed';
+            payBtn.style.filter = 'grayscale(1)';
+            payBtn.innerText = '🔒 请先在左侧签署协议';
+
+            // 加载优惠券
+            const sel = document.getElementById('coCouponSelect');
+            sel.innerHTML = '<option value="">不使用优惠券</option>';
+            myCoupons.forEach(c => {
+                if(price >= parseFloat(c.min_spend)) {
+                    let opt = document.createElement('option');
+                    opt.value = c.cid;
+                    opt.text = `${c.name} (省¥${c.discount})`;
+                    opt.dataset.discount = c.discount;
+                    sel.add(opt);
+                }
+            });
+            calcCheckoutPrice();
+            
+            switchView('checkout');
+        }
+
+        // --- 新增：签署协议动画与逻辑 ---
+        function signContract() {
+            // 获取当前用户名，用于生成手写签名
+            const myName = document.getElementById('uNameDisplay').innerText || "学生";
+            
+            // 1. 隐藏签署按钮，显示签名结果
+            document.getElementById('signActionArea').style.display = 'none';
+            document.getElementById('signedDisplayArea').style.display = 'block';
+            
+            // 2. 填充签名信息
+            document.getElementById('myHandSignature').innerText = myName;
+            document.getElementById('signedTime').innerText = new Date().toLocaleString();
+            
+            // 3. 盖章动画
+            setTimeout(() => {
+                document.getElementById('contractStamp').classList.add('show');
+            }, 100);
+
+            // 4. 解锁支付按钮
+            isCurrentContractSigned = true;
+            updatePayButtonState(); // 更新按钮文字和状态
+        }
+
+        function updatePayButtonState() {
+            const payBtn = document.getElementById('btn-final-pay');
+            const finalPrice = document.getElementById('coFinal').innerText;
+            
+            if (isCurrentContractSigned) {
+                payBtn.disabled = false;
+                payBtn.style.opacity = '1';
+                payBtn.style.cursor = 'pointer';
+                payBtn.style.filter = 'none';
+                payBtn.innerHTML = `<i class="fas fa-lock-open"></i> 立即支付 ¥${finalPrice}`;
+                payBtn.classList.add('btn-signin'); // 脉冲动画提示
+            } else {
+                payBtn.disabled = true;
+                payBtn.innerText = '🔒 请先在左侧签署协议';
+                payBtn.classList.remove('btn-signin');
+            }
+        }
+
+        function calcCheckoutPrice() {
+            const sel = document.getElementById('coCouponSelect');
+            let discount = 0;
+            if(sel.value) { discount = parseFloat(sel.options[sel.selectedIndex].dataset.discount); }
+            let final = checkoutData.price - discount;
+            if(final < 0) final = 0;
+            document.getElementById('coFinal').innerText = final.toFixed(2);
+            
+            // 如果已经签署了，重新计算后要更新按钮上的金额数字
+            if(isCurrentContractSigned) {
+                updatePayButtonState();
+            }
+        }
+
+        function confirmCheckout() {
+            // 双重检查
+            if(!isCurrentContractSigned) {
+                alert("请先阅读并签署左侧的服务协议！");
+                return;
+            }
+            
+            let couponId = document.getElementById('coCouponSelect').value;
+            let finalAmount = document.getElementById('coFinal').innerText;
+
+            if(!confirm(`确认支付 ¥${finalAmount} 并提交订单?`)) return;
+
+            showLoading(); 
+            let fd = new FormData();
+            fd.append('id', checkoutData.id);
+            fd.append('phone', phone);
+            fd.append('amount', finalAmount);
+            if(couponId) fd.append('coupon_id', couponId);
+
+            fetch('api/user_api.php?action=pay_order', {method:'POST', body:fd})
+            .then(r=>r.json())
+            .then(d => {
+                hideLoading();
+                if(d.status === 'success') {
+                    document.getElementById('successAmount').innerText = finalAmount;
+                    document.getElementById('paySuccessModal').style.display = 'flex';
+                    loadInfo(); loadCourses(); loadBills(); loadCoupons();
+                } else {
+                    alert('❌ 支付失败: ' + d.message);
+                }
+            });
+        }
+        
+        function goToWaitClass() {
+            document.getElementById('paySuccessModal').style.display = 'none';
+            switchView('courses');
+            setTimeout(() => document.getElementById('tab-wait').click(), 500);
+        }
+
+        function viewSignedContract(id, tutorName, time, price, classType) {
+            document.getElementById('viewContractContent').innerHTML = generateContractHtml(id, tutorName, time, price, classType);
+            document.getElementById('contractViewModal').style.display = 'flex';
+        }
+
+        // --- 原有逻辑保持不变 ---
+        function loadPointsData() {fetch(`api/gamification_api.php?action=get_status&phone=${phone}`).then(r=>r.json()).then(res=>{document.getElementById('uPoints').innerText=res.points;const btn=document.getElementById('signinBtn');if(res.is_signed){btn.innerHTML='<i class=\"fas fa-check\"></i> 今日已签';btn.classList.add('disabled');btn.removeAttribute('onclick');}});fetch(`api/gamification_api.php?action=get_mall_items`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"grid-column:1/-1;text-align:center;color:gray\">暂无商品</p>';else res.data.forEach(item=>{h+=`<div class=\"mall-item\"><div class=\"coin-icon\"><i class=\"fas fa-ticket-alt\"></i></div><div style=\"font-weight:bold;margin-bottom:5px;\">${item.name}</div><div style=\"color:var(--gold);font-weight:bold;margin-bottom:15px;\">${item.points_cost} 积分</div><button class=\"btn btn-primary\" style=\"font-size:0.8rem;padding:5px 15px;\" onclick=\"exchangeItem(${item.id}, ${item.points_cost})\">立即兑换</button></div>`;});document.getElementById('mallList').innerHTML=h;});}
+        function doSignin(){fetch(`api/gamification_api.php?action=do_signin`,{method:'POST',body:new URLSearchParams({phone:phone})}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert(d.message);loadPointsData();}else alert(d.message);});}
+        function exchangeItem(id,cost){let cur=parseInt(document.getElementById('uPoints').innerText);if(cur<cost)return alert('积分不足');if(!confirm(`消耗 ${cost} 积分兑换？`))return;let fd=new FormData();fd.append('phone',phone);fd.append('coupon_id',id);fetch(`api/gamification_api.php?action=exchange_item`,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('兑换成功');loadPointsData();loadCoupons();}else alert(d.message);});}
+        function postDemand(){let s=document.getElementById('dmSubject').value;let g=document.getElementById('dmGrade').value;let b=document.getElementById('dmBudget').value;let r=document.getElementById('dmReq').value;if(!s||!g||!b)return alert('请填写完整');let fd=new FormData();fd.append('phone',phone);fd.append('subject',s);fd.append('grade',g);fd.append('budget',b);fd.append('requirement',r);fetch('api/demand_api.php?action=post_demand',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('发布成功');document.getElementById('demandModal').style.display='none';loadDemands();}else alert(d.message);});}
+        function loadDemands(){fetch(`api/demand_api.php?action=get_my_demands&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"text-align:center;padding:30px;color:gray\">暂无需求</p>';else res.data.forEach(d=>{let status=d.status==='open'?'<span class=\"badge\" style=\"background:#10B981\">招聘中</span>':'<span class=\"badge\" style=\"background:#64748B\">已结束</span>';let btn=d.status==='open'?`<button class=\"btn btn-primary\" style=\"font-size:0.8rem;\" onclick=\"showAppliers(${d.id})\">查看应聘 (${d.apply_count})</button>`:'';h+=`<div class=\"list-item\"><div><div style=\"font-weight:bold;margin-bottom:5px;\">${d.subject} (${d.grade})</div><div style=\"color:#94A3B8;font-size:0.85rem;\">预算: ¥${d.budget}/h · ${d.create_time}</div></div><div style=\"text-align:right;display:flex;gap:10px;align-items:center;\">${status} ${btn}</div></div>`;});document.getElementById('demandList').innerHTML=h;});}
+        function showAppliers(did){fetch(`api/demand_api.php?action=get_appliers&demand_id=${did}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"text-align:center;padding:20px;color:gray\">暂无应聘</p>';else res.data.forEach(t=>{let avatar=t.avatar||'default_boy.png';if(!avatar.includes('/'))avatar='assets/'+avatar;h+=`<div class=\"list-item\"><div style=\"display:flex;align-items:center;gap:10px;\"><img src=\"${avatar}\" style=\"width:40px;height:40px;border-radius:50%;object-fit:cover;\"><div><div style=\"font-weight:bold\">${t.name}</div><div style=\"font-size:0.8rem;color:gray\">${t.school}</div></div></div><div><button class=\"btn btn-primary\" style=\"padding:6px 12px;font-size:0.8rem;margin-right:5px;\" onclick=\"window.open('detail.html?id=${t.tutor_id}', '_blank')\">查看资料</button><button class=\"btn btn-success\" style=\"padding:6px 12px;font-size:0.8rem;\" onclick=\"acceptTutor(${t.id})\">录用</button></div></div>`;});document.getElementById('applyList').innerHTML=h;document.getElementById('applyModal').style.display='flex';});}
+        function acceptTutor(aid){if(!confirm('确认录用？'))return;let fd=new FormData();fd.append('apply_id',aid);fetch('api/demand_api.php?action=accept_tutor',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('🎉 录用成功！');location.reload();}else alert(d.message);});}
+        function loadMyResources(){fetch(`api/user_api.php?action=get_my_downloads&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(!res.data||res.data.length===0)h='<div style=\"text-align:center;padding:50px;color:gray\"><i class=\"fas fa-folder-open\" style=\"font-size:3rem;margin-bottom:20px;opacity:0.5\"></i><br>暂无资料<br><a href="resources.html" style="color:var(--primary)">去商城逛逛</a></div>';else res.data.forEach(r=>{h+=`<div class=\"list-item\" style=\"align-items:center;\"><div style=\"display:flex;gap:15px;align-items:center;\"><div style=\"width:50px;height:50px;background:rgba(99,102,241,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;\"><i class=\"fas fa-file-alt\" style=\"font-size:1.5rem;color:var(--primary)\"></i></div><div><div style=\"font-weight:bold;font-size:1.1rem;margin-bottom:5px;\">${r.title}</div><div style=\"color:var(--text-gray);font-size:0.8rem;\">${r.type} · 购买时间: ${r.buy_time}</div></div></div><button class=\"btn btn-primary\" onclick=\"downloadRes(${r.id})\"><i class=\"fas fa-download\"></i> 下载</button></div>`;});document.getElementById('myResList').innerHTML=h;});}
+        function downloadRes(id){fetch(`api/resource_api.php?action=get_download_url&id=${id}`).then(r=>r.json()).then(d=>{if(d.status==='success')window.open(d.url,'_blank');else alert(d.message);});}
+        function checkNotifs(){fetch(`api/user_api.php?action=check_unread&phone=${phone}`).then(r=>r.json()).then(d=>{if(d.count>0)document.getElementById('navDot').style.display='inline-block';});}
+        function loadNotifs(){fetch(`api/user_api.php?action=get_notifications&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"text-align:center;color:gray;padding:20px;\">暂无新通知</p>';else res.data.forEach(n=>{let safeContent=encodeURIComponent(n.content);let title=n.content.includes('公告')?'系统公告':'通知消息';h+=`<div class=\"list-item\" onclick=\"showMsgDetail('${title}','${safeContent}')\" style=\"justify-content:flex-start;gap:15px;cursor:pointer;\"><div style=\"color:var(--primary);font-size:1.5rem;"><i class=\"fas fa-bell\"></i></div><div style=\"flex:1;overflow:hidden;\"><div style=\"font-size:1rem;margin-bottom:5px;\">${title} <span style=\"font-size:0.8rem;color:gray;margin-left:10px;font-weight:normal\">${n.create_time}</span></div><div style=\"font-size:0.8rem;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">${n.content}</div></div><div><i class=\"fas fa-chevron-right\" style=\"color:gray;font-size:0.8rem\"></i></div></div>`;});document.getElementById('notifList').innerHTML=h;});}
+        function showMsgDetail(title,contentEncoded){document.getElementById('msgDetailTitle').innerText=title;document.getElementById('msgDetailContent').innerText=decodeURIComponent(contentEncoded);document.getElementById('msgDetailModal').style.display='flex';}
+        function loadContacts(){fetch(`api/chat_api.php?action=get_contacts&role=student&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style=\"padding:20px;text-align:center;\">暂无联系人</div>';else{res.data.forEach(c=>{let avatar=c.avatar||'default_boy.png';if(!avatar.includes('/'))avatar='assets/'+avatar;h+=`<div class=\"chat-item\" onclick=\"startChat('${c.phone}','${c.name}')\"><img src=\"${avatar}\" style=\"width:40px;height:40px;border-radius:50%;object-fit:cover;\"><div><div style=\"font-weight:bold\">${c.name}</div><div style=\"font-size:0.8rem;color:gray\">${c.school}</div></div></div>`;});}document.getElementById('contactList').innerHTML=h;});}
+        function startChat(targetPhone,name){currentChatTarget=targetPhone;document.getElementById('chatHeader').innerText=`与 ${name} 聊天中`;loadHistory();if(chatInterval)clearInterval(chatInterval);chatInterval=setInterval(loadHistory,3000);}
+        function loadHistory(){if(!currentChatTarget)return;fetch(`api/chat_api.php?action=get_history&me=${phone}&other=${currentChatTarget}`).then(r=>r.json()).then(res=>{let h='';res.data.forEach(m=>{let isMe=m.sender_phone===phone;h+=`<div class=\"msg-bubble ${isMe?'msg-right':'msg-left'}\">${m.content}</div>`;});document.getElementById('chatMsgs').innerHTML=h;let div=document.getElementById('chatMsgs');div.scrollTop=div.scrollHeight;});}
+        function sendMsg(){let txt=document.getElementById('msgInput').value;if(!txt||!currentChatTarget)return;let fd=new FormData();fd.append('sender',phone);fd.append('receiver',currentChatTarget);fd.append('content',txt);fetch('api/chat_api.php?action=send_msg',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){document.getElementById('msgInput').value='';loadHistory();}});}
+        function loadInfo(){fetch(`api/user_api.php?action=get_info&phone=${phone}&_t=${Date.now()}`).then(r=>r.json()).then(d=>{document.getElementById('uBalance').innerText=d.data.balance;document.getElementById('uNameDisplay').innerText=d.data.username||'同学';document.getElementById('upName').value=d.data.username;});}
+        function loadBills(){fetch(`api/user_api.php?action=get_wallet_history&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"text-align:center;color:gray\">暂无记录</p>';else res.data.forEach(b=>{let isIn=b.amount.includes('+');h+=`<div class=\"list-item\"><div style=\"display:flex;align-items:center;gap:15px;\"><div style=\"width:40px;height:40px;border-radius:50%;background:${isIn?'rgba(16,185,129,0.2)':'rgba(239,68,68,0.2)'};display:flex;align-items:center;justify-content:center;color:${isIn?'#10B981':'#EF4444'}\"><i class=\"fas fa-${isIn?'arrow-down':'arrow-up'}\"></i></div><div><div style=\"font-weight:bold\">${b.title}</div><div style=\"font-size:0.8rem;color:#94A3B8\">${b.create_time}</div></div></div><div style=\"font-weight:bold;font-size:1.1rem;color:${isIn?'#10B981':'#EF4444'}\">${b.amount}</div></div>`;});document.getElementById('billList').innerHTML=h;});}
+        function loadCourses(){fetch(`api/user_api.php?action=get_my_bookings&phone=${phone}&_t=${Date.now()}`).then(r=>r.json()).then(res=>{allBookings=res.data;const activeTab=document.querySelector('.tab-btn.active');if(activeTab)filterCourses(activeTab.id.replace('tab-',''),activeTab);else filterCourses('all',document.getElementById('tab-all'));});}
+        function loadCoupons(){fetch(`api/user_api.php?action=get_my_coupons&phone=${phone}`).then(r=>r.json()).then(res=>{myCoupons=res.data;let h='';if(myCoupons.length===0)h='<p style=\"color:gray;font-size:0.9rem\">暂无可用优惠券</p>';else myCoupons.forEach(c=>{h+=`<div style=\"background:linear-gradient(135deg, #F59E0B, #D97706);padding:10px 15px;border-radius:8px;color:white;font-size:0.85rem;\"><div style=\"font-weight:bold;font-size:1.1rem\">¥${c.discount}</div><div>满${c.min_spend}可用</div></div>`;});document.getElementById('couponList').innerHTML=h;});}
+        function initCalendar(){var calendarEl=document.getElementById('calendar');calendar=new FullCalendar.Calendar(calendarEl,{initialView:'dayGridMonth',locale:'zh-cn',height:600,headerToolbar:{left:'prev,next today',center:'title',right:'dayGridMonth,timeGridWeek'},events:`api/calendar_api.php?phone=${phone}&role=student`});}
+        function recharge(){let n=prompt("请输入充值金额","1000");if(n&&parseFloat(n)>0){let fd=new FormData();fd.append('phone',phone);fd.append('amount',n);fetch('api/user_api.php?action=recharge',{method:'POST',body:fd}).then(()=>{alert('充值成功');loadInfo();loadBills();});} }
+        function openReview(id){currentReviewId=id;document.getElementById('reviewModal').style.display='flex';}
+        function submitReview(){let fd=new FormData();fd.append('booking_id',currentReviewId);fd.append('phone',phone);fd.append('rating',document.getElementById('ratingSelect').value);fd.append('content',document.getElementById('reviewContent').value);fetch('api/user_api.php?action=submit_review',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('评价成功');document.getElementById('reviewModal').style.display='none';loadCourses();}});}
+        function saveProfile(){let fd=new FormData();fd.append('phone',phone);fd.append('username',document.getElementById('upName').value);fetch('api/user_api.php?action=update_profile',{method:'POST',body:fd}).then(()=>{alert('保存成功');loadInfo();});}
+        function loadFavorites(){fetch(`api/user_api.php?action=get_my_favorites&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="color:gray;">暂无收藏</p>';else res.data.forEach(t=>{let avatar=t.avatar||'default_boy.png';if(!avatar.includes('/')&&!avatar.startsWith('http'))avatar='assets/'+avatar;h+=`<div class="fav-card" onclick="location.href='detail.html?id=${t.tutor_id}'"><img src="${avatar}" class="fav-avatar"><div style="font-weight:bold;">${t.name}</div><div style="font-size:0.8rem;color:#94A3B8;margin-bottom:5px;">${t.school}</div><div style="color:#FCD34D;">¥${t.price}/h</div></div>`;});document.getElementById('favList').innerHTML=h;});}
+    </script>
+</body>
+</html>

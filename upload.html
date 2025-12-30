@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分享资料 | 智慧家教桥</title>
+    <style>
+        :root { --primary: #3B82F6; --bg: #F3F4F6; }
+        body { background: var(--bg); font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #1F2937; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #4B5563; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 1rem; outline: none; }
+        input:focus, textarea:focus { border-color: var(--primary); }
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background: #2563EB; }
+        .tips { font-size: 0.85rem; color: #6B7280; margin-top: 5px; }
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #6B7280; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>📤 分享学习资料</h1>
+        <form onsubmit="handleUpload(event)">
+            <div class="form-group">
+                <label>资料标题</label>
+                <input type="text" name="title" placeholder="例如：初二物理力学笔记" required>
+            </div>
+            
+            <div class="form-group">
+                <label>资料类型</label>
+                <select name="type">
+                    <option value="PDF">PDF 文档</option>
+                    <option value="Word">Word 文档</option>
+                    <option value="PPT">PPT 演示文稿</option>
+                    <option value="Image">图片/思维导图</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>心得/简介 (选填)</label>
+                <textarea name="description" rows="3" placeholder="简单介绍一下这份资料的亮点..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>选择文件</label>
+                <input type="file" name="file" required accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png">
+                <p class="tips">支持 PDF, Word, PPT, 图片格式，最大 10MB</p>
+            </div>
+
+            <button type="submit" class="btn">提交审核</button>
+        </form>
+        <a href="index.html" class="back-link">返回首页</a>
+    </div>
+
+    <script>
+        function handleUpload(e) {
+            e.preventDefault();
+            
+            let phone = localStorage.getItem('userPhone');
+            if(!phone) { alert("请先登录后再上传！"); window.location.href='index.html'; return; }
+
+            let btn = document.querySelector('.btn');
+            let originalText = btn.innerText;
+            btn.innerText = "正在上传...";
+            btn.disabled = true;
+
+            let formData = new FormData(e.target);
+            formData.append('uploader_phone', phone);
+
+            // 修改点：加上了 api/
+            fetch('api/upload_action.php', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert("✅ 上传成功！\n管理员审核通过后将展示在资料库中。");
+                    window.location.href = 'index.html';
+                } else {
+                    alert("❌ " + data.message);
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                alert("上传失败，可能是文件太大或网络问题");
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

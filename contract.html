@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智慧家教服务协议</title>
+    <style>
+        body { background: #525659; font-family: "SimSun", "Songti SC", serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 20mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); box-sizing: border-box; position: relative; }
+        h1 { text-align: center; font-size: 24px; margin-bottom: 40px; color: #000; }
+        .header-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-family: sans-serif; font-size: 14px; color: #666; }
+        .section { margin-bottom: 20px; line-height: 1.8; color: #333; }
+        .bold { font-weight: bold; text-decoration: underline; padding: 0 5px; }
+        .sign-area { margin-top: 50px; display: flex; justify-content: space-between; }
+        .sign-box { width: 40%; }
+        .seal { position: absolute; right: 50px; bottom: 50px; width: 150px; height: 150px; border: 3px solid #d93025; border-radius: 50%; color: #d93025; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; transform: rotate(-20deg); opacity: 0.8; pointer-events: none; }
+        .seal-inner { border: 1px solid #d93025; width: 130px; height: 130px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(0,0,0,0.05); font-weight: bold; white-space: nowrap; pointer-events: none; }
+        @media print { body { background: none; } .page { box-shadow: none; } }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div class="watermark">智慧家教桥 电子合同</div>
+    <div class="header-info">
+        <span id="contractNo">合同编号：加载中...</span>
+        <span id="signDate">签署日期：加载中...</span>
+    </div>
+
+    <h1>家教服务电子协议</h1>
+
+    <div class="section">
+        <strong>甲方（学员）：</strong><span id="uName" class="bold">...</span> <br>
+        <strong>联系电话：</strong><span id="uPhone" class="bold">...</span>
+    </div>
+
+    <div class="section">
+        <strong>乙方（教员）：</strong><span id="tName" class="bold">...</span> <br>
+        <strong>认证资质：</strong><span id="tSchool" class="bold">平台认证教员</span>
+    </div>
+
+    <div class="section" id="termsSection">
+        <p>加载中...</p>
+    </div>
+
+    <div class="sign-area">
+        <div class="sign-box">
+            <p>甲方签署（电子）：</p>
+            <p style="font-family: cursive; font-size: 24px;" id="signU">...</p>
+        </div>
+        <div class="sign-box">
+            <p>乙方签署（电子）：</p>
+            <p style="font-family: cursive; font-size: 24px;" id="signT">...</p>
+        </div>
+    </div>
+
+    <div class="seal">
+        <div class="seal-inner">智慧家教桥<br>业务专用章</div>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('id');
+
+    if(!orderId) { alert('参数缺失'); window.close(); }
+
+    // 判断角色，决定调用哪个接口查询
+    const tutorId = localStorage.getItem('tutorId');
+    const userPhone = localStorage.getItem('userPhone');
+    
+    let apiAction = tutorId ? 'teacher_api.php' : 'user_api.php';
+    let actionName = tutorId ? 'get_bookings' : 'get_my_bookings';
+    let queryParam = tutorId ? `name=${encodeURIComponent(localStorage.getItem('tutorName'))}` : `phone=${userPhone}`;
+    
+    // 复用现有的获取订单列表接口，并在前端筛选
+    fetch(`api/${apiAction}?action=${actionName}&${queryParam}&_t=${Date.now()}`)
+    .then(r=>r.json())
+    .then(res => {
+        if(res.status === 'success') {
+            const order = res.data.find(o => o.id == orderId);
+            if(order) {
+                // 1. 判断是否线下课
+                const isOffline = order.class_type === '线下上门';
+
+                // 2. 动态修改标题
+                const titleEl = document.querySelector('h1');
+                titleEl.innerText = isOffline ? "家教服务协议 (线下上门版)" : "在线云课堂服务协议";
+                titleEl.style.color = isOffline ? "#d93025" : "#6366F1"; // 线下红色，线上蓝色
+
+                // 3. 填充基础数据
+                document.getElementById('contractNo').innerText = "合同编号：WTB-" + new Date(order.create_time).getTime() + "-" + order.id;
+                document.getElementById('signDate').innerText = "生成日期：" + order.create_time.split(' ')[0];
+                
+                document.getElementById('uName').innerText = order.user_phone.substr(0,3)+"****"+order.user_phone.substr(7); 
+                document.getElementById('uPhone').innerText = order.user_phone;
+                document.getElementById('tName').innerText = order.tutor_name;
+
+                // 4. 动态生成核心条款
+                const termSection = document.getElementById('termsSection');
+                if(isOffline) {
+                    termSection.innerHTML = `
+                        <p>甲乙双方经友好协商，依托“智慧家教桥”平台达成如下<strong>线下上门</strong>家教服务协议：</p>
+                        <p>1. <strong>服务模式：</strong> <span class="bold">线下上门 (面对面授课)</span>。</p>
+                        <p>2. <strong>服务时间：</strong> <span class="bold">${order.lesson_time}</span>。</p>
+                        <p>3. <strong>服务地点：</strong> 甲方提供的安全教学场所（具体以订单备注地址为准）。</p>
+                        <p>4. <strong>人身安全：</strong> 乙方在上门过程中及服务期间应注意交通安全。甲方需保障教学环境的安全性。</p>
+                        <p>5. <strong>服务费用：</strong> 共计人民币 <span class="bold">${order.price}</span> 元。已包含交通补贴（如有），由平台担保交易。</p>
+                        <p>6. <strong>违约责任：</strong> 线下课程如需取消，需提前24小时通知，否则需承担相应的空跑费。</p>
+                    `;
+                } else {
+                    termSection.innerHTML = `
+                        <p>甲乙双方经友好协商，依托“智慧家教桥”平台达成如下<strong>在线云课堂</strong>家教服务协议：</p>
+                        <p>1. <strong>服务模式：</strong> <span class="bold">线上云教室 (远程辅导)</span>。</p>
+                        <p>2. <strong>服务时间：</strong> <span class="bold">${order.lesson_time}</span>。</p>
+                        <p>3. <strong>服务形式：</strong> 通过智慧家教桥“云教室”或双方约定的第三方远程会议工具。</p>
+                        <p>4. <strong>网络保障：</strong> 双方应确保网络环境稳定。如因一方网络故障导致课程无法进行，应另行协商补课。</p>
+                        <p>5. <strong>隐私保护：</strong> 未经对方许可，任何一方不得私自录制课程内容并在互联网传播。</p>
+                        <p>6. <strong>服务费用：</strong> 共计人民币 <span class="bold">${order.price}</span> 元。由平台担保交易。</p>
+                    `;
+                }
+                
+                document.getElementById('signU').innerText = "/ " + order.user_phone + " /";
+                document.getElementById('signT').innerText = "/ " + order.tutor_name + " /";
+            } else {
+                document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:50px;'>未找到订单信息或无权查看</h2>";
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>帮助中心 | 智慧家教桥</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ✨ 超级视觉优化版 CSS */
+        :root { 
+            --primary: #6366F1; 
+            --primary-light: #818CF8;
+            --accent: #F59E0B; 
+            --bg-dark: #0B0F19; 
+            --text: #F8FAFC; 
+            --text-gray: #94A3B8;
+            --border: rgba(255, 255, 255, 0.12); 
+        }
+        body { 
+            margin:0; 
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0B0F19 0%, #1E1B4B 50%, #312E81 100%);
+            background-attachment: fixed;
+            color:var(--text); 
+            line-height:1.6; 
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+            z-index: -2;
+            pointer-events: none;
+        }
+        .aurora-bg { 
+            position:fixed; 
+            width:100%; 
+            height:100%; 
+            z-index:-1; 
+            top:0; 
+            left:0; 
+            overflow: hidden;
+        }
+        .blob { 
+            position:absolute; 
+            filter:blur(100px); 
+            opacity:0.5;
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out alternate;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, -50px) scale(1.1); }
+        }
+        .blob-1 { 
+            top:-10%; 
+            left:-10%; 
+            width:600px; 
+            height:600px; 
+            background: linear-gradient(135deg, #6366F1, #A855F7);
+            animation-delay: 0s;
+        }
+        .blob-2 { 
+            bottom:0; 
+            right:0; 
+            width:500px; 
+            height:500px; 
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            animation-delay: 5s;
+        }
+
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 80px 20px 60px;
+            position: relative;
+            z-index: 1;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 60px; 
+        }
+        .header h1 { 
+            font-size: 3rem; 
+            margin-bottom: 15px; 
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF, #C7D2FE);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        
+        /* FAQ 列表 - 增强版 */
+        .faq-item { 
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1.5px solid var(--border); 
+            border-radius: 18px; 
+            margin-bottom: 18px; 
+            overflow: hidden; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .faq-item:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+        .faq-question { 
+            padding: 24px 28px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-weight: 700; 
+            font-size: 1.15rem;
+            transition: all 0.3s ease;
+        }
+        .faq-question:hover { 
+            background: rgba(255,255,255,0.05); 
+            color: var(--primary-light);
+        }
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: var(--primary);
+        }
+        .faq-answer { 
+            display: none; 
+            padding: 0 28px 24px; 
+            color: #CBD5E1; 
+            font-size: 0.95rem; 
+            border-top: 1px solid rgba(255,255,255,0.08); 
+            padding-top: 20px;
+            line-height: 1.8;
+        }
+        .faq-item.active { 
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.3);
+        }
+        .faq-item.active .faq-answer { 
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .faq-item.active i { 
+            transform: rotate(180deg);
+        }
+
+        /* 反馈表单 - 增强版 */
+        .feedback-box { 
+            margin-top: 70px; 
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1.5px solid var(--border); 
+            padding: 50px; 
+            border-radius: 28px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+        }
+        .form-input { 
+            width: 100%; 
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--border); 
+            color: white; 
+            padding: 16px 20px; 
+            border-radius: 14px; 
+            margin-bottom: 24px; 
+            outline: none; 
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .form-input:focus { 
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .btn { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light), #A855F7);
+            background-size: 200% 200%;
+            animation: btnGradient 3s ease infinite;
+            color: white; 
+            border: none; 
+            padding: 16px 40px; 
+            border-radius: 50px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes btnGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn:hover { 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+        }
+        
+        .nav-back { display: inline-block; margin-bottom: 20px; color: #94a3b8; text-decoration: none; }
+        .nav-back:hover { color: white; }
+    </style>
+</head>
+<body>
+    <div class="aurora-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+    <div class="container">
+        <a href="index.html" class="nav-back"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        
+        <div class="header">
+            <h1>帮助中心 & 客服反馈</h1>
+            <p style="color:#94a3b8">这里汇集了大家最关心的问题，如果没有找到答案，欢迎留言。</p>
+        </div>
+
+        <h2 style="margin-bottom:20px;">🔥 常见问题 (FAQ)</h2>
+        <div id="faqList">
+            <p style="text-align:center; color:gray">加载中...</p>
+        </div>
+
+        <div class="feedback-box">
+            <h2 style="margin-bottom:10px;">📫 意见反馈 / 联系我们</h2>
+            <p style="color:#94a3b8; margin-bottom:20px; font-size:0.9rem;">无论是功能建议、投诉举报还是商务合作，我们都期待您的声音。</p>
+            
+            <input type="text" id="fbContact" class="form-input" placeholder="您的称呼及联系方式 (手机/邮箱)">
+            <textarea id="fbContent" class="form-input" rows="5" placeholder="请详细描述您的问题或建议..."></textarea>
+            <button class="btn" onclick="submitFeedback()">提交反馈</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadFAQs);
+
+        function loadFAQs() {
+            fetch('api/public_api.php?action=get_faqs').then(r=>r.json()).then(res=>{
+                let h = '';
+                res.data.forEach(item => {
+                    h += `<div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                ${item.question} <i class="fas fa-chevron-down" style="font-size:0.8rem; transition:0.3s"></i>
+                            </div>
+                            <div class="faq-answer">${item.answer}</div>
+                          </div>`;
+                });
+                document.getElementById('faqList').innerHTML = h;
+            });
+        }
+
+        function toggleFaq(el) {
+            el.parentElement.classList.toggle('active');
+        }
+
+        function submitFeedback() {
+            let contact = document.getElementById('fbContact').value;
+            let content = document.getElementById('fbContent').value;
+            
+            if(!contact || !content) return alert('请填写联系方式和内容');
+            
+            let fd = new FormData();
+            fd.append('contact', contact);
+            fd.append('content', content);
+            
+            fetch('api/public_api.php?action=submit_feedback', {method:'POST', body:fd})
+                .then(r=>r.json()).then(d=>{
+                    if(d.status==='success') {
+                        alert(d.message);
+                        document.getElementById('fbContent').value = '';
+                    } else {
+                        alert(d.message);
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

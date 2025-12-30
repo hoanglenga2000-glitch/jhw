@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧家教桥 | 连接高校智慧</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- ✨ 超级视觉优化版 CSS --- */
+        :root { 
+            --primary: #6366F1; 
+            --primary-dark: #4F46E5;
+            --primary-light: #818CF8;
+            --primary-glow: rgba(99, 102, 241, 0.6); 
+            --accent: #F59E0B; 
+            --accent-dark: #D97706;
+            --purple: #A855F7;
+            --pink: #EC4899;
+            --cyan: #06B6D4;
+            --notice-bg: rgba(245, 158, 11, 0.15); 
+            --notice-border: rgba(245, 158, 11, 0.3); 
+            --text-white: #FFFFFF; 
+            --text-gray: #CBD5E1; 
+            --glass-bg: rgba(15, 23, 42, 0.7); 
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.4);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { 
+            color: var(--text-white); 
+            min-height: 100vh; 
+            overflow-x:hidden; 
+            display:flex; 
+            flex-direction:column; 
+            background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%);
+            background-attachment: fixed;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: gradientShift 15s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .bg-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.9)); 
+            z-index: -1;
+            backdrop-filter: blur(1px);
+        }
+        
+        /* 导航栏 - 增强版 */
+        header { 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            background: rgba(15, 23, 42, 0.8); 
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        .nav-inner { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 18px 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            color: white; 
+            cursor: pointer;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
+        .nav-menu { display: flex; gap: 8px; }
+        .nav-item { 
+            color: var(--text-gray); 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            padding: 10px 18px; 
+            border-radius: 12px;
+            position: relative;
+        }
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .nav-item:hover::before, .nav-item.active::before { opacity: 1; }
+        .nav-item:hover, .nav-item.active { 
+            color: white; 
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* ✨✨✨ 全新商业级通告栏 ✨✨✨ */
+        .notice-banner {
+            background: var(--notice-bg);
+            border-bottom: 1px solid var(--notice-border);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* 平滑过渡动画 */
+            max-height: 0; /* 默认隐藏 */
+            opacity: 0;
+        }
+        .notice-banner.show { max-height: 60px; opacity: 1; } /* 默认显示高度 */
+        .notice-banner.expanded { max-height: 500px; /* 展开后的大致高度 */ background: rgba(30, 41, 59, 0.95); border-bottom-color: var(--primary); }
+        
+        .notice-header {
+            max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: #FCD34D; font-weight: 600; cursor: pointer;
+        }
+        .notice-title-wrap { display: flex; align-items: center; gap: 15px; flex: 1; overflow: hidden; }
+        .notice-icon-box { width: 32px; height: 32px; background: rgba(245, 158, 11, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .notice-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notice-toggle-btn { transition: transform 0.4s; opacity: 0.7; }
+        .notice-banner.expanded .notice-toggle-btn { transform: rotate(180deg); }
+        .notice-banner.expanded .notice-header { color: var(--primary); }
+        .notice-banner.expanded .notice-icon-box { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+
+        .notice-body {
+            max-width: 1200px; margin: 0 auto; padding: 0 24px 30px;
+            color: var(--text-gray); line-height: 1.8; font-size: 0.95rem;
+            opacity: 0; transition: opacity 0.3s 0.1s; /* 内容延迟显示 */
+            white-space: pre-wrap; /* 保留换行符 */
+        }
+        .notice-banner.expanded .notice-body { opacity: 1; }
+
+        /* 通用按钮 & 布局 - 超级增强版 */
+        .btn { 
+            padding: 12px 28px; 
+            border-radius: 50px; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            border: none; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn:hover { 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        .btn:active { transform: translateY(-1px) scale(0.98); }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light), var(--purple)); 
+            background-size: 200% 200%;
+            color: white; 
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            animation: gradientMove 3s ease infinite;
+        }
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .btn-primary:hover { 
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+        }
+        .btn-outline { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1.5px solid var(--glass-border); 
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        .btn-outline:hover { 
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .btn-gold:hover {
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.5);
+        }
+        .view-section { 
+            display: none; 
+            padding: 60px 20px; 
+            flex:1; 
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+        } 
+        .view-section.active { display: block; }
+        @keyframes fadeIn { 
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.98); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            } 
+        }
+        .hero { 
+            text-align: center; 
+            max-width: 900px; 
+            margin: 0 auto 60px; 
+            padding: 80px 0 40px;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+        }
+        .hero h1 { 
+            font-size: 3.8rem; 
+            font-weight: 900; 
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E0E7FF 30%, #C7D2FE 60%, #A5B4FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            animation: textShine 3s ease-in-out infinite;
+        }
+        @keyframes textShine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-gray);
+            margin-bottom: 40px;
+            letter-spacing: 0.01em;
+        }
+        .search-container { 
+            background: rgba(30, 41, 59, 0.7); 
+            border: 1.5px solid var(--glass-border);
+            padding: 6px; 
+            border-radius: 100px; 
+            display: flex; 
+            max-width: 650px; 
+            margin: 0 auto;
+            backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                0 0 40px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+        }
+        .search-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(99, 102, 241, 0.3) inset,
+                0 0 60px rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+        .search-container input { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            padding: 14px 24px; 
+            color: white; 
+            font-size: 1rem; 
+            outline: none;
+            font-weight: 400;
+        }
+        .search-container input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .feature-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 32px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .tutor-list-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 28px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .card-box { 
+            background: rgba(30, 41, 59, 0.6); 
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 20px; 
+            overflow: hidden; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .card-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        .card-box:hover::before {
+            opacity: 1;
+        }
+        .card-box:hover { 
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(99, 102, 241, 0.3),
+                0 0 40px rgba(99, 102, 241, 0.2);
+        }
+        .card-top-bg { 
+            height: 100px; 
+            background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(168,85,247,0.2), rgba(245,158,11,0.15));
+            position: relative;
+            overflow: hidden;
+        }
+        .card-top-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .card-avatar-img { 
+            width: 90px; 
+            height: 90px; 
+            border-radius: 50%; 
+            border: 4px solid rgba(30, 41, 59, 0.8);
+            margin: -45px auto 15px; 
+            display: block; 
+            object-fit: cover; 
+            background: linear-gradient(135deg, #1E293B, #334155);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transition: transform 0.4s ease;
+        }
+        .card-box:hover .card-avatar-img {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .card-info { 
+            padding: 0 24px 24px; 
+            text-align: center; 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .card-name { 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-tags { 
+            font-size: 0.85rem; 
+            background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
+            color: #A5B4FC; 
+            display: inline-block; 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            margin-bottom: 16px; 
+            align-self: center;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .card-meta { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            color: var(--text-gray); 
+            font-size: 0.95rem; 
+            margin-top: auto; 
+            width: 100%; 
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 16px;
+        }
+        .card-meta span:last-child {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+        .card-box.vip { 
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(245, 158, 11, 0.3),
+                0 0 30px rgba(245, 158, 11, 0.2);
+        }
+        .card-box.vip:hover {
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(245, 158, 11, 0.5),
+                0 0 50px rgba(245, 158, 11, 0.4);
+        }
+        .vip-badge { 
+            position: absolute; 
+            top: 12px; 
+            right: 12px; 
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .leaderboard-section { 
+            max-width: 1000px; 
+            margin: 0 auto;
+            position: relative;
+        }
+        .leaderboard-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+        }
+        .rank-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1.2fr 1fr; 
+            gap: 24px; 
+            align-items: end; 
+        }
+        .rank-card { 
+            text-align: center; 
+            position: relative; 
+            padding: 30px 20px 25px; 
+            background: rgba(30,41,59,0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 24px; 
+            border: 1.5px solid var(--glass-border);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .rank-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+        }
+        .rank-card.rank-1 { 
+            transform: scale(1.08); 
+            border: 2px solid rgba(255,215,0,0.6);
+            background: linear-gradient(to bottom, rgba(255,215,0,0.15), rgba(30,41,59,0.9));
+            z-index: 2;
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 215, 0, 0.3),
+                0 0 40px rgba(255, 215, 0, 0.2);
+        }
+        .rank-card.rank-1:hover {
+            transform: scale(1.1) translateY(-5px);
+        }
+        .rank-card.rank-2 { 
+            border-color: rgba(192, 192, 192, 0.5);
+            background: linear-gradient(to bottom, rgba(192, 192, 192, 0.1), rgba(30,41,59,0.9));
+        }
+        .rank-card.rank-3 { 
+            border-color: rgba(205, 127, 50, 0.5);
+            background: linear-gradient(to bottom, rgba(205, 127, 50, 0.1), rgba(30,41,59,0.9));
+        }
+        .rank-crown { 
+            font-size: 2.5rem; 
+            margin-bottom: -15px; 
+            display: block; 
+            position: relative; 
+            top: -20px;
+            filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.4));
+            animation: crownFloat 3s ease-in-out infinite;
+        }
+        @keyframes crownFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        footer { 
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border); 
+            padding: 80px 0 30px; 
+            margin-top: auto;
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
+        }
+        .footer-content { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+        .footer-col h3 { color: white; margin-bottom: 20px; }
+        .footer-link { display: block; color: var(--text-gray); text-decoration: none; margin-bottom: 10px; transition:0.2s; }
+        .footer-link:hover { color: var(--primary); }
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(20px) saturate(180%);
+            z-index: 2000; 
+            justify-content: center; 
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal { 
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(30px) saturate(180%);
+            border: 1.5px solid var(--glass-border);
+            width: 420px; 
+            padding: 48px; 
+            border-radius: 28px; 
+            text-align: center;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 60px rgba(99, 102, 241, 0.2);
+            animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .form-input { 
+            width: 100%; 
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--glass-border);
+            color: white; 
+            padding: 16px 20px; 
+            border-radius: 14px; 
+            margin-bottom: 18px; 
+            outline: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: #1E293B; border: 1px solid var(--glass-border); border-radius: 10px; min-width: 150px; z-index: 100; overflow: hidden; }
+    </style>
+</head>
+<body>
+    <div class="bg-overlay"></div>
+    
+    <div id="noticeBanner" class="notice-banner">
+        <div class="notice-header" onclick="toggleNotice()">
+            <div class="notice-title-wrap">
+                <div class="notice-icon-box"><i class="fas fa-bullhorn"></i></div>
+                <span id="noticeTitle" class="notice-title-text">暂无公告</span>
+            </div>
+            <i class="fas fa-chevron-down notice-toggle-btn"></i>
+        </div>
+        <div class="notice-body">
+            <div id="noticeContent"></div>
+            <div style="text-align:right; margin-top:20px;">
+                <button class="btn btn-outline" style="padding:6px 15px; font-size:0.8rem;" onclick="event.stopPropagation(); toggleNotice()">收起</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="nav-inner">
+            <div class="logo" onclick="switchView('home')"><i class="fas fa-graduation-cap" style="color:var(--primary)"></i> 智慧家教桥</div>
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="switchView('home')" id="nav-home">首页</div>
+                <div class="nav-item" onclick="switchView('tutors')" id="nav-tutors">严选教员</div>
+                <div class="nav-item" onclick="switchView('resources')" id="nav-resources">学霸笔记</div>
+                <div class="nav-item" onclick="jumpToStudentCenter('courses')">我的课程</div>
+                <div class="nav-item" onclick="switchView('messages')" id="nav-messages">消息 <span id="msgDot" style="display:none;width:8px;height:8px;background:red;border-radius:50%;margin-left:5px"></span></div>
+            </nav>
+            <div>
+                <span id="guest-btns"><button class="btn btn-outline" onclick="openAuth('login')">登录</button><button class="btn btn-primary" onclick="openAuth('register')" style="margin-left:10px">注册</button><a href="teacher_login.html" class="btn btn-gold" style="margin-left:10px">我是老师</a></span>
+                <span id="user-btns" style="display:none; position:relative;">
+                    <div style="cursor:pointer; display:flex; align-items:center; gap:10px;" onclick="document.getElementById('userDropdown').style.display = document.getElementById('userDropdown').style.display==='block'?'none':'block'">
+                        <img src="assets/default_student.png" id="navAvatar" style="width:30px; height:30px; border-radius:50%;">
+                        <span id="navUsername">用户</span>
+                    </div>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <div style="padding:12px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'" onclick="jumpToStudentCenter('profile')">个人中心</div>
+                        <div style="padding:12px; cursor:pointer; color:#EF4444" onclick="logout()">退出登录</div>
+                    </div>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div id="view-home" class="view-section active">
+        <section class="hero">
+            <h1>连接高校智慧，点亮学子未来</h1>
+            <p style="color:var(--text-gray); margin-bottom:30px;">100% 实名认证大学生教员 · 严选学霸 · 免费试听</p>
+            <div class="search-container">
+                <input type="text" id="homeSearch" placeholder="🔍 搜索科目 (如: 数学) 或教员姓名..." onkeyup="if(event.key==='Enter') doSearch(this.value)">
+                <button class="btn btn-primary" onclick="doSearch(document.getElementById('homeSearch').value)">智能匹配</button>
+            </div>
+        </section>
+
+        <div class="leaderboard-section">
+            <div style="text-align:center; margin-bottom:30px; font-size:1.5rem; font-weight:800; color:#FFD700"><i class="fas fa-crown"></i> 金牌教员龙虎榜</div>
+            <div id="homeLeaderboard" class="rank-grid">
+                <div style="text-align:center; grid-column:1/-1; color:gray">加载中...</div>
+            </div>
+            <div style="text-align:center; margin-top:40px; margin-bottom:60px;">
+                <button class="btn btn-outline" style="padding:10px 30px; border-radius:50px;" onclick="switchView('tutors')">查看更多优秀教员 <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <div class="feature-grid" style="opacity:0.8;">
+            <div style="padding:30px;text-align:center;background:rgba(255,255,255,0.02);border-radius:16px;"><i class="fas fa-id-card-alt" style="font-size:2.5rem;color:var(--primary);margin-bottom:15px"></i><h3>100% 实名认证</h3><p style="font-size:0.9rem;color:var(--text-gray)">学信网核验，身份真实</p></div>
+            <div style="padding:30px;text-align:center;background:rgba(255,255,255,0.02);border-radius:16px;"><i class="fas fa-hand-holding-usd" style="font-size:2.5rem;color:var(--primary);margin-bottom:15px"></i><h3>价格透明</h3><p style="font-size:0.9rem;color:var(--text-gray)">无中介费，不满意退款</p></div>
+            <div style="padding:30px;text-align:center;background:rgba(255,255,255,0.02);border-radius:16px;"><i class="fas fa-star" style="font-size:2.5rem;color:var(--primary);margin-bottom:15px"></i><h3>真实评价</h3><p style="font-size:0.9rem;color:var(--text-gray)">完课后点评，有据可查</p></div>
+        </div>
+    </div>
+
+    <div id="view-tutors" class="view-section">
+        <div style="max-width:1200px;margin:0 auto;margin-bottom:30px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:2rem;font-weight:800">严选教员列表</div>
+            <select id="filterSort" onchange="applyFilters()" style="background:rgba(255,255,255,0.1);border:1px solid var(--glass-border);color:white;padding:8px 20px;border-radius:30px;outline:none">
+                <option style="background:#1E293B" value="default">综合排序</option>
+                <option style="background:#1E293B" value="rating">评分最高</option>
+                <option style="background:#1E293B" value="price_asc">价格: 低 → 高</option>
+            </select>
+        </div>
+        <div class="tutor-list-grid" id="tutorList"></div>
+    </div>
+
+    <div id="view-resources" class="view-section"><div style="text-align:center;margin-bottom:30px"><h2 style="font-size:2rem">学霸笔记商城</h2></div><div class="tutor-list-grid" id="resList"></div></div>
+    <div id="view-messages" class="view-section"><div style="text-align:center;padding:100px;"><h3>请前往<a href="student_center.html" style="color:var(--primary)">学生中心</a>查看消息</h3></div></div>
+
+    <div class="overlay" id="authModal"><div class="modal"><h2 id="modalTitle" style="margin-bottom:30px">登录</h2><input type="text" id="regName" class="form-input" placeholder="姓名" style="display:none"><input type="text" id="authPhone" class="form-input" placeholder="手机号"><input type="password" id="authPass" class="form-input" placeholder="密码"><button class="btn btn-primary" onclick="handleAuth()" style="width:100%;justify-content:center;padding:12px">提交</button><div style="margin-top:20px;cursor:pointer;color:gray" onclick="toggleAuthMode()">切换注册/登录</div><div style="margin-top:10px;cursor:pointer;color:gray" onclick="document.getElementById('authModal').style.display='none'">关闭</div></div></div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col" style="grid-column: span 1;">
+                <div style="font-size:1.5rem; font-weight:800; color:white; margin-bottom:15px; display:flex; align-items:center; gap:10px;"><i class="fas fa-graduation-cap" style="color:var(--primary)"></i> 智慧家教桥</div>
+                <p>连接高校优质教育资源，为中小学生提供靠谱、透明、高效的家教对接服务。</p>
+            </div>
+            <div class="footer-col">
+                <h3>平台服务</h3>
+                <a href="#" class="footer-link" onclick="switchView('tutors')">找老师</a>
+                <a href="#" class="footer-link" onclick="switchView('resources')">找资料</a>
+                <a href="teacher_login.html" class="footer-link">教员入驻</a>
+            </div>
+            <div class="footer-col">
+                <h3>帮助与支持</h3>
+                <a href="help.html" class="footer-link">帮助中心</a>
+                <a href="help.html" class="footer-link">常见问题</a>
+                <a href="help.html" class="footer-link">意见反馈</a>
+            </div>
+            <div class="footer-col">
+                <h3>联系我们</h3>
+                <p>客服热线: 400-888-6666</p>
+                <p>工作时间: 9:00 - 21:00</p>
+                <p>邮箱: support@tutor.com</p>
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:40px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05); color:#64748B; font-size:0.85rem;">&copy; 2023 Wisdom Tutoring Bridge. All Rights Reserved.</div>
+    </footer>
+
+    <script>
+        let curPhone = localStorage.getItem('userPhone');
+        let authMode = 'login';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(curPhone) updateUI(localStorage.getItem('userName'));
+            switchView('home');
+            loadHomeLeaderboard(); 
+            applyFilters(); 
+            loadResources();
+            loadTopNotice(); // ✨ 加载新版通告
+        });
+
+        // ✨✨✨ 新版通告栏逻辑 ✨✨✨
+        function loadTopNotice(){
+            fetch('api/public_api.php?action=get_latest_notices').then(r=>r.json()).then(res=>{
+                if(res.data && res.data.length > 0){
+                    const notice = res.data[0];
+                    // 显示 Banner
+                    document.getElementById('noticeBanner').classList.add('show');
+                    // 设置标题和内容
+                    document.getElementById('noticeTitle').innerText = notice.title;
+                    document.getElementById('noticeContent').innerText = notice.content;
+                }
+            });
+        }
+
+        // 切换通告栏展开/收起状态
+        function toggleNotice() {
+            document.getElementById('noticeBanner').classList.toggle('expanded');
+        }
+
+        // ... 其他原有逻辑保持不变 ...
+        function loadHomeLeaderboard(){fetch('api/get_tutors.php').then(r=>r.json()).then(res=>{if(res.data&&res.data.length>=1){let top3=res.data.slice(0,3);let visualOrder=[];if(top3[1])visualOrder.push({...top3[1],rank:2});if(top3[0])visualOrder.push({...top3[0],rank:1});if(top3[2])visualOrder.push({...top3[2],rank:3});let h='';visualOrder.forEach(t=>{let avatar=t.avatar||'default_boy.png';if(!avatar.includes('/')&&!avatar.startsWith('http'))avatar='assets/'+avatar;let rankClass=`rank-${t.rank}`;let crownColor=t.rank===1?'#FFD700':(t.rank===2?'#C0C0C0':'#CD7F32');h+=`<div class="rank-card ${rankClass}" onclick="location.href='detail.html?id=${t.id}'" style="padding:20px;cursor:pointer;"><i class="fas fa-crown rank-crown" style="color:${crownColor}"></i><img src="${avatar}" style="width:80px;height:80px;border-radius:50%;border:3px solid ${crownColor};margin:0 auto 10px;object-fit:cover;"><div style="font-weight:800;font-size:1.2rem;">${t.name}</div><div style="color:var(--accent);font-size:0.9rem;margin-bottom:10px;">${t.school}</div><div style="color:var(--text-gray);font-size:0.9rem;">¥${t.price}/h</div></div>`;});document.getElementById('homeLeaderboard').innerHTML=h;}else{document.getElementById('homeLeaderboard').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;">暂无榜单数据</div>';}});}
+        function applyFilters(k){if(!k)k=document.getElementById('homeSearch').value||'';let sort=document.getElementById('filterSort')?.value||'default';fetch(`api/get_tutors.php?search=${encodeURIComponent(k)}&sort=${sort}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length>0){res.data.forEach(t=>{let avatar=t.avatar||'default_boy.png';if(!avatar.includes('/')&&!avatar.startsWith('http'))avatar='assets/'+avatar;let vipClass=t.is_vip==1?'vip':'';let vipBadge=t.is_vip==1?'<div class="vip-badge"><i class="fas fa-crown"></i> 金牌</div>':'';h+=`<div class="card-box ${vipClass}" onclick="location.href='detail.html?id=${t.id}'">${vipBadge}<div class="card-top-bg"></div><img src="${avatar}" class="card-avatar-img"><div class="card-info"><div class="card-name">${t.name}</div><div class="card-tags">${t.school} · ${t.major}</div><div class="card-meta"><span style="color:#F59E0B">★ ${t.rating}</span><span style="font-weight:bold;color:white">¥${t.price}/h</span></div></div></div>`;});document.getElementById('tutorList').innerHTML=h;}else document.getElementById('tutorList').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:50px;color:gray">暂无数据</div>';});}
+        function loadResources(){fetch('api/resource_api.php?action=get_list').then(r=>r.json()).then(res=>{let h='';if(!res.data||res.data.length===0)h='<div style="grid-column:1/-1;text-align:center;color:gray;padding:50px;">暂无上架资料</div>';else{res.data.forEach(i=>{let priceTag=parseFloat(i.price)>0?`<span style="color:#F59E0B">¥${i.price}</span>`:`<span style="color:#10B981">免费</span>`;h+=`<div class="card-box" onclick="location.href='resources.html'" style="flex-direction:row;align-items:center;padding:20px;height:auto;"><div style="width:60px;height:60px;background:rgba(99,102,241,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-right:20px;"><i class="fas fa-file-alt" style="font-size:2rem;color:var(--primary)"></i></div><div style="flex:1;"><div style="font-weight:bold;font-size:1.1rem;margin-bottom:5px;">${i.title}</div><div style="color:var(--text-gray);font-size:0.85rem;">${i.type} · ${priceTag}</div></div></div>`;});}document.getElementById('resList').innerHTML=h;});}
+        function switchView(view){document.querySelectorAll('.view-section').forEach(el=>el.classList.remove('active'));document.getElementById(`view-${view}`).classList.add('active');document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));document.getElementById(`nav-${view}`).classList.add('active');}
+        function openAuth(m){authMode=m||'login';document.getElementById('authModal').style.display='flex';document.getElementById('modalTitle').innerText=m==='login'?'欢迎登录':'欢迎注册';document.getElementById('regName').style.display=m==='login'?'none':'block';}
+        function toggleAuthMode(){openAuth(authMode==='login'?'register':'login');}
+        function toggleUserMenu(){let m=document.getElementById('userDropdown');m.style.display=m.style.display==='block'?'none':'block';}
+        function updateUI(n){document.getElementById('guest-btns').style.display='none';document.getElementById('user-btns').style.display='flex';document.getElementById('navUsername').innerText=n;}
+        function doSearch(k){applyFilters(k);switchView('tutors');}
+        function jumpToStudentCenter(v){location.href=`student_center.html?view=${v}`;}
+        function handleAuth(){let p=document.getElementById('authPhone').value;let pass=document.getElementById('authPass').value;let name=document.getElementById('regName').value;let fd=new FormData();fd.append('phone',p);fd.append('password',pass);let api=authMode==='login'?'api/login.php':'api/register.php';if(authMode==='register')fd.append('username',name);fetch(api,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){if(authMode==='register'){alert('注册成功');toggleAuthMode();}else{curPhone=p;localStorage.setItem('userPhone',p);localStorage.setItem('userName',d.username);updateUI(d.username);document.getElementById('authModal').style.display='none';location.reload();}}else alert(d.message);});}
+        function logout(){localStorage.clear();location.reload();}
+    </script>
+</body>
+</html>

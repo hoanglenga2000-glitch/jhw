@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>总控台 | 智慧家教桥</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <style>
+        /* --- 旗舰级深色系统 --- */
+        :root { --primary: #6366F1; --accent: #F43F5E; --bg-dark: #0F172A; --bg-card: #1E293B; --text: #F8FAFC; --text-gray: #94A3B8; --border: rgba(255,255,255,0.08); }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:sans-serif; }
+        body { background: var(--bg-dark); color: var(--text); height: 100vh; display:flex; overflow:hidden; }
+        .sidebar { width: 240px; background: rgba(15, 23, 42, 0.95); border-right: 1px solid var(--border); padding: 25px; display:flex; flex-direction:column; overflow-y: auto; }
+        .logo { font-size: 1.2rem; font-weight: 800; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; color: #fff; }
+        .nav-item { padding: 12px 20px; color: var(--text-gray); cursor: pointer; border-radius: 10px; margin-bottom: 5px; transition:0.3s; font-weight:500; }
+        .nav-item.active { background: linear-gradient(90deg, var(--primary), #818CF8); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        .main { flex: 1; padding: 40px; overflow-y: auto; }
+        .view { display: none; animation: fadeIn 0.4s ease; } .view.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        
+        /* 统计卡片 */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); position: relative; }
+        .stat-val { font-size: 2rem; font-weight: 800; margin-top: 10px; }
+        .stat-label { color: var(--text-gray); font-size: 0.9rem; }
+        
+        /* ✨✨✨ [新增] 图表区域样式 ✨✨✨ */
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .chart-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; height: 400px; }
+        
+        /* 列表通用 */
+        .data-list { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+        .list-header { background: rgba(255,255,255,0.03); padding: 15px 20px; font-weight: bold; color: var(--text-gray); display: grid; gap: 10px; border-bottom: 1px solid var(--border); }
+        .list-item { padding: 20px; border-bottom: 1px solid var(--border); display: grid; gap: 10px; align-items: center; transition: 0.2s; }
+        .list-item:hover { background: rgba(255,255,255,0.02); }
+        .btn { padding: 6px 15px; border-radius: 6px; border: none; cursor: pointer; color: white; font-weight: bold; font-size: 0.85rem; margin-right: 5px; }
+        .btn-green { background: #10B981; } .btn-red { background: #EF4444; } .btn-gray { background: #64748B; } .btn-blue { background: #3B82F6; }
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; background: #334155; color: #cbd5e1; }
+        .form-input { width: 100%; padding: 10px; background: #0F172A; border: 1px solid var(--border); color: white; border-radius: 8px; outline: none; }
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { background: #1E293B; border: 1px solid var(--border); color: #94A3B8; padding: 8px 20px; cursor: pointer; border-radius: 20px; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-user-shield"></i> 管理员总控</div>
+        <div class="nav-item active" onclick="switchView('dashboard', this)">数据概览</div>
+        
+        <div style="font-size:0.8rem; color:#64748B; margin:15px 20px 5px;">审核中心</div>
+        <div class="nav-item" onclick="switchView('audit-tutor', this)">教员入驻</div>
+        <div class="nav-item" onclick="switchView('audit-res', this)">资料上传</div>
+        <div class="nav-item" onclick="switchView('audit-withdraw', this)">财务提现</div>
+        <div class="nav-item" onclick="switchView('audit-refund', this)">售后退款</div>
+        
+        <div style="font-size:0.8rem; color:#64748B; margin:15px 20px 5px;">运营管理</div>
+        <div class="nav-item" onclick="switchView('user-manage', this)">用户管理</div>
+        <div class="nav-item" onclick="switchView('content-manage', this)">内容评价</div>
+        <div class="nav-item" onclick="switchView('marketing', this)">营销中心</div>
+        <div class="nav-item" onclick="switchView('notices', this)">公告发布</div>
+        <div class="nav-item" onclick="switchView('cs-manage', this)">客服反馈 & FAQ</div>
+        
+        <div class="nav-item" onclick="location.href='index.html'" style="margin-top:auto; color:#EF4444">退出管理</div>
+    </div>
+
+    <div class="main">
+        <div id="view-dashboard" class="view active">
+            <h2 style="margin-bottom:30px">平台运营驾驶舱</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">总用户数</div><div class="stat-val" id="stUsers">0</div></div>
+                <div class="stat-card"><div class="stat-label">入驻教员</div><div class="stat-val" id="stTutors">0</div></div>
+                <div class="stat-card"><div class="stat-label">平台 GMV (元)</div><div class="stat-val" style="color:#FCD34D" id="stGMV">0.00</div></div>
+                <div class="stat-card" style="border-color:var(--primary)"><div class="stat-label">待办事项</div><div class="stat-val" style="color:var(--primary)" id="stPending">0</div></div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-box" id="chartTrend"></div>
+                <div class="chart-box" id="chartPie"></div>
+            </div>
+        </div>
+
+        <div id="view-audit-tutor" class="view">
+            <h2 style="margin-bottom:20px">教员入驻审核</h2>
+            <div class="data-list">
+                <div class="list-header" style="grid-template-columns: 2fr 2fr 1fr 1fr 2fr;"><span>姓名/手机</span><span>学校/专业</span><span>证件核验</span><span>状态</span><span>操作</span></div>
+                <div id="tutorList"></div>
+            </div>
+        </div>
+        
+        <div id="view-audit-res" class="view"><h2 style="margin-bottom:20px">资料上传审核</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><span>标题</span><span>类型</span><span>上传者</span><span>状态</span><span>操作</span></div><div id="resList"></div></div></div>
+        <div id="view-audit-withdraw" class="view"><h2 style="margin-bottom:20px">提现申请审核</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 1fr 2fr 1fr 2fr;"><span>申请人</span><span>金额</span><span>收款信息</span><span>状态</span><span>操作</span></div><div id="withdrawList"></div></div></div>
+        <div id="view-audit-refund" class="view"><h2 style="margin-bottom:20px">售后退款处理</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 2fr 1fr 1fr 2fr;"><span>申请人</span><span>理由/老师</span><span>金额</span><span>状态</span><span>操作</span></div><div id="refundList"></div></div></div>
+
+        <div id="view-user-manage" class="view"><h2 style="margin-bottom:20px">用户与账号管理</h2><div class="tab-bar"><button class="tab-btn active" onclick="loadUsers('student', this)">学生列表</button><button class="tab-btn" onclick="loadUsers('teacher', this)">教员列表</button></div><div class="data-list"><div class="list-header" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><span>用户</span><span>手机号</span><span>余额</span><span>状态</span><span>操作</span></div><div id="userList"></div></div></div>
+        <div id="view-content-manage" class="view"><h2 style="margin-bottom:20px">评价管理</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 1fr 1fr 3fr 1fr;"><span>用户</span><span>评价教员</span><span>评分</span><span>内容</span><span>操作</span></div><div id="reviewList"></div></div></div>
+        <div id="view-marketing" class="view"><h2 style="margin-bottom:20px">优惠券管理</h2><div style="background:var(--bg-card); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;"><h3 style="margin-bottom:15px">全员普惠</h3><p style="color:gray; margin-bottom:15px;">向所有注册用户发放优惠券 (拉新/促活)</p><div style="display:flex; gap:10px;"><select id="couponTemplate" class="form-input" style="margin:0; flex:1;"></select><button class="btn btn-green" onclick="issueCoupon()">一键发放</button></div></div></div>
+        
+        <div id="view-notices" class="view"><h2 style="margin-bottom:20px">系统公告发布</h2><div style="background:var(--bg-card); padding:30px; border-radius:16px; border:1px solid var(--border); margin-bottom:30px;"><input type="text" id="noticeTitle" class="form-input" placeholder="公告标题 (如：系统维护通知)" style="margin-bottom:15px;"><textarea id="noticeContent" class="form-input" rows="4" placeholder="公告正文内容..." style="margin-bottom:15px;"></textarea><div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;"><input type="checkbox" id="pushNotice" style="width:20px; height:20px;"> <label for="pushNotice" style="color:var(--text-gray)">同时推送到所有用户的消息箱 (强提醒)</label></div><button class="btn btn-blue" onclick="pubNotice()">🚀 发布公告</button></div><h3 style="margin-bottom:20px">历史公告</h3><div class="data-list"><div class="list-header" style="grid-template-columns: 3fr 1fr 1fr;"><span>标题</span><span>发布时间</span><span>操作</span></div><div id="noticeList"></div></div></div>
+
+        <div id="view-cs-manage" class="view"><h2 style="margin-bottom:20px">客服中心管理</h2><div class="tab-bar"><button class="tab-btn active" onclick="loadFeedbacks(this)">用户反馈</button><button class="tab-btn" onclick="loadFaqs(this)">FAQ 常见问题</button></div><div id="cs-feedback-box"><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 3fr 1fr 1fr;"><span>联系方式</span><span>反馈内容</span><span>时间</span><span>操作</span></div><div id="feedbackList"></div></div></div><div id="cs-faq-box" style="display:none;"><div style="background:var(--bg-card); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;"><h3 style="margin-bottom:15px">添加常见问题</h3><input type="text" id="faqQ" class="form-input" placeholder="问题 (Question)" style="margin-bottom:10px;"><textarea id="faqA" class="form-input" rows="3" placeholder="回答 (Answer)" style="margin-bottom:10px;"></textarea><button class="btn btn-green" onclick="addFaq()">添加</button></div><div class="data-list"><div class="list-header" style="grid-template-columns: 3fr 1fr;"><span>问题</span><span>操作</span></div><div id="faqAdminList"></div></div></div></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { 
+            loadStats(); 
+            renderCharts(); // ✨ 初始化图表
+            loadTutors(); loadResources(); loadWithdrawals(); loadRefunds(); loadUsers('student'); loadReviews(); loadCoupons(); loadNotices(); loadFeedbacks(); 
+        });
+
+        function switchView(id, btn) {
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+            document.getElementById('view-'+id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+            btn.classList.add('active');
+            // 切换回概览时重绘图表，防止尺寸异常
+            if(id === 'dashboard') setTimeout(renderCharts, 100);
+            
+            if(id==='user-manage') loadUsers('student');
+            if(id==='content-manage') loadReviews();
+            if(id==='marketing') loadCoupons();
+            if(id==='notices') loadNotices();
+            if(id==='cs-manage') loadFeedbacks();
+        }
+
+        // ✨✨✨ [新增] 渲染图表逻辑 ✨✨✨
+        function renderCharts() {
+            fetch('api/admin_api.php?action=get_chart_data').then(r=>r.json()).then(res => {
+                if(res.status === 'success') {
+                    // 1. 趋势折线图
+                    let chartTrend = echarts.init(document.getElementById('chartTrend'));
+                    let optionTrend = {
+                        title: { text: '近7天订单走势', textStyle: { color: '#fff' } },
+                        tooltip: { trigger: 'axis' },
+                        grid: { top: 60, bottom: 40, left: 40, right: 40 },
+                        xAxis: { type: 'category', data: res.trend.dates, axisLabel: { color: '#94A3B8' } },
+                        yAxis: { type: 'value', axisLabel: { color: '#94A3B8' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
+                        series: [{ data: res.trend.counts, type: 'line', smooth: true, color: '#6366F1', areaStyle: { color: 'rgba(99, 102, 241, 0.2)' } }]
+                    };
+                    chartTrend.setOption(optionTrend);
+
+                    // 2. 热门科目饼图
+                    let chartPie = echarts.init(document.getElementById('chartPie'));
+                    let optionPie = {
+                        title: { text: '热门科目 TOP 5', textStyle: { color: '#fff' } },
+                        tooltip: { trigger: 'item' },
+                        legend: { bottom: '0%', textStyle: { color: '#fff' } },
+                        series: [{
+                            name: '科目', type: 'pie', radius: ['40%', '70%'],
+                            itemStyle: { borderRadius: 10, borderColor: '#1E293B', borderWidth: 2 },
+                            label: { show: false },
+                            data: res.pie
+                        }]
+                    };
+                    chartPie.setOption(optionPie);
+                    
+                    // 响应窗口大小变化
+                    window.onresize = function() { chartTrend.resize(); chartPie.resize(); };
+                }
+            });
+        }
+
+        // ... 以下原有逻辑保持不变 (从你的原文件中复制) ...
+        function loadStats(){fetch('api/admin_api.php?action=get_stats').then(r=>r.json()).then(d=>{document.getElementById('stUsers').innerText=d.users;document.getElementById('stTutors').innerText=d.tutors;document.getElementById('stOrders').innerText=d.orders;document.getElementById('stPending').innerText=d.pending; if(d.gmv) document.getElementById('stGMV').innerText=d.gmv;});}
+        function loadTutors() { fetch('api/admin_api.php?action=get_pending_tutors').then(r=>r.json()).then(res=>{ let h = ''; if(res.data.length===0) h='<div style="padding:20px;text-align:center;color:#666">暂无待审核教员</div>'; else res.data.forEach(t => { let certHtml = t.cert_img ? `<a href="assets/${t.cert_img}" target="_blank" style="color:#6366F1;text-decoration:underline">查看证件</a>` : '<span style="color:red">未上传</span>'; h += `<div class="list-item" style="grid-template-columns: 2fr 2fr 1fr 1fr 2fr;"><div><strong>${t.name}</strong><br><span style="font-size:0.8rem;color:#94A3B8">${t.phone}</span></div><div>${t.school}<br><span style="font-size:0.8rem;color:#94A3B8">${t.major}</span></div><div>${certHtml}</div><div><span class="tag" style="color:#F59E0B">待审核</span></div><div><button class="btn btn-green" onclick="auditTutor(${t.id}, '已通过')">通过</button><button class="btn btn-red" onclick="auditTutor(${t.id}, '已拒绝')">拒绝</button></div></div>`; }); document.getElementById('tutorList').innerHTML = h; }); }
+        function loadResources(){fetch('api/admin_api.php?action=get_pending_resources').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style="padding:20px;text-align:center;color:#666">暂无待审核资料</div>';else res.data.forEach(r=>{h+=`<div class="list-item" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><div><a href="uploads/${r.file_path}" target="_blank" style="color:#6366F1">${r.title}</a></div><div>${r.type}</div><div>${r.uploader_phone}</div><div><span class="tag" style="color:#F59E0B">待审核</span></div><div><button class="btn btn-green" onclick="auditRes(${r.id}, '已通过')">通过</button><button class="btn btn-red" onclick="auditRes(${r.id}, '已拒绝')">拒绝</button></div></div>`;});document.getElementById('resList').innerHTML=h;});}
+        function loadWithdrawals(){fetch('api/withdraw_api.php?action=admin_get_pending').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style="padding:20px;text-align:center;color:#666">暂无提现申请</div>';else res.data.forEach(w=>{h+=`<div class="list-item" style="grid-template-columns: 1fr 1fr 2fr 1fr 2fr;"><div>${w.user_phone}</div><div style="color:#FCD34D; font-weight:bold;">¥${w.amount}</div><div style="font-size:0.85rem;">${w.method}<br>${w.account_info}</div><div><span class="tag" style="color:#F59E0B">待处理</span></div><div><button class="btn btn-green" onclick="processWithdraw(${w.id}, 'approved')">确认打款</button><button class="btn btn-red" onclick="processWithdraw(${w.id}, 'rejected')">拒绝</button></div></div>`;});document.getElementById('withdrawList').innerHTML=h;});}
+        function loadRefunds(){fetch('api/admin_api.php?action=get_pending_refunds').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style="padding:20px;text-align:center;color:#666">暂无待审核退款</div>';else res.data.forEach(r=>{h+=`<div class="list-item" style="grid-template-columns: 1fr 2fr 1fr 1fr 2fr;"><div>${r.user_phone}</div><div style="font-size:0.85rem;">理由: ${r.reason}<br><span style="color:#666">老师: ${r.tutor_name}</span></div><div style="color:#EF4444; font-weight:bold;">¥${r.amount}</div><div><span class="tag" style="color:#F59E0B">待处理</span></div><div><button class="btn btn-green" onclick="processRefund(${r.id}, 'approved')">同意退款</button><button class="btn btn-red" onclick="processRefund(${r.id}, 'rejected')">拒绝</button></div></div>`;});document.getElementById('refundList').innerHTML=h;});}
+        function auditTutor(id,s){if(!confirm('确认操作？'))return;let fd=new FormData();fd.append('id',id);fd.append('status',s);fetch('api/admin_api.php?action=audit_tutor',{method:'POST',body:fd}).then(()=>{alert('操作成功');loadTutors();loadStats();});}
+        function auditRes(id,s){if(!confirm('确认操作？'))return;let fd=new FormData();fd.append('id',id);fd.append('status',s);fetch('api/admin_api.php?action=audit_resource',{method:'POST',body:fd}).then(()=>{alert('操作成功');loadResources();loadStats();});}
+        function processWithdraw(id,s){let r='';if(s==='rejected'){r=prompt("请输入拒绝原因：");if(!r)return;}else{if(!confirm("确认已通过线下转账？"))return;}let fd=new FormData();fd.append('id',id);fd.append('status',s);if(r)fd.append('reason',r);fetch('api/withdraw_api.php?action=admin_process',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('操作成功');loadWithdrawals();}else alert(d.message);});}
+        function processRefund(id,s){if(!confirm(s==='approved'?'确认退款？':'确认拒绝？'))return;let fd=new FormData();fd.append('id',id);fd.append('status',s);fetch('api/admin_api.php?action=process_refund',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('操作成功');loadRefunds();loadStats();}else alert(d.message);});}
+        function loadCoupons(){fetch('api/admin_api.php?action=get_coupons').then(r=>r.json()).then(res=>{let s=document.getElementById('couponTemplate');s.innerHTML='';if(res.data)res.data.forEach(c=>{let opt=document.createElement('option');opt.value=c.id;opt.text=`${c.name} (减${c.discount})`;s.add(opt);});});}
+        function issueCoupon(){if(!confirm('确定全员发放？'))return;let cid=document.getElementById('couponTemplate').value;let fd=new FormData();fd.append('coupon_id',cid);fetch('api/admin_api.php?action=issue_coupon',{method:'POST',body:fd}).then(()=>{alert('发放成功');});}
+        function loadNotices(){fetch('api/admin_api.php?action=get_announcements').then(r=>r.json()).then(res=>{let h='';if(!res.data||res.data.length===0)h='<p style="text-align:center;padding:20px;color:gray">暂无公告</p>';else res.data.forEach(n=>{h+=`<div class="list-item" style="grid-template-columns: 3fr 1fr 1fr;"><div>${n.title} ${n.is_pushed==1?'<span class="tag" style="background:#3B82F6">已推送</span>':''}</div><div style="color:gray;font-size:0.9rem">${n.create_time}</div><div><button class="btn btn-red" onclick="delNotice(${n.id})">删除</button></div></div>`;});document.getElementById('noticeList').innerHTML=h;});}
+        function pubNotice(){let titleDom=document.getElementById('noticeTitle');let contentDom=document.getElementById('noticeContent');let pushDom=document.getElementById('pushNotice');if(!titleDom||!contentDom)return alert('错误');let t=titleDom.value;let c=contentDom.value;let p=pushDom.checked;if(!t||!c)return alert('完善信息');if(!confirm('发布？'))return;let fd=new FormData();fd.append('type','add');fd.append('title',t);fd.append('content',c);fd.append('push',p);fetch('api/admin_api.php?action=manage_announcement',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('发布成功');titleDom.value='';contentDom.value='';loadNotices();}else alert(d.message);});}
+        function delNotice(id){if(confirm('删除？'))fetch('api/admin_api.php?action=manage_announcement',{method:'POST',body:objToFd({type:'delete',id:id})}).then(()=>{loadNotices();});}
+        function loadFeedbacks(btn){if(btn)switchTab(btn,'cs-feedback-box');fetch('api/admin_api.php?action=get_feedbacks').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;padding:20px;color:gray">暂无反馈</p>';else res.data.forEach(f=>{let status=f.status==='unread'?'<span class="tag" style="background:#EF4444;color:white">未读</span>':'<span class="tag" style="background:#64748B">已读</span>';let act=f.status==='unread'?`<button class="btn btn-blue" onclick="readFeedback(${f.id})">标记已读</button>`:'已处理';h+=`<div class="list-item" style="grid-template-columns: 1fr 3fr 1fr 1fr;"><div>${f.user_contact}</div><div style="font-size:0.9rem;color:white;">${f.content}</div><div style="font-size:0.8rem;color:gray">${f.create_time}</div><div>${act}</div></div>`;});document.getElementById('feedbackList').innerHTML=h;});}
+        function loadFaqs(btn){if(btn)switchTab(btn,'cs-faq-box');fetch('api/public_api.php?action=get_faqs').then(r=>r.json()).then(res=>{let h='';res.data.forEach(q=>{h+=`<div class="list-item" style="grid-template-columns: 3fr 1fr;"><div>${q.question}</div><div><button class="btn btn-red" onclick="delFaq(${q.id})">删除</button></div></div>`;});document.getElementById('faqAdminList').innerHTML=h;});}
+        function readFeedback(id){fetch('api/admin_api.php?action=read_feedback',{method:'POST',body:objToFd({id:id})}).then(()=>{loadFeedbacks();});}
+        function addFaq(){let q=document.getElementById('faqQ').value;let a=document.getElementById('faqA').value;if(!q||!a)return alert('请填写完整');fetch('api/admin_api.php?action=manage_faq',{method:'POST',body:objToFd({type:'add',question:q,answer:a})}).then(()=>{document.getElementById('faqQ').value='';document.getElementById('faqA').value='';loadFaqs();});}
+        function delFaq(id){if(confirm('删除?'))fetch('api/admin_api.php?action=manage_faq',{method:'POST',body:objToFd({type:'delete',id:id})}).then(()=>{loadFaqs();});}
+        function switchTab(btn,boxId){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('cs-feedback-box').style.display='none';document.getElementById('cs-faq-box').style.display='none';document.getElementById(boxId).style.display='block';}
+        function objToFd(obj){let fd=new FormData();for(let k in obj)fd.append(k,obj[k]);return fd;}
+        let currentUserType='student';
+        function loadUsers(type,btn){if(btn){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}currentUserType=type;fetch(`api/admin_api.php?action=get_all_users&type=${type}`).then(r=>r.json()).then(res=>{let h='';res.data.forEach(u=>{let badge=u.is_banned==1?'<span class="tag" style="background:#EF4444;color:white">已封禁</span>':'<span class="tag" style="background:#10B981;color:white">正常</span>';let act=u.is_banned==1?`<button class="btn btn-green" onclick="toggleBan(${u.id},0)">解封</button>`:`<button class="btn btn-red" onclick="toggleBan(${u.id},1)">封禁</button>`;h+=`<div class="list-item" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><div>${u.name}</div><div>${u.phone}</div><div style="color:#FCD34D">¥${u.balance}</div><div>${badge}</div><div>${act}<button class="btn btn-gray" onclick="resetPwd(${u.id})">重置密码</button></div></div>`;});document.getElementById('userList').innerHTML=h;});}
+        function toggleBan(id,s){if(!confirm(s==1?'封禁？':'解封？'))return;let fd=new FormData();fd.append('type',currentUserType);fd.append('id',id);fd.append('is_banned',s);fetch('api/admin_api.php?action=toggle_ban',{method:'POST',body:fd}).then(()=>{loadUsers(currentUserType);});}
+        function resetPwd(id){if(!confirm('重置为123456？'))return;let fd=new FormData();fd.append('type',currentUserType);fd.append('id',id);fetch('api/admin_api.php?action=reset_password',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message);});}
+        function loadReviews(){fetch('api/admin_api.php?action=get_all_reviews').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;padding:20px;color:gray">暂无评价</p>';else res.data.forEach(r=>{h+=`<div class="list-item" style="grid-template-columns: 1fr 1fr 1fr 3fr 1fr;"><div>${r.user_phone}</div><div>${r.tutor_name}</div><div style="color:#F59E0B">${r.rating}星</div><div style="font-size:0.85rem;color:gray">${r.content}</div><div><button class="btn btn-red" onclick="delReview(${r.id})">删除</button></div></div>`;});document.getElementById('reviewList').innerHTML=h;});}
+        function delReview(id){if(confirm('删除此评价？')){let fd=new FormData();fd.append('id',id);fetch('api/admin_api.php?action=delete_review',{method:'POST',body:fd}).then(()=>{loadReviews();});}}
+    </script>
+</body>
+</html>

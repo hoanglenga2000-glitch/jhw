@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>学霸笔记商城 | 智慧家教桥</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ✨ 超级视觉优化版 CSS */
+        :root { 
+            --primary: #6366F1; 
+            --primary-light: #818CF8;
+            --accent: #F59E0B; 
+            --bg-dark: #0B0F19; 
+            --bg-card: rgba(30, 41, 59, 0.7); 
+            --text: #F8FAFC; 
+            --border: rgba(255, 255, 255, 0.12); 
+        }
+        body { 
+            margin:0; 
+            background: linear-gradient(135deg, #0B0F19 0%, #1E1B4B 50%, #312E81 100%);
+            background-attachment: fixed;
+            color:var(--text); 
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+            z-index: -2;
+            pointer-events: none;
+        }
+        .bg { 
+            position:fixed; 
+            width:100%; 
+            height:100%; 
+            top:0; 
+            left:0; 
+            z-index:-1; 
+            background:linear-gradient(to bottom, #0F172A, #0B0F19); 
+        }
+        
+        .header { 
+            padding: 22px 40px; 
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            border-bottom:1.5px solid var(--border); 
+            backdrop-filter:blur(20px) saturate(180%);
+            position:sticky; 
+            top:0; 
+            z-index:100; 
+            background:rgba(15,23,42,0.85);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        .logo { 
+            font-size:1.5rem; 
+            font-weight:900; 
+            color:white; 
+            text-decoration:none; 
+            display:flex; 
+            align-items:center; 
+            gap:12px;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
+        
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .search-box { 
+            display:flex; 
+            gap:12px; 
+            margin-bottom:50px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .search-input { 
+            flex:1; 
+            background:rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border:1.5px solid var(--border); 
+            padding:16px 24px; 
+            border-radius:14px; 
+            color:white; 
+            outline:none; 
+            font-size:1.1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .search-btn { 
+            background:linear-gradient(135deg, var(--primary), var(--primary-light));
+            color:white; 
+            border:none; 
+            padding:0 36px; 
+            border-radius:14px; 
+            font-weight:700; 
+            cursor:pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        .search-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 32px; 
+        }
+        .res-card { 
+            background:var(--bg-card);
+            backdrop-filter: blur(20px) saturate(180%);
+            border:1.5px solid var(--border); 
+            border-radius:24px; 
+            overflow:hidden; 
+            transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position:relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .res-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(245, 158, 11, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        .res-card:hover::before {
+            opacity: 1;
+        }
+        .res-card:hover { 
+            transform:translateY(-12px) scale(1.02);
+            border-color:var(--primary); 
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(99, 102, 241, 0.3),
+                0 0 40px rgba(99, 102, 241, 0.2);
+        }
+        .res-icon { 
+            height:140px; 
+            background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(245,158,11,0.15));
+            display:flex; 
+            align-items:center; 
+            justify-content:center;
+            position: relative;
+            overflow: hidden;
+        }
+        .res-icon::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .res-icon i {
+            font-size: 4.5rem;
+            color: rgba(255, 255, 255, 0.3);
+            transition: transform 0.4s ease;
+        }
+        .res-card:hover .res-icon i {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .res-body { padding:28px; }
+        .res-title { 
+            font-weight:700; 
+            font-size:1.3rem; 
+            margin-bottom:12px; 
+            white-space:nowrap; 
+            overflow:hidden; 
+            text-overflow:ellipsis;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .res-meta { 
+            color:#94A3B8; 
+            font-size:0.9rem; 
+            display:flex; 
+            justify-content:space-between; 
+            margin-bottom:24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .res-price { 
+            font-size:1.8rem; 
+            font-weight:900; 
+            color:var(--accent);
+            text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+        }
+        .res-free { 
+            color:#10B981;
+            font-weight: 800;
+        }
+        
+        .btn { 
+            width:100%; 
+            padding:14px; 
+            border:none; 
+            border-radius:14px; 
+            font-weight:700; 
+            cursor:pointer; 
+            margin-top:12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn-buy { 
+            background:linear-gradient(135deg, var(--accent), #D97706);
+            color:white;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .btn-buy:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.5);
+        }
+        .btn-down { 
+            background:rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            color:white; 
+            border:1.5px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .btn-down:hover { 
+            background:linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-color:var(--primary);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="header">
+        <a href="index.html" class="logo"><i class="fas fa-graduation-cap"></i> 智慧家教桥</a>
+        <div style="color:#94A3B8; cursor:pointer;" onclick="history.back()">返回 <i class="fas fa-arrow-right"></i></div>
+    </div>
+
+    <div class="container">
+        <div style="text-align:center; margin-bottom:50px;">
+            <h1 style="font-size:3.5rem; margin-bottom:15px; font-weight:900; background: linear-gradient(135deg, #FFFFFF, #E0E7FF); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">学霸笔记商城</h1>
+            <p style="color:#94A3B8; font-size:1.1rem;">海量优质复习资料，一键获取，助你高分</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="搜索资料名称 (如: 高考数学错题集)..." onkeyup="if(event.key==='Enter') loadResources()">
+            <button class="search-btn" onclick="loadResources()">搜索</button>
+        </div>
+
+        <div class="grid" id="resGrid">
+            </div>
+    </div>
+
+    <script>
+        const phone = localStorage.getItem('userPhone');
+
+        document.addEventListener('DOMContentLoaded', loadResources);
+
+        function loadResources() {
+            let k = document.getElementById('searchInput').value;
+            fetch(`api/resource_api.php?action=get_list&phone=${phone}&search=${encodeURIComponent(k)}`).then(r=>r.json()).then(res=>{
+                let h = '';
+                if(res.data.length === 0) h = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:gray">暂无资料</div>';
+                else {
+                    res.data.forEach(r => {
+                        let priceHtml = parseFloat(r.price) > 0 ? `<span class="res-price">¥${r.price}</span>` : `<span class="res-price res-free">免费</span>`;
+                        let btnHtml = '';
+                        
+                        if (r.can_download) {
+                            btnHtml = `<button class="btn btn-down" onclick="downloadRes(${r.id})"><i class="fas fa-download"></i> 立即下载</button>`;
+                        } else {
+                            btnHtml = `<button class="btn btn-buy" onclick="buyRes(${r.id}, ${r.price})">购买解锁</button>`;
+                        }
+
+                        h += `<div class="res-card">
+                                <div class="res-icon"><i class="far fa-file-alt" style="font-size:4rem; color:rgba(255,255,255,0.2)"></i></div>
+                                <div class="res-body">
+                                    <div class="res-title">${r.title}</div>
+                                    <div class="res-meta"><span>销量: ${r.sales}</span> <span>${r.tutor_name}</span></div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        ${priceHtml}
+                                    </div>
+                                    ${btnHtml}
+                                </div>
+                              </div>`;
+                    });
+                }
+                document.getElementById('resGrid').innerHTML = h;
+            });
+        }
+
+        function buyRes(id, price) {
+            if(!phone) return alert('请先登录学生账号');
+            if(!confirm(`确认支付 ¥${price} 购买此资料？`)) return;
+            
+            let fd = new FormData();
+            fd.append('phone', phone);
+            fd.append('resource_id', id);
+            
+            fetch('api/resource_api.php?action=buy_resource', {method:'POST', body:fd}).then(r=>r.json()).then(d=>{
+                if(d.status === 'success') {
+                    alert('🎉 购买成功！已自动解锁');
+                    loadResources(); // 刷新状态，变为下载按钮
+                } else {
+                    alert('购买失败: ' + d.message);
+                }
+            });
+        }
+
+        function downloadRes(id) {
+            fetch(`api/resource_api.php?action=get_download_url&id=${id}`).then(r=>r.json()).then(d=>{
+                if(d.status === 'success') {
+                    window.open(d.url, '_blank');
+                } else {
+                    alert(d.message);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
