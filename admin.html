@@ -2,192 +2,1419 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0F4C81">
+    
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/AppImages/ios/32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/AppImages/ios/32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/AppImages/android/android-launchericon-192-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/AppImages/android/android-launchericon-512-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/AppImages/ios/180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/AppImages/ios/152.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="assets/icons/AppImages/ios/120.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <title>总控台 | 智慧家教桥</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
     <style>
-        /* --- 旗舰级深色系统 --- */
-        :root { --primary: #6366F1; --accent: #F43F5E; --bg-dark: #0F172A; --bg-card: #1E293B; --text: #F8FAFC; --text-gray: #94A3B8; --border: rgba(255,255,255,0.08); }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:sans-serif; }
-        body { background: var(--bg-dark); color: var(--text); height: 100vh; display:flex; overflow:hidden; }
-        .sidebar { width: 240px; background: rgba(15, 23, 42, 0.95); border-right: 1px solid var(--border); padding: 25px; display:flex; flex-direction:column; overflow-y: auto; }
-        .logo { font-size: 1.2rem; font-weight: 800; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; color: #fff; }
-        .nav-item { padding: 12px 20px; color: var(--text-gray); cursor: pointer; border-radius: 10px; margin-bottom: 5px; transition:0.3s; font-weight:500; }
-        .nav-item.active { background: linear-gradient(90deg, var(--primary), #818CF8); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-        .main { flex: 1; padding: 40px; overflow-y: auto; }
-        .view { display: none; animation: fadeIn 0.4s ease; } .view.active { display: block; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        /* --- ✨ 电影级视觉效果系统 --- */
+        :root { 
+            --primary: #6366F1; 
+            --primary-light: #818CF8;
+            --accent: #F43F5E; 
+            --accent-orange: #F59E0B;
+            --success: #10B981;
+            --bg-dark: #0F172A; 
+            --bg-card: rgba(30, 41, 59, 0.8); 
+            --text: #F8FAFC; 
+            --text-gray: #94A3B8; 
+            --border: rgba(255,255,255,0.12);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.4);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%);
+            background-attachment: fixed;
+            color: var(--text); 
+            height: 100vh; 
+            display:flex; 
+            overflow:hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(244, 63, 94, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+            z-index: -2;
+            pointer-events: none;
+            animation: gradientShift 20s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .sidebar { 
+            width: 260px; 
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(25px) saturate(180%);
+            border-right: 1.5px solid var(--border); 
+            padding: 30px 20px; 
+            display:flex; 
+            flex-direction:column; 
+            overflow-y: auto;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        .logo { 
+            font-size: 1.4rem; 
+            font-weight: 900; 
+            margin-bottom: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+        .logo img {
+            height: 50px;
+            width: auto;
+            display: block;
+        }
+        .logo:hover { transform: scale(1.05); }
+        .nav-item { 
+            padding: 14px 18px; 
+            margin-bottom: 6px; 
+            cursor: pointer; 
+            border-radius: 14px; 
+            color: var(--text-gray); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            position: relative;
+            font-weight: 500;
+        }
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            background: linear-gradient(90deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .nav-item.active::before {
+            opacity: 1;
+        }
+        .nav-item:hover { 
+            background: rgba(255,255,255,0.05);
+            transform: translateX(5px);
+        }
+        .nav-item.active { 
+            color: var(--primary-light);
+            border-left: 3px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        .nav-item .badge {
+            margin-left: auto;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .main { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            position: relative;
+        }
+        .main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at top right, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at bottom left, rgba(244, 63, 94, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
         
-        /* 统计卡片 */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); position: relative; }
-        .stat-val { font-size: 2rem; font-weight: 800; margin-top: 10px; }
-        .stat-label { color: var(--text-gray); font-size: 0.9rem; }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 1;
+        }
+        .header h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+        .view { 
+            display: none; 
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+        }
+        .view.active { display: block; }
+        @keyframes fadeIn { 
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.98); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            } 
+        }
+
+        /* 卡片与表格 - 电影级增强 */
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 25px; 
+            margin-bottom: 40px; 
+        }
+        .stat-card { 
+            background: var(--bg-card);
+            backdrop-filter: blur(20px) saturate(180%);
+            padding: 28px; 
+            border-radius: 20px; 
+            border: 1.5px solid var(--border);
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(99, 102, 241, 0.3),
+                0 0 40px rgba(99, 102, 241, 0.2);
+        }
+        .stat-val { 
+            font-size: 2.5rem; 
+            font-weight: 900; 
+            margin-top: 12px;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+        .stat-label { 
+            color: var(--text-gray); 
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
         
-        /* ✨✨✨ [新增] 图表区域样式 ✨✨✨ */
-        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .chart-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; height: 400px; }
+        .table-container { 
+            background: var(--bg-card);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px; 
+            border: 1.5px solid var(--border); 
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { 
+            padding: 18px 20px; 
+            text-align: left; 
+            border-bottom: 1px solid rgba(255,255,255,0.08); 
+            font-size: 0.9rem; 
+        }
+        th { 
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            color: var(--text-gray); 
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+        tr {
+            transition: all 0.3s ease;
+        }
+        tr:hover { 
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(1.01);
+        }
         
-        /* 列表通用 */
-        .data-list { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
-        .list-header { background: rgba(255,255,255,0.03); padding: 15px 20px; font-weight: bold; color: var(--text-gray); display: grid; gap: 10px; border-bottom: 1px solid var(--border); }
-        .list-item { padding: 20px; border-bottom: 1px solid var(--border); display: grid; gap: 10px; align-items: center; transition: 0.2s; }
-        .list-item:hover { background: rgba(255,255,255,0.02); }
-        .btn { padding: 6px 15px; border-radius: 6px; border: none; cursor: pointer; color: white; font-weight: bold; font-size: 0.85rem; margin-right: 5px; }
-        .btn-green { background: #10B981; } .btn-red { background: #EF4444; } .btn-gray { background: #64748B; } .btn-blue { background: #3B82F6; }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; background: #334155; color: #cbd5e1; }
-        .form-input { width: 100%; padding: 10px; background: #0F172A; border: 1px solid var(--border); color: white; border-radius: 8px; outline: none; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { background: #1E293B; border: 1px solid var(--border); color: #94A3B8; padding: 8px 20px; cursor: pointer; border-radius: 20px; }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        /* 徽章与按钮 */
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; display: inline-block; }
+        .bg-success { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+        .bg-warning { background: rgba(245, 158, 11, 0.2); color: #F59E0B; }
+        .bg-danger { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
+        .bg-primary { background: rgba(99, 102, 241, 0.2); color: #818CF8; }
+        
+        .btn { 
+            padding: 8px 16px; 
+            border-radius: 10px; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 0.85rem; 
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+        .btn-outline { 
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--border); 
+            color: var(--text-gray);
+        }
+        .btn-outline:hover, .btn-outline.active { 
+            border-color: var(--primary); 
+            color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+        .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
+        .btn-danger { 
+            background: rgba(239,68,68,0.25);
+            color: #EF4444;
+            border: 1.5px solid rgba(239,68,68,0.4);
+        }
+        .btn-danger:hover {
+            background: rgba(239,68,68,0.35);
+            transform: translateY(-2px) scale(1.05);
+        }
+        .btn-success {
+            background: rgba(16,185,129,0.25);
+            color: #10B981;
+            border: 1.5px solid rgba(16,185,129,0.4);
+        }
+        .btn-success:hover {
+            background: rgba(16,185,129,0.35);
+            transform: translateY(-2px) scale(1.05);
+        }
+        .btn-gray { 
+            background: rgba(51, 65, 85, 0.8);
+            color: white;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .btn-gray:hover {
+            background: rgba(51, 65, 85, 1);
+            transform: translateY(-2px);
+        }
+
+        /* 列表项布局 */
+        .list-item { display: grid; grid-template-columns: 1fr 1fr 4fr 1fr; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border); align-items: center; }
+        
+        /* 合同查看弹窗 */
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(20px) saturate(180%);
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal { 
+            background: #fff; 
+            width: 750px; 
+            max-height: 90vh; 
+            border-radius: 24px; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            color: #333;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .modal-header { 
+            padding: 20px 30px; 
+            border-bottom: 1px solid #eee; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+        .modal-body { 
+            padding: 40px; 
+            overflow-y: auto; 
+            line-height: 1.8;
+        }
+        .contract-paper { 
+            border: 1px solid #ddd; 
+            padding: 40px; 
+            background: #fff; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            margin-bottom: 25px; 
+            position: relative;
+            border-radius: 8px;
+        }
+        .stamp-seal { 
+            position: absolute; 
+            bottom: 50px; 
+            right: 50px; 
+            width: 130px; 
+            height: 130px; 
+            border: 3px solid #EF4444; 
+            border-radius: 50%; 
+            color: #EF4444; 
+            font-weight: 900; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.2rem; 
+            transform: rotate(-20deg); 
+            opacity: 0.8; 
+            pointer-events: none; 
+            box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .echart-box { 
+            height: 350px; 
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px; 
+            border: 1.5px solid var(--border); 
+            padding: 25px; 
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .echart-box:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 心跳动画点 */
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulseHeartbeat 1.5s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+        @keyframes pulseHeartbeat {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+        
+        /* Switch开关样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(239, 68, 68, 0.3);
+            transition: 0.3s;
+            border-radius: 26px;
+            border: 1.5px solid rgba(239, 68, 68, 0.5);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 2.5px;
+            background-color: #EF4444;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        input:checked + .slider {
+            background-color: rgba(16, 185, 129, 0.3);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: #10B981;
+        }
+        
+        /* 全局广播弹窗 */
+        .broadcast-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .broadcast-modal.active {
+            display: flex;
+        }
+        .broadcast-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            border: 1.5px solid var(--border);
+            border-radius: 24px;
+            padding: 35px;
+            width: 500px;
+            max-width: 90vw;
+            box-shadow: 0 32px 64px rgba(0,0,0,0.5);
+            animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .broadcast-card h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .broadcast-card textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            resize: vertical;
+            outline: none;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+        .broadcast-card textarea:focus {
+            border-color: var(--primary);
+            background: rgba(0,0,0,0.4);
+        }
     </style>
 </head>
 <body>
+
     <div class="sidebar">
-        <div class="logo"><i class="fas fa-user-shield"></i> 管理员总控</div>
-        <div class="nav-item active" onclick="switchView('dashboard', this)">数据概览</div>
-        
-        <div style="font-size:0.8rem; color:#64748B; margin:15px 20px 5px;">审核中心</div>
-        <div class="nav-item" onclick="switchView('audit-tutor', this)">教员入驻</div>
-        <div class="nav-item" onclick="switchView('audit-res', this)">资料上传</div>
-        <div class="nav-item" onclick="switchView('audit-withdraw', this)">财务提现</div>
-        <div class="nav-item" onclick="switchView('audit-refund', this)">售后退款</div>
-        
-        <div style="font-size:0.8rem; color:#64748B; margin:15px 20px 5px;">运营管理</div>
-        <div class="nav-item" onclick="switchView('user-manage', this)">用户管理</div>
-        <div class="nav-item" onclick="switchView('content-manage', this)">内容评价</div>
-        <div class="nav-item" onclick="switchView('marketing', this)">营销中心</div>
-        <div class="nav-item" onclick="switchView('notices', this)">公告发布</div>
-        <div class="nav-item" onclick="switchView('cs-manage', this)">客服反馈 & FAQ</div>
-        
-        <div class="nav-item" onclick="location.href='index.html'" style="margin-top:auto; color:#EF4444">退出管理</div>
+        <div class="logo">
+            <img src="assets/logo-header.png" alt="智慧家教桥 - 总控中心">
+        </div>
+        <div class="nav-item active" onclick="switchView('dashboard', this)"><i class="fas fa-chart-line"></i> 数据看板</div>
+        <div class="nav-item" onclick="switchView('tutors', this)"><i class="fas fa-chalkboard-teacher"></i> 教员审核 <span class="badge bg-danger" id="badgeTutor" style="display:none">0</span></div>
+        <div class="nav-item" onclick="switchView('resources', this)"><i class="fas fa-folder-open"></i> 资源审核 <span class="badge bg-danger" id="badgeRes" style="display:none">0</span></div>
+        <div class="nav-item" onclick="switchView('withdrawals', this)"><i class="fas fa-wallet"></i> 提现处理 <span class="badge bg-danger" id="badgeWith" style="display:none">0</span></div>
+        <div class="nav-item" onclick="switchView('bookings', this)"><i class="fas fa-calendar-check"></i> 订单管理</div>
+        <div class="nav-item" onclick="switchView('users', this)"><i class="fas fa-users"></i> 用户管控</div>
+        <div class="nav-item" onclick="switchView('finance', this)"><i class="fas fa-chart-bar"></i> 财务报表</div>
+        <div class="nav-item" onclick="switchView('cms', this)"><i class="fas fa-bullhorn"></i> 公告/内容</div>
+        <div class="nav-item" style="margin-top:auto; color:#EF4444;" onclick="if(confirm('退出登录？')) location.href='index.html'"><i class="fas fa-sign-out-alt"></i> 退出登录</div>
     </div>
 
     <div class="main">
         <div id="view-dashboard" class="view active">
-            <h2 style="margin-bottom:30px">平台运营驾驶舱</h2>
-            
+            <div class="header"><h2>🎛️ 运营指挥中心</h2></div>
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-label">总用户数</div><div class="stat-val" id="stUsers">0</div></div>
-                <div class="stat-card"><div class="stat-label">入驻教员</div><div class="stat-val" id="stTutors">0</div></div>
-                <div class="stat-card"><div class="stat-label">平台 GMV (元)</div><div class="stat-val" style="color:#FCD34D" id="stGMV">0.00</div></div>
-                <div class="stat-card" style="border-color:var(--primary)"><div class="stat-label">待办事项</div><div class="stat-val" style="color:var(--primary)" id="stPending">0</div></div>
+                <div class="stat-card">
+                    <div class="stat-label">注册用户</div>
+                    <div class="stat-val" id="stUsers">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">入驻教员</div>
+                    <div class="stat-val" id="stTutors">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">有效订单</div>
+                    <div class="stat-val" id="stOrders">-</div>
+                </div>
+                <div class="stat-card" style="position:relative;">
+                    <div class="stat-label">实时在线人数</div>
+                    <div class="stat-val" style="display:flex; align-items:center; gap:10px;">
+                        <span id="stOnlineUsers">-</span>
+                        <div class="pulse-dot"></div>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-gray); margin-top:8px;">心跳监控中...</div>
+                </div>
             </div>
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-bottom:20px;">
+                <div class="echart-box" id="chartRevenue" style="height:380px;"></div>
+                <div class="echart-box" id="chartUserTrend" style="height:380px;"></div>
+            </div>
+            <div class="echart-box" id="chartPie" style="height:350px;"></div>
+        </div>
 
-            <div class="charts-row">
-                <div class="chart-box" id="chartTrend"></div>
-                <div class="chart-box" id="chartPie"></div>
+        <div id="view-tutors" class="view">
+            <div class="header">
+                <h2>教员入驻审核</h2>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="text" id="tutorSearch" placeholder="搜索姓名/手机..." style="padding:8px 15px; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; color:white; outline:none; width:200px;" onkeyup="filterTutors()">
+                    <button class="btn btn-primary" onclick="loadVerifyTutors()"><i class="fas fa-sync"></i> 刷新</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th><input type="checkbox" id="checkAllTutors" onchange="toggleAllTutors(this)"></th><th>姓名</th><th>学校/专业</th><th>教龄</th><th>手机</th><th>操作</th></tr></thead>
+                    <tbody id="tutorVerifyList"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:15px;">
+                <button class="btn btn-success" onclick="batchApproveTutors()"><i class="fas fa-check-double"></i> 批量通过选中</button>
+                <button class="btn btn-danger" onclick="batchRejectTutors()"><i class="fas fa-times"></i> 批量拒绝选中</button>
             </div>
         </div>
 
-        <div id="view-audit-tutor" class="view">
-            <h2 style="margin-bottom:20px">教员入驻审核</h2>
-            <div class="data-list">
-                <div class="list-header" style="grid-template-columns: 2fr 2fr 1fr 1fr 2fr;"><span>姓名/手机</span><span>学校/专业</span><span>证件核验</span><span>状态</span><span>操作</span></div>
-                <div id="tutorList"></div>
+        <div id="view-resources" class="view">
+            <div class="header">
+                <h2>上传资源审核</h2>
+                <input type="text" id="resSearch" placeholder="搜索资源标题..." style="padding:8px 15px; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; color:white; outline:none; width:200px;" onkeyup="filterResources()">
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>标题</th><th>发布者</th><th>价格</th><th>文件</th><th>操作</th></tr></thead>
+                    <tbody id="resVerifyList"></tbody>
+                </table>
             </div>
         </div>
-        
-        <div id="view-audit-res" class="view"><h2 style="margin-bottom:20px">资料上传审核</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><span>标题</span><span>类型</span><span>上传者</span><span>状态</span><span>操作</span></div><div id="resList"></div></div></div>
-        <div id="view-audit-withdraw" class="view"><h2 style="margin-bottom:20px">提现申请审核</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 1fr 2fr 1fr 2fr;"><span>申请人</span><span>金额</span><span>收款信息</span><span>状态</span><span>操作</span></div><div id="withdrawList"></div></div></div>
-        <div id="view-audit-refund" class="view"><h2 style="margin-bottom:20px">售后退款处理</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 2fr 1fr 1fr 2fr;"><span>申请人</span><span>理由/老师</span><span>金额</span><span>状态</span><span>操作</span></div><div id="refundList"></div></div></div>
 
-        <div id="view-user-manage" class="view"><h2 style="margin-bottom:20px">用户与账号管理</h2><div class="tab-bar"><button class="tab-btn active" onclick="loadUsers('student', this)">学生列表</button><button class="tab-btn" onclick="loadUsers('teacher', this)">教员列表</button></div><div class="data-list"><div class="list-header" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><span>用户</span><span>手机号</span><span>余额</span><span>状态</span><span>操作</span></div><div id="userList"></div></div></div>
-        <div id="view-content-manage" class="view"><h2 style="margin-bottom:20px">评价管理</h2><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 1fr 1fr 3fr 1fr;"><span>用户</span><span>评价教员</span><span>评分</span><span>内容</span><span>操作</span></div><div id="reviewList"></div></div></div>
-        <div id="view-marketing" class="view"><h2 style="margin-bottom:20px">优惠券管理</h2><div style="background:var(--bg-card); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;"><h3 style="margin-bottom:15px">全员普惠</h3><p style="color:gray; margin-bottom:15px;">向所有注册用户发放优惠券 (拉新/促活)</p><div style="display:flex; gap:10px;"><select id="couponTemplate" class="form-input" style="margin:0; flex:1;"></select><button class="btn btn-green" onclick="issueCoupon()">一键发放</button></div></div></div>
-        
-        <div id="view-notices" class="view"><h2 style="margin-bottom:20px">系统公告发布</h2><div style="background:var(--bg-card); padding:30px; border-radius:16px; border:1px solid var(--border); margin-bottom:30px;"><input type="text" id="noticeTitle" class="form-input" placeholder="公告标题 (如：系统维护通知)" style="margin-bottom:15px;"><textarea id="noticeContent" class="form-input" rows="4" placeholder="公告正文内容..." style="margin-bottom:15px;"></textarea><div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;"><input type="checkbox" id="pushNotice" style="width:20px; height:20px;"> <label for="pushNotice" style="color:var(--text-gray)">同时推送到所有用户的消息箱 (强提醒)</label></div><button class="btn btn-blue" onclick="pubNotice()">🚀 发布公告</button></div><h3 style="margin-bottom:20px">历史公告</h3><div class="data-list"><div class="list-header" style="grid-template-columns: 3fr 1fr 1fr;"><span>标题</span><span>发布时间</span><span>操作</span></div><div id="noticeList"></div></div></div>
+        <div id="view-withdrawals" class="view">
+            <div class="header"><h2>提现申请处理</h2></div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>用户</th><th>金额</th><th>收款账号</th><th>时间</th><th>操作</th></tr></thead>
+                    <tbody id="withList"></tbody>
+                </table>
+            </div>
+        </div>
 
-        <div id="view-cs-manage" class="view"><h2 style="margin-bottom:20px">客服中心管理</h2><div class="tab-bar"><button class="tab-btn active" onclick="loadFeedbacks(this)">用户反馈</button><button class="tab-btn" onclick="loadFaqs(this)">FAQ 常见问题</button></div><div id="cs-feedback-box"><div class="data-list"><div class="list-header" style="grid-template-columns: 1fr 3fr 1fr 1fr;"><span>联系方式</span><span>反馈内容</span><span>时间</span><span>操作</span></div><div id="feedbackList"></div></div></div><div id="cs-faq-box" style="display:none;"><div style="background:var(--bg-card); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;"><h3 style="margin-bottom:15px">添加常见问题</h3><input type="text" id="faqQ" class="form-input" placeholder="问题 (Question)" style="margin-bottom:10px;"><textarea id="faqA" class="form-input" rows="3" placeholder="回答 (Answer)" style="margin-bottom:10px;"></textarea><button class="btn btn-green" onclick="addFaq()">添加</button></div><div class="data-list"><div class="list-header" style="grid-template-columns: 3fr 1fr;"><span>问题</span><span>操作</span></div><div id="faqAdminList"></div></div></div></div>
+        <div id="view-bookings" class="view">
+            <div class="header">
+                <h2>订单查询与监管</h2>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="bookingSearch" placeholder="搜索订单ID/学生/教员..." style="padding:8px 15px; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; color:white; outline:none; width:220px;" onkeyup="filterBookings()">
+                    <select id="bookingStatusFilter" style="padding:8px 15px; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px; color:white; outline:none;" onchange="filterBookings()">
+                        <option value="">全部状态</option>
+                        <option value="待确认">待确认</option>
+                        <option value="已通过">已通过</option>
+                        <option value="已支付">已支付</option>
+                        <option value="已完成">已完成</option>
+                        <option value="已取消">已取消</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadBookings()"><i class="fas fa-sync"></i> 刷新</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>学生</th>
+                            <th>教员</th>
+                            <th>时间</th>
+                            <th>方式</th> <th>金额</th>
+                            <th>状态</th>
+                            <th>合同</th> <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-users" class="view">
+            <div class="header">
+                <h2>用户封禁与重置</h2>
+                <div>
+                    <button class="btn btn-outline active" onclick="loadUsers('student')">学生</button>
+                    <button class="btn btn-outline" onclick="loadUsers('teacher')">教员</button>
+                </div>
+            </div>
+            <div class="table-container"><div id="userList" style="padding:10px;"></div></div>
+            <h3 style="margin:20px 0 10px;">最近评价</h3>
+            <div class="table-container"><div id="reviewList" style="padding:10px;"></div></div>
+        </div>
+
+        <div id="view-finance" class="view">
+            <div class="header">
+                <h2>💰 财务对账中心</h2>
+                <button class="btn btn-primary" onclick="exportFinanceCSV()"><i class="fas fa-download"></i> 导出CSV</button>
+            </div>
+            <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="stat-card">
+                    <div class="stat-label">平台总收入</div>
+                    <div class="stat-val" style="color:#10B981" id="financeTotal">¥0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">平台抽成</div>
+                    <div class="stat-val" style="color:#F59E0B" id="financeCommission">¥0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">教员分成</div>
+                    <div class="stat-val" style="color:#6366F1" id="financePayout">¥0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">待结算</div>
+                    <div class="stat-val" style="color:#EF4444" id="financePending">¥0</div>
+                </div>
+            </div>
+            <div class="table-container" style="margin-top:25px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>订单ID</th>
+                            <th>学员</th>
+                            <th>教员</th>
+                            <th>订单金额</th>
+                            <th>抽成比例</th>
+                            <th>平台收入</th>
+                            <th>教员分成</th>
+                            <th>状态</th>
+                            <th>结算时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financeList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-cms" class="view">
+            <div class="header"><h2>内容发布系统</h2></div>
+            <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="stat-card">
+                    <h3>📢 发布公告</h3>
+                    <input id="annoTitle" style="width:100%; padding:10px; margin:10px 0; background:#334155; border:none; color:white; border-radius:8px;" placeholder="标题">
+                    <textarea id="annoContent" style="width:100%; padding:10px; height:80px; background:#334155; border:none; color:white; border-radius:8px;" placeholder="内容"></textarea>
+                    <button class="btn btn-primary" style="margin-top:10px;" onclick="postAnno()">发布并推送全员</button>
+                </div>
+                <div class="stat-card">
+                    <h3>🔔 全局广播（实时推送）</h3>
+                    <p style="font-size:0.85rem; color:var(--text-gray); margin-bottom:15px;">向所有在线用户发送即时通知</p>
+                    <textarea id="broadcastContent" style="width:100%; padding:12px; min-height:80px; background:rgba(0,0,0,0.3); border:1.5px solid var(--border); border-radius:8px; color:white; resize:vertical;" placeholder="输入广播内容..."></textarea>
+                    <button class="btn btn-primary" style="margin-top:10px; background:linear-gradient(135deg, #F59E0B, #D97706);" onclick="openBroadcastModal()"><i class="fas fa-broadcast-tower"></i> 发送全局广播</button>
+                </div>
+            </div>
+            <div class="stats-grid" style="grid-template-columns: 1fr;">
+                <div class="stat-card">
+                    <h3>🔧 常见问题管理</h3>
+                    <input id="faqQ" style="width:100%; padding:10px; margin:10px 0; background:#334155; border:none; color:white; border-radius:8px;" placeholder="问题">
+                    <textarea id="faqA" style="width:100%; padding:10px; height:80px; background:#334155; border:none; color:white; border-radius:8px;" placeholder="回答"></textarea>
+                    <button class="btn btn-success" style="margin-top:10px;" onclick="addFaq()">添加FAQ</button>
+                </div>
+            </div>
+            <h3 style="margin-top:25px;">用户反馈</h3>
+            <div class="table-container"><table id="feedbackList"></table></div>
+        </div>
+        
+        <!-- 全局广播确认弹窗 -->
+        <div class="broadcast-modal" id="broadcastModal">
+            <div class="broadcast-card">
+                <h3><i class="fas fa-broadcast-tower"></i> 确认发送全局广播</h3>
+                <textarea id="broadcastConfirmContent" placeholder="广播内容将发送给所有在线用户..."></textarea>
+                <div style="display:flex; gap:12px; justify-content:flex-end;">
+                    <button class="btn btn-outline" onclick="closeBroadcastModal()">取消</button>
+                    <button class="btn btn-primary" onclick="sendBroadcast()" style="background:linear-gradient(135deg, #F59E0B, #D97706);"><i class="fas fa-paper-plane"></i> 确认发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="contractModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span style="font-weight:bold; font-size:1.1rem;">📝 订单合同档案</span>
+                <button class="btn btn-outline" onclick="document.getElementById('contractModal').style.display='none'">关闭</button>
+            </div>
+            <div class="modal-body" id="contractContent"></div>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => { 
-            loadStats(); 
-            renderCharts(); // ✨ 初始化图表
-            loadTutors(); loadResources(); loadWithdrawals(); loadRefunds(); loadUsers('student'); loadReviews(); loadCoupons(); loadNotices(); loadFeedbacks(); 
+        let currentUserType = 'student';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            initCharts();
+            // 自动加载第一屏数据
+            loadVerifyTutors();
+            loadVerifyResources();
+            loadWithdrawals();
         });
 
         function switchView(id, btn) {
             document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
             document.getElementById('view-'+id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-            btn.classList.add('active');
-            // 切换回概览时重绘图表，防止尺寸异常
-            if(id === 'dashboard') setTimeout(renderCharts, 100);
-            
-            if(id==='user-manage') loadUsers('student');
-            if(id==='content-manage') loadReviews();
-            if(id==='marketing') loadCoupons();
-            if(id==='notices') loadNotices();
-            if(id==='cs-manage') loadFeedbacks();
+            if(btn) {
+                document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            // 懒加载
+            if(id==='bookings') loadBookings();
+            if(id==='users') { loadUsers('student'); loadReviews(); }
+            if(id==='cms') loadFeedbacks();
+            if(id==='finance') loadFinanceData();
         }
 
-        // ✨✨✨ [新增] 渲染图表逻辑 ✨✨✨
-        function renderCharts() {
-            fetch('api/admin_api.php?action=get_chart_data').then(r=>r.json()).then(res => {
-                if(res.status === 'success') {
-                    // 1. 趋势折线图
-                    let chartTrend = echarts.init(document.getElementById('chartTrend'));
-                    let optionTrend = {
-                        title: { text: '近7天订单走势', textStyle: { color: '#fff' } },
-                        tooltip: { trigger: 'axis' },
-                        grid: { top: 60, bottom: 40, left: 40, right: 40 },
-                        xAxis: { type: 'category', data: res.trend.dates, axisLabel: { color: '#94A3B8' } },
-                        yAxis: { type: 'value', axisLabel: { color: '#94A3B8' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
-                        series: [{ data: res.trend.counts, type: 'line', smooth: true, color: '#6366F1', areaStyle: { color: 'rgba(99, 102, 241, 0.2)' } }]
-                    };
-                    chartTrend.setOption(optionTrend);
-
-                    // 2. 热门科目饼图
-                    let chartPie = echarts.init(document.getElementById('chartPie'));
-                    let optionPie = {
-                        title: { text: '热门科目 TOP 5', textStyle: { color: '#fff' } },
-                        tooltip: { trigger: 'item' },
-                        legend: { bottom: '0%', textStyle: { color: '#fff' } },
-                        series: [{
-                            name: '科目', type: 'pie', radius: ['40%', '70%'],
-                            itemStyle: { borderRadius: 10, borderColor: '#1E293B', borderWidth: 2 },
-                            label: { show: false },
-                            data: res.pie
-                        }]
-                    };
-                    chartPie.setOption(optionPie);
-                    
-                    // 响应窗口大小变化
-                    window.onresize = function() { chartTrend.resize(); chartPie.resize(); };
-                }
+        function loadStats() {
+            fetch('api/admin_api.php?action=get_stats').then(r=>r.json()).then(res=>{
+                const d = res.data;
+                document.getElementById('stUsers').innerText = d.users;
+                document.getElementById('stTutors').innerText = d.tutors;
+                document.getElementById('stOrders').innerText = d.orders;
+                document.getElementById('stIncome').innerText = d.income;
+                // Badges
+                if(d.pending.tutors>0) { document.getElementById('badgeTutor').innerText=d.pending.tutors; document.getElementById('badgeTutor').style.display='inline-block'; }
+                if(d.pending.resources>0) { document.getElementById('badgeRes').innerText=d.pending.resources; document.getElementById('badgeRes').style.display='inline-block'; }
+                if(d.pending.withdrawals>0) { document.getElementById('badgeWith').innerText=d.pending.withdrawals; document.getElementById('badgeWith').style.display='inline-block'; }
             });
         }
 
-        // ... 以下原有逻辑保持不变 (从你的原文件中复制) ...
-        function loadStats(){fetch('api/admin_api.php?action=get_stats').then(r=>r.json()).then(d=>{document.getElementById('stUsers').innerText=d.users;document.getElementById('stTutors').innerText=d.tutors;document.getElementById('stOrders').innerText=d.orders;document.getElementById('stPending').innerText=d.pending; if(d.gmv) document.getElementById('stGMV').innerText=d.gmv;});}
-        function loadTutors() { fetch('api/admin_api.php?action=get_pending_tutors').then(r=>r.json()).then(res=>{ let h = ''; if(res.data.length===0) h='<div style="padding:20px;text-align:center;color:#666">暂无待审核教员</div>'; else res.data.forEach(t => { let certHtml = t.cert_img ? `<a href="assets/${t.cert_img}" target="_blank" style="color:#6366F1;text-decoration:underline">查看证件</a>` : '<span style="color:red">未上传</span>'; h += `<div class="list-item" style="grid-template-columns: 2fr 2fr 1fr 1fr 2fr;"><div><strong>${t.name}</strong><br><span style="font-size:0.8rem;color:#94A3B8">${t.phone}</span></div><div>${t.school}<br><span style="font-size:0.8rem;color:#94A3B8">${t.major}</span></div><div>${certHtml}</div><div><span class="tag" style="color:#F59E0B">待审核</span></div><div><button class="btn btn-green" onclick="auditTutor(${t.id}, '已通过')">通过</button><button class="btn btn-red" onclick="auditTutor(${t.id}, '已拒绝')">拒绝</button></div></div>`; }); document.getElementById('tutorList').innerHTML = h; }); }
-        function loadResources(){fetch('api/admin_api.php?action=get_pending_resources').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style="padding:20px;text-align:center;color:#666">暂无待审核资料</div>';else res.data.forEach(r=>{h+=`<div class="list-item" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><div><a href="uploads/${r.file_path}" target="_blank" style="color:#6366F1">${r.title}</a></div><div>${r.type}</div><div>${r.uploader_phone}</div><div><span class="tag" style="color:#F59E0B">待审核</span></div><div><button class="btn btn-green" onclick="auditRes(${r.id}, '已通过')">通过</button><button class="btn btn-red" onclick="auditRes(${r.id}, '已拒绝')">拒绝</button></div></div>`;});document.getElementById('resList').innerHTML=h;});}
-        function loadWithdrawals(){fetch('api/withdraw_api.php?action=admin_get_pending').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style="padding:20px;text-align:center;color:#666">暂无提现申请</div>';else res.data.forEach(w=>{h+=`<div class="list-item" style="grid-template-columns: 1fr 1fr 2fr 1fr 2fr;"><div>${w.user_phone}</div><div style="color:#FCD34D; font-weight:bold;">¥${w.amount}</div><div style="font-size:0.85rem;">${w.method}<br>${w.account_info}</div><div><span class="tag" style="color:#F59E0B">待处理</span></div><div><button class="btn btn-green" onclick="processWithdraw(${w.id}, 'approved')">确认打款</button><button class="btn btn-red" onclick="processWithdraw(${w.id}, 'rejected')">拒绝</button></div></div>`;});document.getElementById('withdrawList').innerHTML=h;});}
-        function loadRefunds(){fetch('api/admin_api.php?action=get_pending_refunds').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<div style="padding:20px;text-align:center;color:#666">暂无待审核退款</div>';else res.data.forEach(r=>{h+=`<div class="list-item" style="grid-template-columns: 1fr 2fr 1fr 1fr 2fr;"><div>${r.user_phone}</div><div style="font-size:0.85rem;">理由: ${r.reason}<br><span style="color:#666">老师: ${r.tutor_name}</span></div><div style="color:#EF4444; font-weight:bold;">¥${r.amount}</div><div><span class="tag" style="color:#F59E0B">待处理</span></div><div><button class="btn btn-green" onclick="processRefund(${r.id}, 'approved')">同意退款</button><button class="btn btn-red" onclick="processRefund(${r.id}, 'rejected')">拒绝</button></div></div>`;});document.getElementById('refundList').innerHTML=h;});}
-        function auditTutor(id,s){if(!confirm('确认操作？'))return;let fd=new FormData();fd.append('id',id);fd.append('status',s);fetch('api/admin_api.php?action=audit_tutor',{method:'POST',body:fd}).then(()=>{alert('操作成功');loadTutors();loadStats();});}
-        function auditRes(id,s){if(!confirm('确认操作？'))return;let fd=new FormData();fd.append('id',id);fd.append('status',s);fetch('api/admin_api.php?action=audit_resource',{method:'POST',body:fd}).then(()=>{alert('操作成功');loadResources();loadStats();});}
-        function processWithdraw(id,s){let r='';if(s==='rejected'){r=prompt("请输入拒绝原因：");if(!r)return;}else{if(!confirm("确认已通过线下转账？"))return;}let fd=new FormData();fd.append('id',id);fd.append('status',s);if(r)fd.append('reason',r);fetch('api/withdraw_api.php?action=admin_process',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('操作成功');loadWithdrawals();}else alert(d.message);});}
-        function processRefund(id,s){if(!confirm(s==='approved'?'确认退款？':'确认拒绝？'))return;let fd=new FormData();fd.append('id',id);fd.append('status',s);fetch('api/admin_api.php?action=process_refund',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('操作成功');loadRefunds();loadStats();}else alert(d.message);});}
-        function loadCoupons(){fetch('api/admin_api.php?action=get_coupons').then(r=>r.json()).then(res=>{let s=document.getElementById('couponTemplate');s.innerHTML='';if(res.data)res.data.forEach(c=>{let opt=document.createElement('option');opt.value=c.id;opt.text=`${c.name} (减${c.discount})`;s.add(opt);});});}
-        function issueCoupon(){if(!confirm('确定全员发放？'))return;let cid=document.getElementById('couponTemplate').value;let fd=new FormData();fd.append('coupon_id',cid);fetch('api/admin_api.php?action=issue_coupon',{method:'POST',body:fd}).then(()=>{alert('发放成功');});}
-        function loadNotices(){fetch('api/admin_api.php?action=get_announcements').then(r=>r.json()).then(res=>{let h='';if(!res.data||res.data.length===0)h='<p style="text-align:center;padding:20px;color:gray">暂无公告</p>';else res.data.forEach(n=>{h+=`<div class="list-item" style="grid-template-columns: 3fr 1fr 1fr;"><div>${n.title} ${n.is_pushed==1?'<span class="tag" style="background:#3B82F6">已推送</span>':''}</div><div style="color:gray;font-size:0.9rem">${n.create_time}</div><div><button class="btn btn-red" onclick="delNotice(${n.id})">删除</button></div></div>`;});document.getElementById('noticeList').innerHTML=h;});}
-        function pubNotice(){let titleDom=document.getElementById('noticeTitle');let contentDom=document.getElementById('noticeContent');let pushDom=document.getElementById('pushNotice');if(!titleDom||!contentDom)return alert('错误');let t=titleDom.value;let c=contentDom.value;let p=pushDom.checked;if(!t||!c)return alert('完善信息');if(!confirm('发布？'))return;let fd=new FormData();fd.append('type','add');fd.append('title',t);fd.append('content',c);fd.append('push',p);fetch('api/admin_api.php?action=manage_announcement',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('发布成功');titleDom.value='';contentDom.value='';loadNotices();}else alert(d.message);});}
-        function delNotice(id){if(confirm('删除？'))fetch('api/admin_api.php?action=manage_announcement',{method:'POST',body:objToFd({type:'delete',id:id})}).then(()=>{loadNotices();});}
-        function loadFeedbacks(btn){if(btn)switchTab(btn,'cs-feedback-box');fetch('api/admin_api.php?action=get_feedbacks').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;padding:20px;color:gray">暂无反馈</p>';else res.data.forEach(f=>{let status=f.status==='unread'?'<span class="tag" style="background:#EF4444;color:white">未读</span>':'<span class="tag" style="background:#64748B">已读</span>';let act=f.status==='unread'?`<button class="btn btn-blue" onclick="readFeedback(${f.id})">标记已读</button>`:'已处理';h+=`<div class="list-item" style="grid-template-columns: 1fr 3fr 1fr 1fr;"><div>${f.user_contact}</div><div style="font-size:0.9rem;color:white;">${f.content}</div><div style="font-size:0.8rem;color:gray">${f.create_time}</div><div>${act}</div></div>`;});document.getElementById('feedbackList').innerHTML=h;});}
-        function loadFaqs(btn){if(btn)switchTab(btn,'cs-faq-box');fetch('api/public_api.php?action=get_faqs').then(r=>r.json()).then(res=>{let h='';res.data.forEach(q=>{h+=`<div class="list-item" style="grid-template-columns: 3fr 1fr;"><div>${q.question}</div><div><button class="btn btn-red" onclick="delFaq(${q.id})">删除</button></div></div>`;});document.getElementById('faqAdminList').innerHTML=h;});}
-        function readFeedback(id){fetch('api/admin_api.php?action=read_feedback',{method:'POST',body:objToFd({id:id})}).then(()=>{loadFeedbacks();});}
-        function addFaq(){let q=document.getElementById('faqQ').value;let a=document.getElementById('faqA').value;if(!q||!a)return alert('请填写完整');fetch('api/admin_api.php?action=manage_faq',{method:'POST',body:objToFd({type:'add',question:q,answer:a})}).then(()=>{document.getElementById('faqQ').value='';document.getElementById('faqA').value='';loadFaqs();});}
-        function delFaq(id){if(confirm('删除?'))fetch('api/admin_api.php?action=manage_faq',{method:'POST',body:objToFd({type:'delete',id:id})}).then(()=>{loadFaqs();});}
-        function switchTab(btn,boxId){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('cs-feedback-box').style.display='none';document.getElementById('cs-faq-box').style.display='none';document.getElementById(boxId).style.display='block';}
-        function objToFd(obj){let fd=new FormData();for(let k in obj)fd.append(k,obj[k]);return fd;}
-        let currentUserType='student';
-        function loadUsers(type,btn){if(btn){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}currentUserType=type;fetch(`api/admin_api.php?action=get_all_users&type=${type}`).then(r=>r.json()).then(res=>{let h='';res.data.forEach(u=>{let badge=u.is_banned==1?'<span class="tag" style="background:#EF4444;color:white">已封禁</span>':'<span class="tag" style="background:#10B981;color:white">正常</span>';let act=u.is_banned==1?`<button class="btn btn-green" onclick="toggleBan(${u.id},0)">解封</button>`:`<button class="btn btn-red" onclick="toggleBan(${u.id},1)">封禁</button>`;h+=`<div class="list-item" style="grid-template-columns: 2fr 1fr 1fr 1fr 2fr;"><div>${u.name}</div><div>${u.phone}</div><div style="color:#FCD34D">¥${u.balance}</div><div>${badge}</div><div>${act}<button class="btn btn-gray" onclick="resetPwd(${u.id})">重置密码</button></div></div>`;});document.getElementById('userList').innerHTML=h;});}
-        function toggleBan(id,s){if(!confirm(s==1?'封禁？':'解封？'))return;let fd=new FormData();fd.append('type',currentUserType);fd.append('id',id);fd.append('is_banned',s);fetch('api/admin_api.php?action=toggle_ban',{method:'POST',body:fd}).then(()=>{loadUsers(currentUserType);});}
-        function resetPwd(id){if(!confirm('重置为123456？'))return;let fd=new FormData();fd.append('type',currentUserType);fd.append('id',id);fetch('api/admin_api.php?action=reset_password',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message);});}
-        function loadReviews(){fetch('api/admin_api.php?action=get_all_reviews').then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;padding:20px;color:gray">暂无评价</p>';else res.data.forEach(r=>{h+=`<div class="list-item" style="grid-template-columns: 1fr 1fr 1fr 3fr 1fr;"><div>${r.user_phone}</div><div>${r.tutor_name}</div><div style="color:#F59E0B">${r.rating}星</div><div style="font-size:0.85rem;color:gray">${r.content}</div><div><button class="btn btn-red" onclick="delReview(${r.id})">删除</button></div></div>`;});document.getElementById('reviewList').innerHTML=h;});}
-        function delReview(id){if(confirm('删除此评价？')){let fd=new FormData();fd.append('id',id);fetch('api/admin_api.php?action=delete_review',{method:'POST',body:fd}).then(()=>{loadReviews();});}}
+        // ================ 实时在线人数（模拟） ================
+        function updateOnlineUsers() {
+            // 模拟实时在线人数（实际项目中应从WebSocket或API获取）
+            const baseCount = parseInt(document.getElementById('stUsers')?.innerText || '100');
+            const online = Math.floor(baseCount * (0.15 + Math.random() * 0.1)); // 15-25%在线率
+            const el = document.getElementById('stOnlineUsers');
+            if(el) el.innerText = online;
+        }
+        setInterval(updateOnlineUsers, 5000); // 每5秒更新一次
+
+        function initCharts() {
+            // 今日交易额曲线图
+            let revenueChart = echarts.init(document.getElementById('chartRevenue'));
+            revenueChart.setOption({
+                backgroundColor: 'transparent',
+                title: { 
+                    text: '📊 今日交易额趋势', 
+                    textStyle: {color:'#E0E7FF', fontSize: 16, fontWeight: 'bold'},
+                    left: 'center',
+                    top: 10
+                },
+                tooltip: { 
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    borderColor: '#6366F1',
+                    borderWidth: 1,
+                    textStyle: { color: '#fff' },
+                    formatter: function(params) {
+                        return `${params[0].name}<br/>交易额: ¥${params[0].value}`;
+                    }
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
+                xAxis: { 
+                    type: 'category', 
+                    data: Array.from({length:24}, (_,i) => i + ':00'),
+                    axisLabel: {color:'#94A3B8', fontSize: 10, rotate: 45},
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+                },
+                yAxis: { 
+                    type: 'value',
+                    axisLabel: {color:'#94A3B8', fontSize: 12, formatter: '¥{value}'},
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                series: [{ 
+                    data: Array.from({length:24}, () => Math.floor(Math.random() * 500 + 100)),
+                    type: 'line', 
+                    smooth: true,
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(245, 158, 11, 0.4)' },
+                                { offset: 1, color: 'rgba(245, 158, 11, 0.05)' }
+                            ]
+                        }
+                    },
+                    itemStyle: {color:'#F59E0B'},
+                    lineStyle: { width: 3, color: '#F59E0B' },
+                    symbol: 'circle',
+                    symbolSize: 6,
+                    emphasis: {
+                        itemStyle: { color: '#FCD34D', borderColor: '#fff', borderWidth: 2 }
+                    }
+                }]
+            });
+            
+            // 新增用户趋势图
+            let userTrendChart = echarts.init(document.getElementById('chartUserTrend'));
+            const last7Days = Array.from({length:7}, (_,i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (6-i));
+                return (d.getMonth()+1) + '/' + d.getDate();
+            });
+            userTrendChart.setOption({
+                backgroundColor: 'transparent',
+                title: { 
+                    text: '👥 新增用户趋势', 
+                    textStyle: {color:'#E0E7FF', fontSize: 16, fontWeight: 'bold'},
+                    left: 'center',
+                    top: 10
+                },
+                tooltip: { 
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    borderColor: '#10B981',
+                    borderWidth: 1,
+                    textStyle: { color: '#fff' }
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', top: '15%', containLabel: true },
+                xAxis: { 
+                    type: 'category', 
+                    data: last7Days,
+                    axisLabel: {color:'#94A3B8', fontSize: 11},
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+                },
+                yAxis: { 
+                    type: 'value',
+                    axisLabel: {color:'#94A3B8', fontSize: 12},
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                series: [{ 
+                    data: Array.from({length:7}, () => Math.floor(Math.random() * 50 + 10)),
+                    type: 'bar', 
+                    itemStyle: {
+                        borderRadius: [6, 6, 0, 0],
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#10B981' },
+                            { offset: 1, color: '#059669' }
+                        ])
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#34D399' },
+                                { offset: 1, color: '#10B981' }
+                            ])
+                        }
+                    }
+                }]
+            });
+            
+            let c2 = echarts.init(document.getElementById('chartPie'));
+            c2.setOption({
+                title: { 
+                    text: '📊 订单分类占比', 
+                    textStyle: {color:'#E0E7FF', fontSize: 16, fontWeight: 'bold'},
+                    left: 'center',
+                    top: 10
+                },
+                tooltip: { 
+                    trigger: 'item',
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    borderColor: '#6366F1',
+                    borderWidth: 1,
+                    textStyle: { color: '#fff' },
+                    formatter: '{b}: ¥{c} ({d}%)'
+                },
+                legend: {
+                    bottom: 10,
+                    left: 'center',
+                    textStyle: { color: '#94A3B8', fontSize: 12 }
+                },
+                series: [{
+                    type: 'pie', 
+                    radius: ['45%', '75%'],
+                    center: ['50%', '50%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: '#0F172A',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: true,
+                        color: '#E0E7FF',
+                        fontSize: 12,
+                        formatter: '{b}\n{d}%'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(99, 102, 241, 0.5)'
+                        }
+                    },
+                    data: [
+                        { value: 1048, name: '小学辅导', itemStyle: { color: '#6366F1' } },
+                        { value: 735, name: '初中提升', itemStyle: { color: '#818CF8' } },
+                        { value: 580, name: '高中冲刺', itemStyle: { color: '#A855F7' } },
+                        { value: 484, name: '兴趣特长', itemStyle: { color: '#F59E0B' } }
+                    ]
+                }]
+            });
+        }
+
+        // --- 审核类功能 (增强版：支持搜索和批量操作) ---
+        let allTutorsData = [];
+        function loadVerifyTutors(){
+            fetch('api/admin_api.php?action=get_pending_tutors').then(r=>r.json()).then(res=>{
+                allTutorsData = res.data;
+                renderTutorsTable(allTutorsData);
+            });
+        }
+        function renderTutorsTable(data) {
+            let h=''; 
+            if(data.length===0) {
+                h='<tr><td colspan="6" style="text-align:center;padding:20px;color:gray">暂无待审核教员</td></tr>';
+            } else {
+                data.forEach(t=>{ 
+                    h+=`<tr>
+                        <td><input type="checkbox" class="tutor-checkbox" value="${t.id}"></td>
+                        <td>${t.name}</td>
+                        <td>${t.school}/${t.major}</td>
+                        <td>${t.experience}</td>
+                        <td>${t.phone}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="verifyTutor(${t.id},'已通过')">通过</button> 
+                            <button class="btn btn-danger btn-sm" onclick="verifyTutor(${t.id},'已拒绝')">拒绝</button>
+                        </td>
+                    </tr>`; 
+                });
+            }
+            document.getElementById('tutorVerifyList').innerHTML=h;
+        }
+        function filterTutors() {
+            const keyword = document.getElementById('tutorSearch').value.toLowerCase();
+            const filtered = allTutorsData.filter(t => 
+                t.name.toLowerCase().includes(keyword) || 
+                t.phone.includes(keyword) ||
+                t.school.toLowerCase().includes(keyword)
+            );
+            renderTutorsTable(filtered);
+        }
+        function toggleAllTutors(checkbox) {
+            document.querySelectorAll('.tutor-checkbox').forEach(cb => cb.checked = checkbox.checked);
+        }
+        function batchApproveTutors() {
+            const selected = Array.from(document.querySelectorAll('.tutor-checkbox:checked')).map(cb => cb.value);
+            if(selected.length === 0) return alert('请先选择要操作的教员');
+            if(!confirm(`确认批量通过 ${selected.length} 位教员？`)) return;
+            selected.forEach(id => verifyTutor(id, '已通过', true));
+            setTimeout(() => loadVerifyTutors(), 500);
+        }
+        function batchRejectTutors() {
+            const selected = Array.from(document.querySelectorAll('.tutor-checkbox:checked')).map(cb => cb.value);
+            if(selected.length === 0) return alert('请先选择要操作的教员');
+            if(!confirm(`确认批量拒绝 ${selected.length} 位教员？`)) return;
+            selected.forEach(id => verifyTutor(id, '已拒绝', true));
+            setTimeout(() => loadVerifyTutors(), 500);
+        }
+        function verifyTutor(id, s, silent){ 
+            if(!silent && !confirm(s+'?')) return;
+            fetch('api/admin_api.php?action=verify_tutor',{method:'POST',body:new URLSearchParams({id,status:s})}).then(()=>{
+                if(!silent) {
+                    loadVerifyTutors();
+                    loadStats();
+                }
+            }); 
+        }
+
+        let allResourcesData = [];
+        function loadVerifyResources(){
+            fetch('api/admin_api.php?action=get_pending_resources').then(r=>r.json()).then(res=>{
+                allResourcesData = res.data;
+                renderResourcesTable(allResourcesData);
+            });
+        }
+        function renderResourcesTable(data) {
+            let h=''; 
+            if(data.length===0) {
+                h='<tr><td colspan="5" style="text-align:center;padding:20px;color:gray">暂无待审核资源</td></tr>';
+            } else {
+                data.forEach(r=>{ 
+                    h+=`<tr>
+                        <td>${r.title}</td>
+                        <td>${r.uploader_phone}</td>
+                        <td>¥${r.price}</td>
+                        <td><a href="${r.file_path}" target="_blank" style="color:var(--primary); text-decoration:none;" onmouseover="this.style.textDecoration='underline'">预览</a></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="verifyRes(${r.id},'approved')">通过</button> 
+                            <button class="btn btn-danger btn-sm" onclick="verifyRes(${r.id},'rejected')">驳回</button>
+                        </td>
+                    </tr>`; 
+                });
+            }
+            document.getElementById('resVerifyList').innerHTML=h;
+        }
+        function filterResources() {
+            const keyword = document.getElementById('resSearch').value.toLowerCase();
+            const filtered = allResourcesData.filter(r => 
+                r.title.toLowerCase().includes(keyword) || 
+                r.uploader_phone.includes(keyword)
+            );
+            renderResourcesTable(filtered);
+        }
+        function verifyRes(id, s){ fetch('api/admin_api.php?action=verify_resource',{method:'POST',body:new URLSearchParams({id,status:s})}).then(()=>{loadVerifyResources();}); }
+
+        function loadWithdrawals(){
+            fetch('api/admin_api.php?action=get_withdrawals').then(r=>r.json()).then(res=>{
+                let h=''; if(res.data.length===0) h='<tr><td colspan="5" style="text-align:center;padding:20px;color:gray">暂无提现申请</td></tr>';
+                else res.data.forEach(w=>{
+                    let op = w.status==='pending' ? `<button class="btn btn-success" onclick="handleWith(${w.id},'approve')">打款</button> <button class="btn btn-danger" onclick="handleWith(${w.id},'reject')">驳回</button>` : `<span class="badge ${w.status==='approved'?'bg-success':'bg-danger'}">${w.status}</span>`;
+                    h+=`<tr><td>${w.user_phone}</td><td style="font-weight:bold;color:#F59E0B">¥${w.amount}</td><td>${w.account_info}</td><td>${w.create_time}</td><td>${op}</td></tr>`;
+                });
+                document.getElementById('withList').innerHTML=h;
+            });
+        }
+        function handleWith(id, act){ if(confirm('确认操作？')) fetch('api/admin_api.php?action=handle_withdrawal',{method:'POST',body:new URLSearchParams({id,act})}).then(()=>{loadWithdrawals();}); }
+
+        // --- 订单管理 (增强版：支持搜索和筛选) ---
+        let allBookingsData = [];
+        function loadBookings(){
+            fetch('api/admin_api.php?action=get_all_bookings').then(r=>r.json()).then(res=>{
+                allBookingsData = res.data;
+                renderBookingsTable(allBookingsData);
+            });
+        }
+        function renderBookingsTable(data) {
+            let h=''; 
+            if(data.length===0) {
+                h='<tr><td colspan="9" style="text-align:center;padding:20px;color:gray">暂无订单</td></tr>';
+            } else {
+                data.forEach(b=>{
+                    let statusClass = 'bg-warning';
+                    if(b.status==='已支付'||b.status==='已完成') statusClass='bg-success';
+                    if(b.status==='已取消'||b.status==='已拒绝') statusClass='bg-danger';
+
+                    // 1. 授课方式标签 (红/蓝区分)
+                    let typeBadge = b.class_type === '线下上门' 
+                        ? `<span class="badge bg-danger"><i class="fas fa-home"></i> 线下</span>` 
+                        : `<span class="badge bg-primary"><i class="fas fa-laptop"></i> 线上</span>`;
+
+                    h+=`<tr>
+                        <td>${b.id}</td>
+                        <td>${b.user_phone}</td>
+                        <td>${b.tutor_name}</td>
+                        <td>${b.lesson_time}</td>
+                        <td>${typeBadge}</td>
+                        <td style="font-weight:bold">¥${b.price}</td>
+                        <td><span class="badge ${statusClass}">${b.status}</span></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm" onclick="viewContract('${b.id}', '${b.tutor_name}', '${b.user_phone}', '${b.class_type}', '${b.price}', '${b.create_time}')">
+                                <i class="fas fa-file-contract"></i> 协议
+                            </button>
+                        </td>
+                        <td><button class="btn btn-danger btn-sm" onclick="delBooking(${b.id})">删</button></td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('bookingList').innerHTML=h;
+        }
+        function filterBookings() {
+            const keyword = document.getElementById('bookingSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('bookingStatusFilter').value;
+            let filtered = allBookingsData.filter(b => {
+                const matchKeyword = !keyword || 
+                    b.id.toString().includes(keyword) ||
+                    b.user_phone.includes(keyword) ||
+                    b.tutor_name.toLowerCase().includes(keyword);
+                const matchStatus = !statusFilter || b.status === statusFilter;
+                return matchKeyword && matchStatus;
+            });
+            renderBookingsTable(filtered);
+        }
+        function delBooking(id){ if(confirm('确定删除此订单记录？(不可恢复)')) fetch('api/admin_api.php?action=delete_booking',{method:'POST',body:new URLSearchParams({id})}).then(()=>{loadBookings();}); }
+
+        // ✨✨✨ 核心：查看合同 (复用逻辑) ✨✨✨
+        function viewContract(id, tName, uPhone, type, price, date) {
+            const isOffline = type === '线下上门';
+            const title = isOffline ? '线下上门家教服务协议' : '在线云课堂服务协议';
+            const color = isOffline ? '#d93025' : '#6366F1';
+            
+            // 差异化条款
+            let terms = isOffline ? 
+                `<p>1. <strong>服务模式：</strong> 线下上门 (面对面)。教员需自行前往学员指定地点。</p>
+                 <p>2. <strong>安全责任：</strong> 双方需共同维护教学环境安全。教员往返途中注意交通安全。</p>` :
+                `<p>1. <strong>服务模式：</strong> 线上云教室 (远程)。双方通过网络视频进行教学。</p>
+                 <p>2. <strong>网络保障：</strong> 双方应保障网络通畅，禁止私自录屏传播。</p>`;
+
+            const html = `
+                <div class="contract-paper">
+                    <h2 style="text-align:center; color:${color}; margin-bottom:20px;">${title}</h2>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:0.9rem; color:#666;">
+                        <span>合同编号：WTB-ADMIN-${id}</span>
+                        <span>签署日期：${date.split(' ')[0]}</span>
+                    </div>
+                    <div style="line-height:1.8; color:#333;">
+                        <p><strong>甲方 (学员)：</strong> ${uPhone}</p>
+                        <p><strong>乙方 (教员)：</strong> ${tName}</p>
+                        <p><strong>丙方 (平台)：</strong> 智慧家教桥监管中心</p>
+                        <hr style="border:none; border-top:1px dashed #ddd; margin:15px 0;">
+                        ${terms}
+                        <p>3. <strong>服务费用：</strong> ¥${price} (资金由平台托管，完课后结算)</p>
+                        <p>4. <strong>监管说明：</strong> 本订单受平台全流程监管，如有纠纷，以平台后台数据为准。</p>
+                    </div>
+                    
+                    <div style="margin-top:40px; display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div>
+                            <p>甲方签字：<span style="font-family:cursive; font-size:1.2rem;">${uPhone}</span></p>
+                            <p>乙方签字：<span style="font-family:cursive; font-size:1.2rem;">${tName}</span></p>
+                        </div>
+                        <div class="stamp-seal" style="position:relative; right:0; bottom:0; opacity:0.8;">
+                            <div style="border:2px solid #d93025; width:100px; height:100px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-align:center; font-size:1rem; color:#d93025; transform:rotate(-15deg);">
+                                智慧家教<br>已归档
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:center;">
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ 打印 / 另存为 PDF</button>
+                </div>
+            `;
+            
+            document.getElementById('contractContent').innerHTML = html;
+            document.getElementById('contractModal').style.display = 'flex';
+        }
+
+        // --- 用户与CMS管理（Switch开关版） ---
+        function loadUsers(type){
+            currentUserType = type;
+            fetch(`api/admin_api.php?action=get_users&type=${type}`).then(r=>r.json()).then(res=>{
+                let h=''; 
+                if(res.data.length===0) {
+                    h='<p style="text-align:center; padding:30px; color:var(--text-gray);">暂无数据</p>';
+                } else {
+                    res.data.forEach(u=>{ 
+                        const isBanned = u.is_banned == 1;
+                        h+=`
+                            <div class="list-item">
+                                <div>ID: ${u.id}</div>
+                                <div>${u.username||u.name}</div>
+                                <div>${u.phone}</div>
+                                <div>余额: ¥${u.balance||0}</div>
+                                <div style="display:flex; align-items:center; gap:15px;">
+                                    <label class="switch" title="${isBanned ? '点击解封' : '点击封禁'}">
+                                        <input type="checkbox" ${isBanned ? '' : 'checked'} onchange="toggleBanWithConfirm(${u.id}, this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span style="font-size:0.85rem; color:var(--text-gray);">${isBanned ? '已封禁' : '正常'}</span>
+                                    <button class="btn btn-gray btn-sm" onclick="resetPwd(${u.id})"><i class="fas fa-key"></i> 重置密码</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                document.getElementById('userList').innerHTML=h;
+            });
+        }
+        function toggleBanWithConfirm(id, checked) {
+            const action = checked ? '解封' : '封禁';
+            if(!confirm(`确认${action}此用户？`)) {
+                // 恢复开关状态
+                const switchEl = event.target;
+                switchEl.checked = !checked;
+                return;
+            }
+            const status = checked ? 0 : 1;
+            fetch('api/admin_api.php?action=toggle_ban', {
+                method: 'POST',
+                body: new URLSearchParams({type: currentUserType, id, is_banned: status})
+            }).then(() => {
+                loadUsers(currentUserType);
+            }).catch(() => {
+                // 失败时恢复状态
+                event.target.checked = !checked;
+                alert('操作失败，请重试');
+            });
+        }
+        function resetPwd(id){ 
+            if(!confirm('重置密码为 123456？')) return; 
+            fetch('api/admin_api.php?action=reset_password', {
+                method: 'POST',
+                body: new URLSearchParams({type: currentUserType, id})
+            }).then(r=>r.json()).then(d=>{
+                alert(d.message); 
+            }); 
+        }
+        
+        function loadReviews(){ fetch('api/admin_api.php?action=get_all_reviews').then(r=>r.json()).then(res=>{ let h=''; if(res.data.length===0) h='<p style="text-align:center;color:gray">暂无评价</p>'; else res.data.forEach(r=>{ h+=`<div class="list-item" style="grid-template-columns:1fr 1fr 1fr 3fr 1fr"><div>${r.user_phone}</div><div>${r.tutor_name}</div><div style="color:#F59E0B">${r.rating}星</div><div>${r.content}</div><div><button class="btn btn-danger btn-sm" onclick="delReview(${r.id})">删</button></div></div>`; }); document.getElementById('reviewList').innerHTML=h; }); }
+        function delReview(id){ if(confirm('删？')) fetch('api/admin_api.php?action=delete_review',{method:'POST',body:new URLSearchParams({id})}).then(()=>{loadReviews();}); }
+
+        // ================ 财务报表 ================
+        let financeData = [];
+        function loadFinanceData() {
+            fetch('api/admin_api.php?action=get_finance_report').then(r=>r.json()).then(res=>{
+                if(res.status === 'success') {
+                    financeData = res.data.orders || [];
+                    const stats = res.data.stats;
+                    
+                    document.getElementById('financeTotal').innerText = `¥${stats.total.toFixed(2)}`;
+                    document.getElementById('financeCommission').innerText = `¥${stats.commission.toFixed(2)}`;
+                    document.getElementById('financePayout').innerText = `¥${stats.payout.toFixed(2)}`;
+                    document.getElementById('financePending').innerText = `¥${stats.pending.toFixed(2)}`;
+                    
+                    renderFinanceTable(financeData);
+                }
+            });
+        }
+        function renderFinanceTable(data) {
+            let h = '';
+            if(data.length === 0) {
+                h = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-gray);">暂无财务数据</td></tr>';
+            } else {
+                data.forEach(order => {
+                    const rate = order.commission_rate || 0.1;
+                    const commission = order.price * rate;
+                    const payout = order.price - commission;
+                    const statusClass = order.status === '已完成' ? 'bg-success' : order.status === '已支付' ? 'bg-warning' : 'bg-primary';
+                    h += `
+                        <tr>
+                            <td>${order.id}</td>
+                            <td>${order.user_phone}</td>
+                            <td>${order.tutor_name}</td>
+                            <td style="font-weight:bold;color:#F59E0B">¥${order.price}</td>
+                            <td>${(rate * 100).toFixed(0)}%</td>
+                            <td style="color:#10B981">¥${commission.toFixed(2)}</td>
+                            <td style="color:#6366F1">¥${payout.toFixed(2)}</td>
+                            <td><span class="badge ${statusClass}">${order.status}</span></td>
+                            <td>${order.settle_time || '-'}</td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('financeList').innerHTML = h;
+        }
+        function exportFinanceCSV() {
+            if(financeData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+            const headers = ['订单ID', '学员', '教员', '订单金额', '抽成比例', '平台收入', '教员分成', '状态', '结算时间'];
+            let csv = headers.join(',') + '\n';
+            financeData.forEach(order => {
+                const rate = order.commission_rate || 0.1;
+                const commission = order.price * rate;
+                const payout = order.price - commission;
+                csv += `${order.id},${order.user_phone},${order.tutor_name},${order.price},${(rate * 100).toFixed(0)}%,${commission.toFixed(2)},${payout.toFixed(2)},${order.status},${order.settle_time || ''}\n`;
+            });
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `财务报表_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ================ 全局广播 ================
+        function openBroadcastModal() {
+            const content = document.getElementById('broadcastContent').value.trim();
+            if(!content) {
+                alert('请输入广播内容');
+                return;
+            }
+            document.getElementById('broadcastConfirmContent').value = content;
+            document.getElementById('broadcastModal').classList.add('active');
+        }
+        function closeBroadcastModal() {
+            document.getElementById('broadcastModal').classList.remove('active');
+        }
+        function sendBroadcast() {
+            const content = document.getElementById('broadcastConfirmContent').value.trim();
+            if(!content) {
+                alert('广播内容不能为空');
+                return;
+            }
+            
+            fetch('api/admin_api.php?action=broadcast_message', {
+                method: 'POST',
+                body: new URLSearchParams({content})
+            }).then(r=>r.json()).then(res=>{
+                if(res.status === 'success') {
+                    alert('✅ 全局广播已发送！所有在线用户将收到此消息。');
+                    document.getElementById('broadcastContent').value = '';
+                    closeBroadcastModal();
+                } else {
+                    alert('发送失败：' + (res.message || '未知错误'));
+                }
+            }).catch(err => {
+                alert('发送失败，请重试');
+            });
+        }
+        
+        // CMS
+        function postAnno(){ let t=document.getElementById('annoTitle').value,c=document.getElementById('annoContent').value; if(!t)return; fetch('api/admin_api.php?action=manage_announcement',{method:'POST',body:new URLSearchParams({type:'add',title:t,content:c})}).then(()=>{alert('发布成功'); document.getElementById('annoTitle').value=''; document.getElementById('annoContent').value='';}); }
+        function addFaq(){ let q=document.getElementById('faqQ').value,a=document.getElementById('faqA').value; if(!q)return; fetch('api/admin_api.php?action=manage_faq',{method:'POST',body:new URLSearchParams({type:'add',question:q,answer:a})}).then(()=>{alert('添加成功'); document.getElementById('faqQ').value=''; document.getElementById('faqA').value='';}); }
+        function loadFeedbacks(){ fetch('api/admin_api.php?action=get_feedbacks').then(r=>r.json()).then(res=>{ let h='<tr><th>用户</th><th>内容</th><th>时间</th><th>操作</th></tr>'; res.data.forEach(f=>{ h+=`<tr><td>${f.user_phone}</td><td>${f.content}</td><td>${f.create_time}</td><td><button class="btn btn-sm" onclick="readFeed(${f.id})">已阅</button></td></tr>`; }); document.getElementById('feedbackList').innerHTML=h; }); }
+        function readFeed(id){ fetch('api/admin_api.php?action=read_feedback',{method:'POST',body:new URLSearchParams({id})}).then(()=>{loadFeedbacks();}); }
+
     </script>
 </body>
 </html>

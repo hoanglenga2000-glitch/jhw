@@ -2,28 +2,54 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    
     <title>学生中心 | 智慧家教桥</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* --- ✨ 超级视觉优化版 CSS --- */
+        /* ✨ SaaS商业级仪表盘 - 遵循 .cursorrules 宪法 */
         :root { 
             --primary: #6366F1; 
             --primary-dark: #4F46E5;
             --primary-light: #818CF8;
+            --primary-glow: rgba(99, 102, 241, 0.5);
             --accent: #A855F7; 
             --gold: #F59E0B; 
             --gold-dark: #D97706;
-            --bg-dark: #0B0F19; 
-            --bg-card: rgba(22, 27, 40, 0.7); 
+            --gold-glow: rgba(245, 158, 11, 0.4);
+            --success: #10B981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --bg-primary: #0B0F19; 
+            --bg-secondary: #0F172A;
+            --bg-tertiary: #1E1B4B;
+            --bg-card: rgba(22, 27, 40, 0.75); 
             --text: #F8FAFC; 
+            --text-gray: #94A3B8;
+            --text-muted: #64748B;
             --border: rgba(255, 255, 255, 0.08); 
-            --glass: blur(25px);
+            --border-light: rgba(255, 255, 255, 0.12);
+            --glass-bg: rgba(15, 23, 42, 0.75);
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
             --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
             --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.35);
-            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.4);
+            --shadow-glow: 0 0 40px var(--primary-glow);
+            
+            /* 侧边栏尺寸 */
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 72px;
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
         body { 
@@ -86,75 +112,211 @@
             background: linear-gradient(135deg, var(--accent), var(--gold));
             animation-delay: 5s;
         }
+        /* ====== 🎛️ 可折叠侧边栏 ====== */
         .sidebar { 
-            width: 260px; 
-            background: rgba(11, 15, 25, 0.7); 
-            backdrop-filter: blur(25px) saturate(180%);
-            border-right: 1.5px solid var(--border); 
-            padding: 30px 20px; 
-            display:flex; 
-            flex-direction:column; 
-            z-index: 10;
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+            width: var(--sidebar-width); 
+            min-width: var(--sidebar-width);
+            background: rgba(11, 15, 25, 0.85); 
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-right: 1px solid var(--border); 
+            padding: 24px 16px; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 100;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+            min-width: var(--sidebar-collapsed);
+            padding: 24px 12px;
+        }
+        
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .user-info {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 14px;
+        }
+        
+        .sidebar.collapsed .nav-item i {
+            margin: 0;
+        }
+        
+        /* 折叠按钮 */
+        .sidebar-toggle {
+            position: absolute;
+            right: -14px;
+            top: 70px;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            border: 2px solid var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.75rem;
+        }
+        
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        
+        .sidebar.collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
         }
         .logo { 
-            font-size: 1.4rem; 
-            font-weight: 900; 
+            font-size: 1.3rem; 
+            font-weight: 800; 
             color: white; 
             display: flex; 
             align-items: center; 
             gap: 12px; 
-            margin-bottom: 50px; 
+            margin-bottom: 32px; 
             cursor: pointer; 
-            padding-left: 10px;
+            padding: 0 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .logo i {
+            color: var(--primary);
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        
+        .logo-text {
             background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            transition: transform 0.3s ease;
+            white-space: nowrap;
+            transition: all 0.3s ease;
         }
-        .logo:hover { transform: scale(1.05); }
+        
+        .logo:hover { transform: scale(1.02); }
+        
+        /* 导航分组标题 */
+        .nav-group-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding: 16px 12px 8px;
+            font-weight: 600;
+        }
+        
+        .sidebar.collapsed .nav-group-title {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
         .nav-item { 
-            padding: 14px 20px; 
-            color: #94A3B8; 
+            padding: 12px 16px; 
+            color: var(--text-gray); 
             cursor: pointer; 
-            border-radius: 16px; 
-            margin-bottom: 8px; 
+            border-radius: 12px; 
+            margin-bottom: 4px; 
             display: flex; 
             align-items: center; 
             gap: 12px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
             font-weight: 500;
+            font-size: 0.9rem;
             position: relative;
+            overflow: hidden;
         }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+        
+        .nav-text {
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        
         .nav-item::before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            background: linear-gradient(90deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
         }
+        
         .nav-item.active::before {
-            opacity: 1;
+            transform: scaleY(1);
         }
+        
         .nav-item.active { 
             color: white; 
-            border: 1.5px solid rgba(99,102,241,0.4);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            background: linear-gradient(90deg, rgba(99,102,241,0.2), rgba(99,102,241,0.05));
         }
+        
+        .nav-item.active i {
+            color: var(--primary-light);
+        }
+        
         .nav-item:hover {
             color: white;
-            transform: translateX(5px);
             background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-item:hover i {
+            transform: scale(1.1);
+        }
+        
+        /* 导航徽章 */
+        .nav-badge {
+            background: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+            font-weight: 600;
+        }
+        
+        .sidebar.collapsed .nav-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            padding: 2px 4px;
+            margin: 0;
         }
         .main-content { 
             flex: 1; 
-            padding: 40px; 
+            padding: 32px; 
             overflow-y: auto; 
             position: relative;
+            transition: all 0.3s ease;
         }
+        
         .main-content::before {
             content: '';
             position: absolute;
@@ -167,6 +329,226 @@
                 radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
+        }
+        
+        /* ====== 📱 移动端底部导航 ====== */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(11, 15, 25, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 8px 0;
+            z-index: 200;
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+        
+        .mobile-nav-item i {
+            font-size: 1.2rem;
+        }
+        
+        .mobile-nav-item.active {
+            color: var(--primary);
+        }
+        
+        .mobile-nav-item.active i {
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
+        
+        /* ====== 📊 数据可视化卡片 ====== */
+        .chart-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-title i {
+            color: var(--primary);
+        }
+        
+        .chart-container {
+            height: 280px;
+            width: 100%;
+        }
+        
+        /* ====== 🏷️ 彩色胶囊状态标签 ====== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FCD34D;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .status-paid {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .status-ongoing {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        }
+        
+        .status-review {
+            background: rgba(168, 85, 247, 0.15);
+            color: #C084FC;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        
+        .status-completed {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94A3B8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .status-refund {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        /* ====== 🔘 进入教室脉冲按钮 ====== */
+        .btn-classroom {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+            position: relative;
+            overflow: visible;
+        }
+        
+        .btn-classroom::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: inherit;
+            background: inherit;
+            filter: blur(12px);
+            opacity: 0;
+            z-index: -1;
+            animation: classroomPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes classroomPulse {
+            0%, 100% { opacity: 0; transform: scale(0.9); }
+            50% { opacity: 0.6; transform: scale(1); }
+        }
+        
+        .btn-classroom:hover::after {
+            opacity: 0.8;
+        }
+        
+        /* ====== 📱 响应式设计 ====== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                z-index: 200;
+            }
+            
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            
+            .mobile-nav {
+                display: block;
+            }
+            
+            .main-content {
+                padding: 20px;
+                padding-bottom: 100px;
+            }
+            
+            body {
+                overflow-x: hidden;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .wallet-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* 移动端遮罩 */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+        }
+        
+        .mobile-overlay.show {
+            display: block;
         }
         .view { 
             display: none; 
@@ -789,45 +1171,238 @@
         <div style="color: white; font-weight: bold;">处理中，请稍候...</div>
     </div>
 
-    <div class="sidebar">
-        <div class="logo" onclick="location.href='index.html'"><i class="fas fa-graduation-cap"></i> 学生中心</div>
-        <div class="nav-item active" onclick="switchView('home', this)"><i class="fas fa-th-large"></i> 概览 & 钱包</div>
-        <div class="nav-item" onclick="switchView('courses', this)" id="nav-courses"><i class="fas fa-book-open"></i> 我的课程</div>
-        <div class="nav-item" onclick="switchView('resources', this)"><i class="fas fa-folder-open"></i> 我的资料</div>
-        <div class="nav-item" onclick="switchView('demands', this)"><i class="fas fa-bullhorn"></i> 我的需求</div>
-        <div class="nav-item" onclick="switchView('calendar', this)"><i class="fas fa-calendar-alt"></i> 课程日历</div>
-        <div class="nav-item" onclick="switchView('favorites', this)"><i class="fas fa-heart"></i> 我的收藏</div>
-        <div class="nav-item" onclick="switchView('notifs', this)"><i class="fas fa-bell"></i> 消息通知 <span id="navDot" style="width:8px;height:8px;background:red;border-radius:50%;display:none;margin-left:auto"></span></div>
-        <div class="nav-item" onclick="switchView('messages', this)"><i class="fas fa-comment-dots"></i> 我的私信</div>
-        <div class="nav-item" onclick="switchView('profile', this)"><i class="fas fa-user-cog"></i> 个人资料</div>
-        <div class="nav-item" onclick="location.href='index.html'" style="margin-top:auto; color:#EF4444">返回首页</div>
+    <!-- 移动端遮罩 -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileSidebar()"></div>
+    
+    <div class="sidebar" id="mainSidebar">
+        <!-- 折叠按钮 -->
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        
+        <div class="logo" onclick="location.href='index.html'">
+            <i class="fas fa-graduation-cap"></i>
+            <span class="logo-text">学生中心</span>
+        </div>
+        
+        <div class="nav-group-title">概览</div>
+        <div class="nav-item active" onclick="switchView('home', this)">
+            <i class="fas fa-th-large"></i>
+            <span class="nav-text">数据看板</span>
+        </div>
+        
+        <div class="nav-group-title">学习</div>
+        <div class="nav-item" onclick="switchView('courses', this)" id="nav-courses">
+            <i class="fas fa-book-open"></i>
+            <span class="nav-text">我的课程</span>
+        </div>
+        <div class="nav-item" onclick="switchView('resources', this)">
+            <i class="fas fa-folder-open"></i>
+            <span class="nav-text">我的资料</span>
+        </div>
+        <div class="nav-item" onclick="switchView('calendar', this)">
+            <i class="fas fa-calendar-alt"></i>
+            <span class="nav-text">课程日历</span>
+        </div>
+        
+        <div class="nav-group-title">游戏化</div>
+        <div class="nav-item" onclick="switchView('achievements', this)">
+            <i class="fas fa-trophy"></i>
+            <span class="nav-text">成就墙</span>
+        </div>
+        <div class="nav-item" onclick="switchView('points_center', this)">
+            <i class="fas fa-star"></i>
+            <span class="nav-text">积分中心</span>
+        </div>
+        
+        <div class="nav-group-title">服务</div>
+        <div class="nav-item" onclick="switchView('demands', this)">
+            <i class="fas fa-bullhorn"></i>
+            <span class="nav-text">我的需求</span>
+        </div>
+        <div class="nav-item" onclick="switchView('favorites', this)">
+            <i class="fas fa-heart"></i>
+            <span class="nav-text">我的收藏</span>
+        </div>
+        
+        <div class="nav-group-title">消息</div>
+        <div class="nav-item" onclick="switchView('notifs', this)">
+            <i class="fas fa-bell"></i>
+            <span class="nav-text">系统通知</span>
+            <span class="nav-badge" id="navDot" style="display:none">0</span>
+        </div>
+        <div class="nav-item" onclick="switchView('messages', this)">
+            <i class="fas fa-comment-dots"></i>
+            <span class="nav-text">师生私信</span>
+        </div>
+        
+        <div style="flex:1"></div>
+        
+        <div class="nav-item" onclick="switchView('profile', this)">
+            <i class="fas fa-user-cog"></i>
+            <span class="nav-text">个人设置</span>
+        </div>
+        <div class="nav-item" onclick="location.href='index.html'" style="color:#EF4444">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-text">退出系统</span>
+        </div>
     </div>
+    
+    <!-- 移动端底部导航 -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <div class="mobile-nav-item active" onclick="switchView('home')">
+                <i class="fas fa-th-large"></i>
+                <span>概览</span>
+            </div>
+            <div class="mobile-nav-item" onclick="switchView('courses')">
+                <i class="fas fa-book-open"></i>
+                <span>课程</span>
+            </div>
+            <div class="mobile-nav-item" onclick="switchView('messages')">
+                <i class="fas fa-comment-dots"></i>
+                <span>消息</span>
+            </div>
+            <div class="mobile-nav-item" onclick="switchView('profile')">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+            <div class="mobile-nav-item" onclick="toggleMobileSidebar()">
+                <i class="fas fa-bars"></i>
+                <span>更多</span>
+            </div>
+        </div>
+    </nav>
 
     <div class="main-content">
         <div id="view-home" class="view active">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                <h2 style="margin:0;">👋 欢迎回来，<span id="uNameDisplay">同学</span></h2>
-                <button class="btn btn-gold btn-signin" id="signinBtn" onclick="doSignin()"><i class="fas fa-calendar-check"></i> 每日签到</button>
+            <!-- 顶部欢迎栏 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <h2 style="margin:0 0 4px 0; font-size:1.5rem;">👋 欢迎回来，<span id="uNameDisplay">同学</span></h2>
+                    <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">今天也要加油学习哦！</p>
+                </div>
+                <button class="btn btn-gold btn-signin" id="signinBtn" onclick="doSignin()">
+                    <i class="fas fa-calendar-check"></i> 每日签到
+                </button>
             </div>
             
+            <!-- 统计卡片行 -->
+            <div class="stats-row" style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:28px;">
+                <div class="stat-mini-card" style="background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(99,102,241,0.05)); border:1px solid rgba(99,102,241,0.3); border-radius:16px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:0.8rem; color:var(--text-gray); margin-bottom:8px;">累计学习</div>
+                            <div style="font-size:1.8rem; font-weight:800; color:var(--primary-light);" id="statHours">0<span style="font-size:0.9rem; font-weight:400;">h</span></div>
+                        </div>
+                        <div style="width:40px; height:40px; background:rgba(99,102,241,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-clock" style="color:var(--primary-light);"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-mini-card" style="background:linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05)); border:1px solid rgba(16,185,129,0.3); border-radius:16px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:0.8rem; color:var(--text-gray); margin-bottom:8px;">完成课程</div>
+                            <div style="font-size:1.8rem; font-weight:800; color:#34D399;" id="statCourses">0</div>
+                        </div>
+                        <div style="width:40px; height:40px; background:rgba(16,185,129,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-check-circle" style="color:#34D399;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-mini-card" style="background:linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05)); border:1px solid rgba(245,158,11,0.3); border-radius:16px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:0.8rem; color:var(--text-gray); margin-bottom:8px;">钱包余额</div>
+                            <div style="font-size:1.8rem; font-weight:800; color:#FCD34D;">¥<span id="uBalance">0</span></div>
+                        </div>
+                        <div style="width:40px; height:40px; background:rgba(245,158,11,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-wallet" style="color:#FCD34D;"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-mini-card" style="background:linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.05)); border:1px solid rgba(168,85,247,0.3); border-radius:16px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-size:0.8rem; color:var(--text-gray); margin-bottom:8px;">会员积分</div>
+                            <div style="font-size:1.8rem; font-weight:800; color:#C084FC;" id="uPoints">0</div>
+                        </div>
+                        <div style="width:40px; height:40px; background:rgba(168,85,247,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-star" style="color:#C084FC;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 数据可视化图表 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-line"></i>
+                        学习时长趋势
+                    </div>
+                    <select id="chartPeriod" onchange="updateStudyChart()" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); color:white; padding:6px 12px; border-radius:8px; outline:none;">
+                        <option value="7">近7天</option>
+                        <option value="30">近30天</option>
+                    </select>
+                </div>
+                <div class="chart-container" id="studyChart"></div>
+            </div>
+            
+            <!-- 钱包与积分 -->
             <div class="wallet-row">
                 <div class="wallet-card">
-                    <div><div style="font-size:0.9rem; opacity:0.8;">钱包余额 (CNY)</div><div class="balance-num">¥ <span id="uBalance">0.00</span></div></div>
-                    <button class="btn btn-glass" onclick="recharge()">立即充值</button>
+                    <div>
+                        <div style="font-size:0.85rem; opacity:0.8; margin-bottom:8px;">钱包余额 (CNY)</div>
+                        <div class="balance-num">¥ <span id="uBalanceBig">0.00</span></div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-glass" onclick="recharge()">
+                            <i class="fas fa-plus"></i> 充值
+                        </button>
+                    </div>
                 </div>
                 <div class="points-card">
-                    <div><div style="font-size:0.9rem; opacity:0.8;">会员积分 (Points)</div><div class="balance-num" style="font-size:2.5rem"><span id="uPoints">0</span></div></div>
-                    <div style="font-size:0.85rem; opacity:0.8;">积少成多，兑换好礼</div>
+                    <div>
+                        <div style="font-size:0.85rem; opacity:0.8; margin-bottom:8px;">会员积分</div>
+                        <div class="balance-num" style="font-size:2.2rem"><span id="uPointsBig">0</span></div>
+                    </div>
+                    <div style="font-size:0.8rem; opacity:0.7;">积少成多，兑换好礼</div>
                 </div>
             </div>
 
+            <!-- 积分商城 -->
             <div class="card">
-                <h3 style="margin-bottom:20px; color:var(--gold)"><i class="fas fa-gift"></i> 积分商城 <span style="font-size:0.8rem; color:gray; font-weight:normal; margin-left:10px;">兑换后自动放入券包</span></h3>
-                <div class="mall-grid" id="mallList">加载中...</div>
+                <h3 style="margin-bottom:20px; color:var(--gold); display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-gift"></i> 积分商城 
+                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">兑换后自动放入券包</span>
+                </h3>
+                <div class="mall-grid" id="mallList">
+                    <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:12px;"></i>
+                        <p>加载中...</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="card" style="margin-top:30px;"><h3 style="margin-bottom:20px; color:#94A3B8"><i class="fas fa-ticket-alt"></i> 我的优惠券</h3><div id="couponList" style="display:flex; gap:15px; flex-wrap:wrap;">正在加载...</div></div>
-            <div class="card" style="margin-top:30px;"><h3 style="margin-bottom:20px; color:#94A3B8">💸 账单明细</h3><div id="billList"></div></div>
+            <!-- 优惠券 -->
+            <div class="card" style="margin-top:24px;">
+                <h3 style="margin-bottom:20px; color:var(--text-gray); display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-ticket-alt"></i> 我的优惠券
+                </h3>
+                <div id="couponList" style="display:flex; gap:15px; flex-wrap:wrap;">
+                    <div style="color:var(--text-muted);">加载中...</div>
+                </div>
+            </div>
+            
+            <!-- 账单明细 -->
+            <div class="card" style="margin-top:24px;">
+                <h3 style="margin-bottom:20px; color:var(--text-gray); display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-receipt"></i> 账单明细
+                </h3>
+                <div id="billList"></div>
+            </div>
         </div>
 
         <div id="view-courses" class="view">
@@ -849,6 +1424,70 @@
         <div id="view-notifs" class="view"><h2 style="margin-bottom:30px;">🔔 系统通知</h2><div class="card" id="notifList">暂无通知</div></div>
 
         <div id="view-messages" class="view"><h2 style="margin-bottom:30px;">💬 师生私信</h2><div class="chat-layout"><div class="chat-side" id="contactList"><div style="padding:20px; color:gray; text-align:center;">加载中...</div></div><div class="chat-main"><div class="chat-header" id="chatHeader">请选择老师开始聊天</div><div class="chat-msgs" id="chatMsgs"></div><div class="chat-input-area"><input id="msgInput" class="form-input" style="margin:0; border-radius:30px;" placeholder="输入消息..."><button class="btn btn-primary" style="border-radius:30px; width:50px; justify-content:center;" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button></div></div></div></div>
+
+        <div id="view-achievements" class="view">
+            <h2 style="margin-bottom:30px;">🏆 成就墙</h2>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3 style="margin:0;">我的成就</h3>
+                    <span style="color:var(--gold); font-weight:600;">
+                        已解锁 <span id="unlockedCount">0</span> / <span id="totalBadges">0</span>
+                    </span>
+                </div>
+                <div class="achievement-grid" id="achievementGrid"></div>
+            </div>
+        </div>
+
+        <div id="view-points_center" class="view">
+            <h2 style="margin-bottom:30px;">⭐ 积分中心</h2>
+            
+            <!-- 等级进度卡片 -->
+            <div class="level-progress-card">
+                <div class="level-header">
+                    <div class="level-info">
+                        <h3 id="levelName">青铜学员</h3>
+                        <p>当前积分：<span id="currentPoints">0</span></p>
+                    </div>
+                    <div class="level-number" id="levelNumber">LV.1</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>还需 <span id="neededPoints">500</span> 积分升级</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+            </div>
+            
+            <!-- 签到卡片 -->
+            <div class="card">
+                <h3 style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-calendar-check" style="color:var(--gold);"></i> 每日签到
+                </h3>
+                <div style="text-align:center; padding:20px;">
+                    <button class="btn btn-gold btn-signin" id="centerSigninBtn" onclick="doSigninWithConfetti()" style="font-size:1.1rem; padding:16px 40px;">
+                        <i class="fas fa-calendar-check"></i> 立即签到
+                    </button>
+                    <p style="color:var(--text-gray); margin-top:16px; font-size:0.9rem;">
+                        连续签到可获得更多积分奖励
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 积分商城 -->
+            <div class="card">
+                <h3 style="margin-bottom:20px; color:var(--gold); display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-gift"></i> 积分商城
+                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">兑换后自动放入券包</span>
+                </h3>
+                <div class="mall-grid" id="pointsMallList">
+                    <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:12px;"></i>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="view-profile" class="view"><div class="card" style="max-width:600px;"><h3>资料设置</h3><br><input type="text" id="upName" class="form-input" placeholder="昵称"><button class="btn btn-primary" onclick="saveProfile()" style="width:100%">保存</button></div></div>
 
@@ -970,18 +1609,153 @@
         let checkoutData = {}; 
         let currentChatTarget = null;
         let chatInterval = null;
+        let studyChart = null;
         
-        // ✨ 新增：协议签署状态变量
+        // ✨ 协议签署状态变量
         let isCurrentContractSigned = false; 
 
         if(!phone) location.href='index.html';
         
         document.addEventListener('DOMContentLoaded', () => {
-            loadInfo(); loadCourses(); loadBills(); loadCoupons(); checkNotifs(); initCalendar();
+            loadInfo(); 
+            loadCourses(); 
+            loadBills(); 
+            loadCoupons(); 
+            checkNotifs(); 
+            initCalendar();
             loadPointsData();
+            initStudyChart(); // 初始化学习图表
+            loadStudentStats(); // 加载统计数据
+            
             const params = new URLSearchParams(window.location.search);
             if(params.get('view') === 'courses') switchView('courses', document.getElementById('nav-courses'));
         });
+        
+        // ====== 🎛️ 侧边栏控制 ======
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+        
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('show');
+        }
+        
+        // 恢复侧边栏状态
+        if(localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.getElementById('mainSidebar')?.classList.add('collapsed');
+        }
+        
+        // ====== 📊 ECharts 学习时长图表 ======
+        function initStudyChart() {
+            const chartDom = document.getElementById('studyChart');
+            if (!chartDom) return;
+            
+            studyChart = echarts.init(chartDom, null, { renderer: 'canvas' });
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderColor: 'rgba(99, 102, 241, 0.3)',
+                    textStyle: { color: '#F8FAFC' },
+                    formatter: '{b}<br/>学习时长: {c}小时'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: [],
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    axisLabel: { color: '#94A3B8', fontSize: 11 },
+                    splitLine: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { show: false },
+                    axisLabel: { color: '#94A3B8', fontSize: 11 },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                series: [{
+                    name: '学习时长',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 8,
+                    lineStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: '#6366F1' },
+                            { offset: 1, color: '#A855F7' }
+                        ]),
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#818CF8',
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+                            { offset: 1, color: 'rgba(99, 102, 241, 0.02)' }
+                        ])
+                    },
+                    data: []
+                }]
+            };
+            
+            studyChart.setOption(option);
+            window.addEventListener('resize', () => studyChart?.resize());
+            
+            updateStudyChart();
+        }
+        
+        function updateStudyChart() {
+            if (!studyChart) return;
+            
+            const days = parseInt(document.getElementById('chartPeriod')?.value || 7);
+            const labels = [];
+            const data = [];
+            
+            // 生成模拟数据（实际应从后端获取）
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(`${date.getMonth() + 1}/${date.getDate()}`);
+                data.push(Math.round(Math.random() * 3 * 10) / 10 + 0.5); // 0.5-3.5小时
+            }
+            
+            studyChart.setOption({
+                xAxis: { data: labels },
+                series: [{ data: data }]
+            });
+        }
+        
+        // 加载学生统计数据
+        function loadStudentStats() {
+            // 计算统计数据
+            fetch(`api/user_api.php?action=get_my_bookings&phone=${phone}&_t=${Date.now()}`)
+                .then(r => r.json())
+                .then(res => {
+                    const bookings = res.data || [];
+                    const completed = bookings.filter(b => b.status === '已完成' || b.status === '待评价').length;
+                    const hours = completed * 2; // 假设每节课2小时
+                    
+                    document.getElementById('statHours').innerHTML = `${hours}<span style="font-size:0.9rem;font-weight:400;">h</span>`;
+                    document.getElementById('statCourses').innerText = completed;
+                });
+        }
 
         function switchView(id, btn) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -993,13 +1767,15 @@
             if(id === 'notifs') loadNotifs();
             if(id === 'resources') loadMyResources();
             if(id === 'demands') loadDemands();
+            if(id === 'achievements') loadAchievements();
+            if(id === 'points_center') loadPointsCenter();
         }
 
         // --- 全局 Loading 控制 ---
         function showLoading() { document.getElementById('globalLoading').style.display = 'flex'; }
         function hideLoading() { document.getElementById('globalLoading').style.display = 'none'; }
 
-        // --- 核心逻辑修改：课程渲染与收银台入口 ---
+        // --- 核心逻辑：课程渲染（彩色胶囊标签 + 脉冲按钮）---
         function filterCourses(type, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
@@ -1010,59 +1786,87 @@
             if (type === 'review') list = allBookings.filter(b => b.status === '待评价');
             
             let h = '';
-            if (list.length === 0) h = '<div style="text-align:center;padding:50px;color:#64748B"><i class="fas fa-box-open" style="font-size:3rem;margin-bottom:15px;opacity:0.5"></i><br>暂无相关订单</div>';
-            else {
-                list.forEach(b => {
+            if (list.length === 0) {
+                h = `<div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+                        <i class="fas fa-inbox" style="font-size:3.5rem;margin-bottom:20px;opacity:0.3"></i>
+                        <p style="font-size:1rem;">暂无相关订单</p>
+                        <a href="index.html" style="color:var(--primary); font-size:0.9rem;">去找老师 →</a>
+                     </div>`;
+            } else {
+                list.forEach((b, index) => {
                     let btnHtml = '';
-                    let badge = `<span class="badge" style="background:#334155;color:gray">${b.status}</span>`;
+                    let statusBadge = '';
                     let myName = document.getElementById('uNameDisplay').innerText;
-                    
-                    // 获取订单类型，若无则默认为线上
                     let cType = b.class_type || '线上教学';
                     
-                    // ✨ 传递 cType 到生成协议的函数
-                    let viewContractBtn = `<button class="btn btn-link" style="padding:6px 10px; font-size:0.8rem; border:1px solid var(--border); margin-right:5px;" onclick="viewSignedContract(${b.id}, '${b.tutor_name}', '${b.lesson_time}', '${b.price}', '${cType}')"><i class="fas fa-file-contract"></i> 查看协议</button>`;
+                    // 查看协议按钮
+                    let viewContractBtn = `<button class="btn btn-link" style="padding:6px 12px; font-size:0.8rem;" onclick="viewSignedContract(${b.id}, '${b.tutor_name}', '${b.lesson_time}', '${b.price}', '${cType}')"><i class="fas fa-file-contract"></i> 协议</button>`;
 
-                    if (b.status === '已通过') {
-                        badge = '<span class="badge" style="background:rgba(245,158,11,0.2);color:#F59E0B">待支付</span>';
-                        // ✨ 传递 cType 到收银台
-                        btnHtml = `<button class="btn btn-primary" onclick="goToCheckout(${b.id}, ${b.price}, '${b.tutor_name}', '${b.lesson_time}', '${cType}')">去支付 ¥${b.price}</button>`;
+                    // 🏷️ 彩色胶囊状态标签
+                    if (b.status === '待确认') {
+                        statusBadge = '<span class="status-badge status-pending"><i class="fas fa-hourglass-half"></i> 待确认</span>';
+                        btnHtml = '<span style="color:var(--text-muted); font-size:0.85rem;">等待老师确认...</span>';
                     }
-                    if (b.status === '已支付') {
-                        badge = '<span class="badge" style="background:rgba(16,185,129,0.2);color:#10B981">待上课</span>';
+                    else if (b.status === '已通过') {
+                        statusBadge = '<span class="status-badge status-paid"><i class="fas fa-credit-card"></i> 待支付</span>';
+                        btnHtml = `<button class="btn btn-gold" onclick="goToCheckout(${b.id}, ${b.price}, '${b.tutor_name}', '${b.lesson_time}', '${cType}')">
+                                    <i class="fas fa-credit-card"></i> 去支付 ¥${b.price}
+                                   </button>`;
+                    }
+                    else if (b.status === '已支付') {
+                        statusBadge = '<span class="status-badge status-ongoing"><i class="fas fa-play-circle"></i> 待上课</span>';
+                        // 🔘 脉冲动画进入教室按钮
                         btnHtml = `
-                            <div style="display:flex; gap:10px; justify-content:flex-end; align-items:center;">
+                            <div style="display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap;">
                                 ${viewContractBtn}
-                                <button class="btn" style="background:linear-gradient(90deg, #3B82F6, #2563EB);" onclick="enterClassroom(${b.id}, 'student', '${encodeURIComponent(myName)}')"><i class="fas fa-video"></i> 教室</button>
-                                <button class="btn btn-danger" style="font-size:0.8rem;padding:6px 10px;" onclick="applyRefundModal(${b.id})">退款</button>
+                                <button class="btn btn-classroom" onclick="enterClassroom(${b.id}, 'student', '${encodeURIComponent(myName)}')">
+                                    <i class="fas fa-video"></i> 进入教室
+                                </button>
+                                <button class="btn btn-danger" style="padding:8px 12px;" onclick="applyRefundModal(${b.id})">
+                                    <i class="fas fa-undo"></i>
+                                </button>
                             </div>`;
                     }
-                    if (b.status === '退款中') {
-                        badge = '<span class="badge" style="background:rgba(239,68,68,0.2);color:#EF4444">退款审核中</span>';
-                        btnHtml = '<span style="color:gray;font-size:0.8rem">请耐心等待</span>';
+                    else if (b.status === '退款中') {
+                        statusBadge = '<span class="status-badge status-refund"><i class="fas fa-sync-alt fa-spin"></i> 退款中</span>';
+                        btnHtml = '<span style="color:var(--text-muted); font-size:0.85rem;">审核中，请耐心等待</span>';
                     }
-                    if (b.status === '待评价') {
-                        badge = '<span class="badge" style="background:rgba(168,85,247,0.2);color:#A855F7">待评价</span>';
+                    else if (b.status === '待评价') {
+                        statusBadge = '<span class="status-badge status-review"><i class="fas fa-star"></i> 待评价</span>';
                         btnHtml = `
-                            ${viewContractBtn}
-                            <button class="btn btn-primary" onclick="openReview(${b.id})">去评价</button>`;
+                            <div style="display:flex; gap:8px;">
+                                ${viewContractBtn}
+                                <button class="btn btn-primary" onclick="openReview(${b.id})">
+                                    <i class="fas fa-pen"></i> 去评价
+                                </button>
+                            </div>`;
                     }
-                    if (b.status === '已完成') {
-                         btnHtml = `${viewContractBtn} <span style="color:gray;font-size:0.8rem;margin-left:10px;">已结课</span>`;
+                    else if (b.status === '已完成') {
+                        statusBadge = '<span class="status-badge status-completed"><i class="fas fa-check"></i> 已完成</span>';
+                        btnHtml = viewContractBtn;
+                    }
+                    else if (b.status === '已拒绝') {
+                        statusBadge = '<span class="status-badge status-refund"><i class="fas fa-times"></i> 已拒绝</span>';
                     }
                     
-                    // 显示上课方式标签
-                    let typeLabel = cType === '线下上门' 
-                        ? `<span style="font-size:0.8rem; color:#EF4444; border:1px solid #EF4444; padding:0 4px; border-radius:4px; margin-left:5px;">线下</span>`
-                        : `<span style="font-size:0.8rem; color:#3B82F6; border:1px solid #3B82F6; padding:0 4px; border-radius:4px; margin-left:5px;">线上</span>`;
+                    // 授课方式标签
+                    let typeIcon = cType === '线下上门' 
+                        ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.75rem; color:#F87171; background:rgba(239,68,68,0.1); padding:3px 8px; border-radius:6px;"><i class="fas fa-home"></i> 线下</span>`
+                        : `<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.75rem; color:#60A5FA; background:rgba(59,130,246,0.1); padding:3px 8px; border-radius:6px;"><i class="fas fa-laptop"></i> 线上</span>`;
 
-                    h += `<div class="list-item">
-                            <div>
-                                <div style="font-weight:bold;font-size:1.1rem;margin-bottom:5px;">${b.tutor_name} 老师 ${typeLabel}</div>
-                                <div style="color:#94A3B8;font-size:0.9rem"><i class="far fa-clock"></i> ${b.lesson_time}</div>
+                    h += `<div class="list-item" style="animation-delay:${index * 0.05}s;">
+                            <div style="flex:1;">
+                                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+                                    <span style="font-weight:700; font-size:1.05rem;">${b.tutor_name} 老师</span>
+                                    ${typeIcon}
+                                </div>
+                                <div style="display:flex; align-items:center; gap:12px; color:var(--text-muted); font-size:0.85rem;">
+                                    <span><i class="far fa-calendar"></i> ${b.lesson_time}</span>
+                                    <span><i class="fas fa-yen-sign"></i> ${b.price}</span>
+                                </div>
                             </div>
-                            <div style="text-align:right">
-                                <div style="margin-bottom:8px">${badge}</div>
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+                                ${statusBadge}
                                 ${btnHtml}
                             </div>
                           </div>`;
@@ -1317,9 +2121,134 @@
             document.getElementById('contractViewModal').style.display = 'flex';
         }
 
+        // ================ 🎆 烟花动画效果 ================
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            if (!container) {
+                const confettiDiv = document.createElement('div');
+                confettiDiv.id = 'confetti-container';
+                document.body.appendChild(confettiDiv);
+                container = confettiDiv;
+            }
+            
+            const colors = ['#F59E0B', '#FCD34D', '#10B981', '#3B82F6', '#A855F7', '#EF4444'];
+            const pieces = 50;
+            
+            for (let i = 0; i < pieces; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+        
+        // ================ 🏆 加载成就墙 ================
+        function loadAchievements() {
+            fetch(`api/gamification_api.php?action=get_badges&phone=${phone}&role=student`)
+                .then(r => r.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        const badges = res.badges || [];
+                        document.getElementById('unlockedCount').innerText = res.unlocked_count || 0;
+                        document.getElementById('totalBadges').innerText = badges.length;
+                        
+                        let html = '';
+                        badges.forEach(badge => {
+                            html += `
+                                <div class="achievement-card ${badge.unlocked ? 'unlocked' : 'locked'}">
+                                    ${!badge.unlocked ? '<i class="fas fa-lock achievement-lock"></i>' : ''}
+                                    <span class="achievement-icon">${badge.icon}</span>
+                                    <div class="achievement-name">${badge.name}</div>
+                                    <div class="achievement-desc">${badge.desc}</div>
+                                </div>
+                            `;
+                        });
+                        document.getElementById('achievementGrid').innerHTML = html || '<p style="grid-column:1/-1; text-align:center; color:var(--text-gray);">暂无成就数据</p>';
+                    }
+                })
+                .catch(err => console.error('加载成就失败:', err));
+        }
+        
+        // ================ ⭐ 加载积分中心 ================
+        function loadPointsCenter() {
+            // 加载等级信息
+            fetch(`api/gamification_api.php?action=get_level_info&phone=${phone}`)
+                .then(r => r.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        document.getElementById('levelName').innerText = res.level_name;
+                        document.getElementById('levelNumber').innerText = `LV.${res.level}`;
+                        document.getElementById('currentPoints').innerText = res.points;
+                        document.getElementById('neededPoints').innerText = res.needed;
+                        document.getElementById('progressPercent').innerText = res.progress_percent.toFixed(0) + '%';
+                        document.getElementById('progressBar').style.width = res.progress_percent + '%';
+                    }
+                });
+            
+            // 加载签到状态
+            fetch(`api/gamification_api.php?action=get_status&phone=${phone}`)
+                .then(r => r.json())
+                .then(res => {
+                    const btn = document.getElementById('centerSigninBtn');
+                    if (res.is_signed) {
+                        btn.innerHTML = '<i class="fas fa-check"></i> 今日已签到';
+                        btn.classList.add('disabled');
+                        btn.removeAttribute('onclick');
+                    }
+                });
+            
+            // 加载商城商品
+            fetch(`api/gamification_api.php?action=get_mall_items`)
+                .then(r => r.json())
+                .then(res => {
+                    let h = '';
+                    if (res.data.length === 0) {
+                        h = '<p style="grid-column:1/-1;text-align:center;color:gray">暂无商品</p>';
+                    } else {
+                        res.data.forEach(item => {
+                            h += `
+                                <div class="mall-item">
+                                    <div class="coin-icon"><i class="fas fa-ticket-alt"></i></div>
+                                    <div style="font-weight:bold;margin-bottom:5px;">${item.name}</div>
+                                    <div style="color:var(--gold);font-weight:bold;margin-bottom:15px;">${item.points_cost} 积分</div>
+                                    <button class="btn btn-primary" style="font-size:0.8rem;padding:5px 15px;" onclick="exchangeItem(${item.id}, ${item.points_cost})">立即兑换</button>
+                                </div>
+                            `;
+                        });
+                    }
+                    document.getElementById('pointsMallList').innerHTML = h;
+                });
+        }
+        
+        // ================ 🎆 带烟花效果的签到 ================
+        function doSigninWithConfetti() {
+            fetch(`api/gamification_api.php?action=do_signin`, {
+                method: 'POST',
+                body: new URLSearchParams({phone: phone})
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.status === 'success') {
+                    createConfetti();
+                    setTimeout(() => {
+                        alert('🎉 ' + d.message);
+                        loadPointsData();
+                        loadPointsCenter();
+                        loadAchievements();
+                    }, 500);
+                } else {
+                    alert(d.message);
+                }
+            });
+        }
+        
         // --- 原有逻辑保持不变 ---
-        function loadPointsData() {fetch(`api/gamification_api.php?action=get_status&phone=${phone}`).then(r=>r.json()).then(res=>{document.getElementById('uPoints').innerText=res.points;const btn=document.getElementById('signinBtn');if(res.is_signed){btn.innerHTML='<i class=\"fas fa-check\"></i> 今日已签';btn.classList.add('disabled');btn.removeAttribute('onclick');}});fetch(`api/gamification_api.php?action=get_mall_items`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"grid-column:1/-1;text-align:center;color:gray\">暂无商品</p>';else res.data.forEach(item=>{h+=`<div class=\"mall-item\"><div class=\"coin-icon\"><i class=\"fas fa-ticket-alt\"></i></div><div style=\"font-weight:bold;margin-bottom:5px;\">${item.name}</div><div style=\"color:var(--gold);font-weight:bold;margin-bottom:15px;\">${item.points_cost} 积分</div><button class=\"btn btn-primary\" style=\"font-size:0.8rem;padding:5px 15px;\" onclick=\"exchangeItem(${item.id}, ${item.points_cost})\">立即兑换</button></div>`;});document.getElementById('mallList').innerHTML=h;});}
-        function doSignin(){fetch(`api/gamification_api.php?action=do_signin`,{method:'POST',body:new URLSearchParams({phone:phone})}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert(d.message);loadPointsData();}else alert(d.message);});}
+        function loadPointsData() {fetch(`api/gamification_api.php?action=get_status&phone=${phone}`).then(r=>r.json()).then(res=>{document.getElementById('uPoints').innerText=res.points;const btn=document.getElementById('signinBtn');if(res.is_signed){btn.innerHTML='<i class=\"fas fa-check\"></i> 今日已签';btn.classList.add('disabled');btn.removeAttribute('onclick');}else{btn.setAttribute('onclick','doSigninWithConfetti()');}});fetch(`api/gamification_api.php?action=get_mall_items`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"grid-column:1/-1;text-align:center;color:gray\">暂无商品</p>';else res.data.forEach(item=>{h+=`<div class=\"mall-item\"><div class=\"coin-icon\"><i class=\"fas fa-ticket-alt\"></i></div><div style=\"font-weight:bold;margin-bottom:5px;\">${item.name}</div><div style=\"color:var(--gold);font-weight:bold;margin-bottom:15px;\">${item.points_cost} 积分</div><button class=\"btn btn-primary\" style=\"font-size:0.8rem;padding:5px 15px;\" onclick=\"exchangeItem(${item.id}, ${item.points_cost})\">立即兑换</button></div>`;});document.getElementById('mallList').innerHTML=h;});}
         function exchangeItem(id,cost){let cur=parseInt(document.getElementById('uPoints').innerText);if(cur<cost)return alert('积分不足');if(!confirm(`消耗 ${cost} 积分兑换？`))return;let fd=new FormData();fd.append('phone',phone);fd.append('coupon_id',id);fetch(`api/gamification_api.php?action=exchange_item`,{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('兑换成功');loadPointsData();loadCoupons();}else alert(d.message);});}
         function postDemand(){let s=document.getElementById('dmSubject').value;let g=document.getElementById('dmGrade').value;let b=document.getElementById('dmBudget').value;let r=document.getElementById('dmReq').value;if(!s||!g||!b)return alert('请填写完整');let fd=new FormData();fd.append('phone',phone);fd.append('subject',s);fd.append('grade',g);fd.append('budget',b);fd.append('requirement',r);fetch('api/demand_api.php?action=post_demand',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{if(d.status==='success'){alert('发布成功');document.getElementById('demandModal').style.display='none';loadDemands();}else alert(d.message);});}
         function loadDemands(){fetch(`api/demand_api.php?action=get_my_demands&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style=\"text-align:center;padding:30px;color:gray\">暂无需求</p>';else res.data.forEach(d=>{let status=d.status==='open'?'<span class=\"badge\" style=\"background:#10B981\">招聘中</span>':'<span class=\"badge\" style=\"background:#64748B\">已结束</span>';let btn=d.status==='open'?`<button class=\"btn btn-primary\" style=\"font-size:0.8rem;\" onclick=\"showAppliers(${d.id})\">查看应聘 (${d.apply_count})</button>`:'';h+=`<div class=\"list-item\"><div><div style=\"font-weight:bold;margin-bottom:5px;\">${d.subject} (${d.grade})</div><div style=\"color:#94A3B8;font-size:0.85rem;\">预算: ¥${d.budget}/h · ${d.create_time}</div></div><div style=\"text-align:right;display:flex;gap:10px;align-items:center;\">${status} ${btn}</div></div>`;});document.getElementById('demandList').innerHTML=h;});}
@@ -1345,5 +2274,8 @@
         function saveProfile(){let fd=new FormData();fd.append('phone',phone);fd.append('username',document.getElementById('upName').value);fetch('api/user_api.php?action=update_profile',{method:'POST',body:fd}).then(()=>{alert('保存成功');loadInfo();});}
         function loadFavorites(){fetch(`api/user_api.php?action=get_my_favorites&phone=${phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="color:gray;">暂无收藏</p>';else res.data.forEach(t=>{let avatar=t.avatar||'default_boy.png';if(!avatar.includes('/')&&!avatar.startsWith('http'))avatar='assets/'+avatar;h+=`<div class="fav-card" onclick="location.href='detail.html?id=${t.tutor_id}'"><img src="${avatar}" class="fav-avatar"><div style="font-weight:bold;">${t.name}</div><div style="font-size:0.8rem;color:#94A3B8;margin-bottom:5px;">${t.school}</div><div style="color:#FCD34D;">¥${t.price}/h</div></div>`;});document.getElementById('favList').innerHTML=h;});}
     </script>
+    
+    <!-- 🎆 烟花动画容器 -->
+    <div id="confetti-container"></div>
 </body>
 </html>

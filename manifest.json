@@ -1,0 +1,92 @@
+{
+  "name": "智慧家教桥",
+  "short_name": "家教桥",
+  "description": "连接高校智慧，点亮学子未来 - 100%实名认证大学生教员平台",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0F172A",
+  "theme_color": "#0F4C81",
+  "scope": "/",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["education", "lifestyle"],
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=72&rounded=true",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=96&rounded=true",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=128&rounded=true",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=144&rounded=true",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=152&rounded=true",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=192&rounded=true",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=384&rounded=true",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=家教桥&background=6366F1&color=fff&size=512&rounded=true",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "找老师",
+      "short_name": "导师",
+      "description": "浏览严选教员列表",
+      "url": "/index.html#tutors",
+      "icons": [{ "src": "assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "我的课程",
+      "short_name": "课程",
+      "description": "查看我的课程安排",
+      "url": "/student_center.html?view=courses",
+      "icons": [{ "src": "assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "智慧家教桥首页"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
+}
+

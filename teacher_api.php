@@ -1,20 +1,65 @@
 <?php
-// api/teacher_api.php - 教员端全功能核心接口 (修复登录)
+// api/teacher_api.php - 教员端全功能核心接口 (V2 - 安全加固版)
 header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0); 
 require '../config/db.php';
 
+// ==================== Session安全验证 ====================
+session_start();
+
+/**
+ * 验证教员Session权限
+ * @param int $tutor_id 请求操作的教员ID
+ * @return bool 是否验证通过
+ */
+function verifyTutorSession($tutor_id) {
+    if (!isset($_SESSION['tutor_id'])) {
+        return false;
+    }
+    return $_SESSION['tutor_id'] == $tutor_id;
+}
+
+/**
+ * 通过手机号验证教员Session
+ */
+function verifyTutorByPhone($phone) {
+    if (!isset($_SESSION['tutor_phone'])) {
+        return false;
+    }
+    return $_SESSION['tutor_phone'] === $phone;
+}
+
+/**
+ * 返回未授权错误
+ */
+function unauthorizedResponse() {
+    http_response_code(401);
+    echo json_encode([
+        'status' => 'error', 
+        'message' => '未授权操作，请重新登录',
+        'code' => 'UNAUTHORIZED'
+    ]);
+    exit;
+}
+
+/**
+ * 安全的数据清洗
+ */
+function sanitize($conn, $data) {
+    return htmlspecialchars($conn->real_escape_string(trim($data)), ENT_QUOTES, 'UTF-8');
+}
+
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
-// ==================== 1. 核心认证 (修复重点) ====================
+// ==================== 1. 核心认证 (安全加固版) ====================
 
-// 教员登录
+// 教员登录 - 设置Session
 if ($action == 'login') {
-    $phone = $_POST['phone'];
-    $pass = $_POST['password'];
+    $phone = sanitize($conn, $_POST['phone']);
+    $pass = sanitize($conn, $_POST['password']);
     
-    // 查询教员
+    // 使用预处理语句查询教员
     $stmt = $conn->prepare("SELECT * FROM tutors WHERE phone = ? AND password = ?");
     $stmt->bind_param("ss", $phone, $pass);
     $stmt->execute();
@@ -26,33 +71,38 @@ if ($action == 'login') {
             echo json_encode(["status"=>"error", "message"=>"账号已封禁，请联系客服"]); 
             exit; 
         }
-        
-        // 检查审核状态 (根据你的需求，这里允许'待审核'登录，以便他们完善资料)
-        // 如果你想禁止待审核登录，把下面注释解开：
-        /*
-        if ($res['status'] == '待审核') {
-            echo json_encode(["status"=>"error", "message"=>"您的入驻申请正在审核中，请耐心等待"]);
-            exit;
-        }
-        if ($res['status'] == '已拒绝') {
-            echo json_encode(["status"=>"error", "message"=>"您的审核未通过，请联系管理员"]);
-            exit;
-        }
-        */
 
         // 处理 VIP 过期逻辑
         if ($res['is_vip'] == 1 && strtotime($res['vip_expire_time']) < time()) {
-            $conn->query("UPDATE tutors SET is_vip=0 WHERE id='".$res['id']."'");
+            $stmt2 = $conn->prepare("UPDATE tutors SET is_vip = 0 WHERE id = ?");
+            $stmt2->bind_param("i", $res['id']);
+            $stmt2->execute();
             $res['is_vip'] = 0;
         }
         
+        // 设置Session
+        $_SESSION['tutor_id'] = $res['id'];
+        $_SESSION['tutor_phone'] = $res['phone'];
+        $_SESSION['tutor_name'] = $res['name'];
+        $_SESSION['login_time'] = time();
+        
         // 默认头像处理
         if (empty($res['avatar'])) $res['avatar'] = 'default_boy.png';
+        
+        // 不返回密码
+        unset($res['password']);
         
         echo json_encode(["status"=>"success", "data"=>$res]);
     } else {
         echo json_encode(["status"=>"error", "message"=>"手机号或密码错误"]);
     }
+}
+
+// 教员登出 - 清除Session
+else if ($action == 'logout') {
+    $_SESSION = array();
+    session_destroy();
+    echo json_encode(['status'=>'success', 'message'=>'已退出登录']);
 }
 
 // 教员注册 (简易版 & 完整版兼容)
@@ -94,31 +144,50 @@ else if ($action == 'get_info') {
     }
 }
 
-// 更新资料
+// 更新资料 - 需要Session验证
 else if ($action == 'update_info') { 
-    $id = $_POST['id']; 
-    $sc = $conn->real_escape_string($_POST['school']); 
-    $ma = $conn->real_escape_string($_POST['major']); 
-    $su = $conn->real_escape_string($_POST['subject']); 
-    $pr = floatval($_POST['price']); 
-    $st = $conn->real_escape_string($_POST['teaching_style']); 
-    $in = $conn->real_escape_string($_POST['intro']); 
-    $ex = $conn->real_escape_string($_POST['experience']); 
-    $ho = $conn->real_escape_string($_POST['honors']); 
+    $id = intval($_POST['id']); 
     
-    $avatar_sql = ""; 
+    // 安全验证
+    if (!verifyTutorSession($id)) {
+        unauthorizedResponse();
+    }
+    
+    $sc = sanitize($conn, $_POST['school']); 
+    $ma = sanitize($conn, $_POST['major']); 
+    $su = sanitize($conn, $_POST['subject']); 
+    $pr = floatval($_POST['price']); 
+    $st = sanitize($conn, $_POST['teaching_style']); 
+    $in = sanitize($conn, $_POST['intro']); 
+    $ex = sanitize($conn, $_POST['experience']); 
+    $ho = sanitize($conn, $_POST['honors']); 
+    
+    $avatar_name = null; 
     if(isset($_FILES['avatar']) && $_FILES['avatar']['error']==0) {
-        $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-        $new_name = "tutor_".$id."_".time().".".$ext;
-        if(move_uploaded_file($_FILES['avatar']['tmp_name'], "../assets/".$new_name)) {
-            $avatar_sql = ", avatar='$new_name'";
+        // 验证文件类型
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($_FILES['avatar']['type'], $allowed_types)) {
+            echo json_encode(['status'=>'error', 'message'=>'不支持的图片格式']);
+            exit;
+        }
+        
+        $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+        $avatar_name = "tutor_".$id."_".time().".".$ext;
+        if(!move_uploaded_file($_FILES['avatar']['tmp_name'], "../assets/".$avatar_name)) {
+            $avatar_name = null;
         }
     }
     
-    $sql = "UPDATE tutors SET school='$sc', major='$ma', subject='$su', price='$pr', teaching_style='$st', intro='$in', experience='$ex', honors='$ho' $avatar_sql WHERE id='$id'";
+    if ($avatar_name) {
+        $stmt = $conn->prepare("UPDATE tutors SET school=?, major=?, subject=?, price=?, teaching_style=?, intro=?, experience=?, honors=?, avatar=? WHERE id=?");
+        $stmt->bind_param("sssdsssssi", $sc, $ma, $su, $pr, $st, $in, $ex, $ho, $avatar_name, $id);
+    } else {
+        $stmt = $conn->prepare("UPDATE tutors SET school=?, major=?, subject=?, price=?, teaching_style=?, intro=?, experience=?, honors=? WHERE id=?");
+        $stmt->bind_param("sssdssssi", $sc, $ma, $su, $pr, $st, $in, $ex, $ho, $id);
+    }
     
-    if($conn->query($sql)) echo json_encode(['status'=>'success']); 
-    else echo json_encode(['status'=>'error', 'message'=>$conn->error]);
+    if($stmt->execute()) echo json_encode(['status'=>'success']); 
+    else echo json_encode(['status'=>'error', 'message'=>'更新失败']);
 }
 
 // ==================== 2. 业务功能 (接单/资源/VIP) ====================
@@ -148,25 +217,54 @@ else if ($action == 'handle_booking') {
     echo json_encode(['status'=>'success']); 
 }
 
-// 确认完课 (结算)
+// 确认完课 (结算) - 需要验证操作者是订单对应的教员
 else if ($action == 'finish_class') { 
-    $id = $_POST['id']; 
-    $bk = $conn->query("SELECT * FROM bookings WHERE id='$id'")->fetch_assoc(); 
+    $id = intval($_POST['id']); 
     
-    if($bk && $bk['status']=='已支付') { 
+    // 查询订单信息
+    $stmt = $conn->prepare("SELECT * FROM bookings WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $bk = $stmt->get_result()->fetch_assoc(); 
+    
+    if(!$bk) {
+        echo json_encode(['status'=>'error', 'message'=>'订单不存在']);
+        exit;
+    }
+    
+    // 验证操作者是否是该订单的教员
+    $tn = $bk['tutor_name'];
+    $stmt2 = $conn->prepare("SELECT id, phone, is_vip, vip_expire_time FROM tutors WHERE name = ?");
+    $stmt2->bind_param("s", $tn);
+    $stmt2->execute();
+    $t = $stmt2->get_result()->fetch_assoc();
+    
+    if(!$t || !verifyTutorSession($t['id'])) {
+        unauthorizedResponse();
+    }
+    
+    if($bk['status']=='已支付') { 
         $p = floatval($bk['price']); 
-        $tn = $conn->real_escape_string($bk['tutor_name']); 
-        $t = $conn->query("SELECT id, phone, is_vip, vip_expire_time FROM tutors WHERE name='$tn'")->fetch_assoc(); 
         
         // 平台抽成：VIP抽5%，普通抽10%
         $rate = ($t['is_vip']==1 && strtotime($t['vip_expire_time']) > time()) ? 0.05 : 0.10; 
-        $income = $p * (1 - $rate); 
+        $income = round($p * (1 - $rate), 2); 
         
         $conn->begin_transaction(); 
         try {
-            $conn->query("UPDATE bookings SET status='待评价' WHERE id='$id'"); 
-            $conn->query("UPDATE tutors SET balance = balance + $income WHERE id='".$t['id']."'"); 
-            $conn->query("INSERT INTO transactions (user_phone, type, amount, title) VALUES ('".$t['phone']."', 'income', '+$income', '课时费结算')"); 
+            $stmt3 = $conn->prepare("UPDATE bookings SET status = '待评价' WHERE id = ?");
+            $stmt3->bind_param("i", $id);
+            $stmt3->execute();
+            
+            $stmt4 = $conn->prepare("UPDATE tutors SET balance = balance + ? WHERE id = ?");
+            $stmt4->bind_param("di", $income, $t['id']);
+            $stmt4->execute();
+            
+            $amountStr = "+$income";
+            $stmt5 = $conn->prepare("INSERT INTO transactions (user_phone, type, amount, title) VALUES (?, 'income', ?, '课时费结算')");
+            $stmt5->bind_param("ss", $t['phone'], $amountStr);
+            $stmt5->execute();
+            
             $conn->commit(); 
             echo json_encode(['status'=>'success']); 
         } catch(Exception $e) {
@@ -178,24 +276,39 @@ else if ($action == 'finish_class') {
     }
 }
 
-// 上传资源 (含价格)
+// 上传资源 (含价格) - 需要Session验证
 else if ($action == 'upload_resource') {
-    $phone = $_POST['uploader_phone'];
-    $title = $conn->real_escape_string($_POST['title']);
+    $phone = sanitize($conn, $_POST['uploader_phone']);
+    
+    // 安全验证
+    if (!verifyTutorByPhone($phone)) {
+        unauthorizedResponse();
+    }
+    
+    $title = sanitize($conn, $_POST['title']);
     $price = isset($_POST['price']) ? floatval($_POST['price']) : 0;
     
     if(isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+        // 验证文件大小（最大10MB）
+        if($_FILES['file']['size'] > 10 * 1024 * 1024) {
+            echo json_encode(["status" => "error", "message" => "文件大小不能超过10MB"]);
+            exit;
+        }
+        
+        $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
         $file_name = "res_" . time() . "_" . rand(100,999) . "." . $ext;
         
         // 检查上传目录
         if (!file_exists('../uploads')) mkdir('../uploads', 0777, true);
         
         if(move_uploaded_file($_FILES['file']['tmp_name'], "../uploads/" . $file_name)) {
-            $sql = "INSERT INTO resources (title, type, description, file_path, uploader_phone, price, status, create_time) 
-                    VALUES ('$title', '".strtoupper($ext)."', '$title', '$file_name', '$phone', '$price', '待审核', NOW())";
-            if($conn->query($sql)) echo json_encode(["status" => "success"]);
-            else echo json_encode(["status" => "error", "message" => "DB Error: ".$conn->error]);
+            $type = strtoupper($ext);
+            $stmt = $conn->prepare("INSERT INTO resources (title, type, description, file_path, uploader_phone, price, status, create_time) 
+                    VALUES (?, ?, ?, ?, ?, ?, '待审核', NOW())");
+            $stmt->bind_param("sssssd", $title, $type, $title, $file_name, $phone, $price);
+            
+            if($stmt->execute()) echo json_encode(["status" => "success"]);
+            else echo json_encode(["status" => "error", "message" => "保存失败"]);
         } else {
             echo json_encode(["status" => "error", "message" => "文件移动失败"]);
         }
@@ -206,38 +319,80 @@ else if ($action == 'upload_resource') {
 
 // 获取我的资源
 else if ($action == 'get_my_resources') { 
-    $p = $_GET['phone']; 
-    $r = $conn->query("SELECT * FROM resources WHERE uploader_phone='$p' ORDER BY create_time DESC"); 
-    $l = []; while($row=$r->fetch_assoc()) $l[]=$row; 
+    $p = sanitize($conn, $_GET['phone']); 
+    
+    $stmt = $conn->prepare("SELECT * FROM resources WHERE uploader_phone = ? ORDER BY create_time DESC");
+    $stmt->bind_param("s", $p);
+    $stmt->execute();
+    $r = $stmt->get_result();
+    
+    $l = []; 
+    while($row = $r->fetch_assoc()) $l[] = $row; 
     echo json_encode(["status"=>"success","data"=>$l]); 
 }
 
-// 删除资源
+// 删除资源 - 需要Session验证
 else if ($action == 'delete_resource') { 
-    $id = $_POST['id']; 
-    $conn->query("DELETE FROM resources WHERE id='$id'"); 
+    $id = intval($_POST['id']); 
+    
+    // 先查询资源所属
+    $stmt = $conn->prepare("SELECT uploader_phone FROM resources WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $res = $stmt->get_result()->fetch_assoc();
+    
+    if (!$res || !verifyTutorByPhone($res['uploader_phone'])) {
+        unauthorizedResponse();
+    }
+    
+    $stmt2 = $conn->prepare("DELETE FROM resources WHERE id = ?");
+    $stmt2->bind_param("i", $id);
+    $stmt2->execute();
+    
     echo json_encode(["status"=>"success"]); 
 }
 
-// 购买 VIP
+// 购买 VIP - 需要Session验证
 else if ($action == 'buy_vip') { 
-    $id = $_POST['id']; 
-    $price = 299; 
-    $t = $conn->query("SELECT balance, is_vip, vip_expire_time FROM tutors WHERE id='$id'")->fetch_assoc(); 
+    $id = intval($_POST['id']); 
     
-    if(floatval($t['balance']) < $price) { echo json_encode(['status'=>'error','message'=>'余额不足']); exit; }
+    // 安全验证
+    if (!verifyTutorSession($id)) {
+        unauthorizedResponse();
+    }
+    
+    $price = 299; 
+    
+    $stmt = $conn->prepare("SELECT balance, is_vip, vip_expire_time, phone FROM tutors WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $t = $stmt->get_result()->fetch_assoc(); 
+    
+    if(floatval($t['balance']) < $price) { 
+        echo json_encode(['status'=>'error','message'=>'余额不足']); 
+        exit; 
+    }
     
     $start_time = ($t['is_vip'] && strtotime($t['vip_expire_time']) > time()) ? strtotime($t['vip_expire_time']) : time();
     $new_expire = date('Y-m-d H:i:s', strtotime('+30 days', $start_time));
     
     $conn->begin_transaction();
-    $conn->query("UPDATE tutors SET balance = balance - $price, is_vip=1, vip_expire_time='$new_expire' WHERE id='$id'");
-    // 记录教员消费流水
-    $t_res = $conn->query("SELECT phone FROM tutors WHERE id='$id'")->fetch_assoc();
-    $conn->query("INSERT INTO transactions (user_phone, type, amount, title) VALUES ('".$t_res['phone']."', 'payment', '-$price', '购买VIP会员')");
-    $conn->commit();
-    
-    echo json_encode(['status'=>'success']); 
+    try {
+        $stmt2 = $conn->prepare("UPDATE tutors SET balance = balance - ?, is_vip = 1, vip_expire_time = ? WHERE id = ?");
+        $stmt2->bind_param("dsi", $price, $new_expire, $id);
+        $stmt2->execute();
+        
+        $amountStr = "-$price";
+        $stmt3 = $conn->prepare("INSERT INTO transactions (user_phone, type, amount, title) VALUES (?, 'payment', ?, '购买VIP会员')");
+        $stmt3->bind_param("ss", $t['phone'], $amountStr);
+        $stmt3->execute();
+        
+        $conn->commit();
+        echo json_encode(['status'=>'success']); 
+    } catch(Exception $e) {
+        $conn->rollback();
+        echo json_encode(['status'=>'error', 'message'=>'购买失败']);
+    }
 }
 
 $conn->close();

@@ -2,24 +2,44 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    
     <title>教员工作台 | 智慧家教桥</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
-        /* ✨ 超级视觉优化版 CSS */
+        /* ✨ SaaS商业级仪表盘 - 遵循 .cursorrules 宪法 */
         :root { 
             --primary: #6366F1; 
+            --primary-dark: #4F46E5;
             --primary-light: #818CF8;
+            --primary-glow: rgba(99, 102, 241, 0.5);
             --accent: #F59E0B; 
-            --success: #10B981; 
-            --bg-dark: #0B0F19; 
-            --bg-card: rgba(22, 27, 40, 0.7); 
+            --accent-glow: rgba(245, 158, 11, 0.4);
+            --success: #10B981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --danger: #EF4444;
+            --bg-primary: #0B0F19; 
+            --bg-secondary: #0F172A;
+            --bg-card: rgba(22, 27, 40, 0.75); 
             --text: #F8FAFC; 
-            --text-gray: #94A3B8; 
-            --border: rgba(255, 255, 255, 0.12); 
-            --glass: blur(25px);
+            --text-gray: #94A3B8;
+            --text-muted: #64748B;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.12);
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
             --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
             --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.35);
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 72px;
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
         body { 
@@ -77,68 +97,229 @@
             background: linear-gradient(135deg, var(--accent), #D97706);
             animation-delay: 5s;
         }
+        /* ====== 🎛️ 可折叠侧边栏 ====== */
         .sidebar { 
-            width: 260px; 
-            background: rgba(11, 15, 25, 0.75); 
-            backdrop-filter: blur(25px) saturate(180%);
-            border-right: 1.5px solid var(--border); 
-            padding: 30px 20px; 
-            display:flex; 
-            flex-direction:column; 
-            z-index: 10;
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background: rgba(11, 15, 25, 0.85); 
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-right: 1px solid var(--border); 
+            padding: 24px 16px; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 100;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+            min-width: var(--sidebar-collapsed);
+            padding: 24px 12px;
+        }
+        
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-group-title {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 14px;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            right: -14px;
+            top: 70px;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            border: 2px solid var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.75rem;
+        }
+        
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        
+        .sidebar.collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
+        }
+        
         .logo { 
-            font-size: 1.3rem; 
-            font-weight: 900; 
-            margin-bottom: 40px; 
+            font-size: 1.25rem; 
+            font-weight: 800; 
+            margin-bottom: 32px; 
             display: flex; 
             align-items: center; 
             gap: 12px; 
             color: white; 
-            padding-left: 10px;
+            padding: 0 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logo i {
+            color: var(--primary-light);
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        
+        .logo-text {
             background: linear-gradient(135deg, #FFFFFF, #E0E7FF);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            transition: transform 0.3s ease;
+            white-space: nowrap;
+            transition: all 0.3s ease;
         }
-        .logo:hover { transform: scale(1.05); }
+        
+        .logo:hover { transform: scale(1.02); }
+        
+        .nav-group-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding: 16px 12px 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
         .nav-item { 
-            padding: 14px 20px; 
+            padding: 12px 16px; 
             color: var(--text-gray); 
             cursor: pointer; 
-            border-radius: 16px; 
-            margin-bottom: 8px; 
+            border-radius: 12px; 
+            margin-bottom: 4px; 
             display: flex; 
             align-items: center; 
             gap: 12px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500; 
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             position: relative;
+            overflow: hidden;
         }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+        
+        .nav-text {
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        
         .nav-item::before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            background: linear-gradient(90deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
         }
+        
         .nav-item.active::before {
-            opacity: 1;
+            transform: scaleY(1);
         }
+        
         .nav-item:hover { 
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.05);
             color: white;
-            transform: translateX(5px);
         }
+        
+        .nav-item:hover i {
+            transform: scale(1.1);
+        }
+        
         .nav-item.active { 
-            color: #818CF8; 
-            border-left: 3px solid #818CF8;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            color: white;
+            background: linear-gradient(90deg, rgba(99,102,241,0.2), rgba(99,102,241,0.05));
+        }
+        
+        .nav-item.active i {
+            color: var(--primary-light);
+        }
+        
+        /* 移动端 */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(11, 15, 25, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 8px 0;
+            z-index: 200;
+        }
+        
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-nav-item i { font-size: 1.2rem; }
+        .mobile-nav-item.active { color: var(--primary); }
+        
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+        }
+        
+        .mobile-overlay.show { display: block; }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                z-index: 200;
+            }
+            .sidebar.mobile-open { left: 0; }
+            .mobile-nav { display: block; }
+            .main { padding: 20px; padding-bottom: 100px; }
         }
         .main { flex: 1; padding: 40px; overflow-y: auto; position: relative; }
         .view { display: none; animation: fadeIn 0.4s ease; } .view.active { display: block; }
@@ -199,12 +380,106 @@
             border-radius: 50%;
             pointer-events: none;
         }
-        .vip-card-box { background: linear-gradient(135deg, #1e1b4b 0%, #0F172A 100%); border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 20px; padding: 25px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
+        .vip-card-box { 
+            background: linear-gradient(135deg, #1e1b4b 0%, #0F172A 100%); 
+            border: 1px solid rgba(245, 158, 11, 0.5); 
+            border-radius: 20px; 
+            padding: 25px 30px; 
+            margin-bottom: 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); 
+            position: relative; 
+            overflow: hidden; 
+        }
         .vip-card-box::after { content:''; position:absolute; top:-50%; right:-10%; width:250px; height:250px; background:radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%); border-radius:50%; pointer-events:none; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px; }
-        .stat-card { background: var(--bg-card); border: 1px solid var(--border); padding: 25px; border-radius: 20px; transition:0.3s; }
-        .stat-card.gold { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(0,0,0,0)); border-color: rgba(245,158,11,0.3); }
-        .stat-val { font-size: 2.2rem; font-weight: 800; margin: 10px 0; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px; }
+        .stat-card { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border); 
+            padding: 24px; 
+            border-radius: 16px; 
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .stat-card.gold { 
+            background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05)); 
+            border-color: rgba(245,158,11,0.4); 
+        }
+        .stat-card.gold:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2);
+        }
+        .stat-val { font-size: 2rem; font-weight: 800; margin: 8px 0; }
+        
+        /* 图表卡片 */
+        .chart-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-title i { color: var(--accent); }
+        .chart-container { height: 280px; width: 100%; }
+        
+        /* 彩色状态标签 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-pending { background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-paid { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-waiting { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-completed { background: rgba(100, 116, 139, 0.15); color: #94A3B8; border: 1px solid rgba(100, 116, 139, 0.3); }
+        
+        /* 进入教室脉冲按钮 */
+        .btn-classroom {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+            position: relative;
+        }
+        .btn-classroom::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: inherit;
+            background: inherit;
+            filter: blur(12px);
+            opacity: 0;
+            z-index: -1;
+            animation: classroomPulse 2s ease-in-out infinite;
+        }
+        @keyframes classroomPulse {
+            0%, 100% { opacity: 0; transform: scale(0.9); }
+            50% { opacity: 0.6; transform: scale(1); }
+        }
         .list-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 20px; border-radius: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition:0.2s; }
         .list-item:hover { background: rgba(255,255,255,0.06); transform: translateX(5px); }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; } .form-group { margin-bottom: 0; } .form-label { display: block; margin-bottom: 8px; color: var(--text-gray); font-size: 0.9rem; } .form-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; padding: 14px; border-radius: 12px; outline:none; transition:0.3s; font-size: 1rem; } .form-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.4); } .full-width { grid-column: span 2; }
@@ -346,20 +621,33 @@
 </head>
 <body>
     <div class="aurora-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+    
+    <!-- 移动端遮罩层 -->
+    <div class="mobile-overlay" onclick="toggleMobileSidebar()"></div>
 
     <div class="sidebar">
-        <div class="logo"><i class="fas fa-chalkboard-teacher" style="color:#818CF8"></i> 教员后台</div>
-        <div class="nav-item active" onclick="switchView('dashboard', this)"><i class="fas fa-chart-pie"></i> 概览仪表盘</div>
-        <div class="nav-item" onclick="switchView('bookings', this)"><i class="fas fa-calendar-check"></i> 预约管理</div>
-        <div class="nav-item" onclick="switchView('hall', this)"><i class="fas fa-search-dollar"></i> 需求大厅</div>
-        <div class="nav-item" onclick="switchView('notifs', this)"><i class="fas fa-bell"></i> 消息通知</div>
-        <div class="nav-item" onclick="switchView('chat', this)"><i class="fas fa-comment-alt"></i> 学员私信</div>
-        <div class="nav-item" onclick="switchView('profile', this)"><i class="fas fa-user-edit"></i> 资料设置</div>
-        <div class="nav-item" onclick="switchView('resources', this)"><i class="fas fa-folder-open"></i> 资源题库</div>
-        <div class="nav-item" onclick="logout()" style="margin-top:auto; color:#EF4444; background:rgba(239,68,68,0.1)"><i class="fas fa-sign-out-alt"></i> 退出登录</div>
+        <div class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-chevron-left"></i></div>
+        <div class="logo" onclick="location.href='index.html'"><i class="fas fa-chalkboard-teacher" style="color:#818CF8"></i> <span class="logo-text">教员后台</span></div>
+        <div class="nav-item active" onclick="switchView('dashboard', this)"><i class="fas fa-chart-pie"></i> <span class="nav-text">概览仪表盘</span></div>
+        <div class="nav-item" onclick="switchView('bookings', this)"><i class="fas fa-calendar-check"></i> <span class="nav-text">预约管理</span></div>
+        <div class="nav-item" onclick="switchView('hall', this)"><i class="fas fa-search-dollar"></i> <span class="nav-text">需求大厅</span></div>
+        <div class="nav-item" onclick="switchView('achievements', this)"><i class="fas fa-trophy"></i> <span class="nav-text">成就墙</span></div>
+        <div class="nav-item" onclick="switchView('notifs', this)"><i class="fas fa-bell"></i> <span class="nav-text">消息通知</span></div>
+        <div class="nav-item" onclick="switchView('chat', this)"><i class="fas fa-comment-alt"></i> <span class="nav-text">学员私信</span></div>
+        <div class="nav-item" onclick="switchView('profile', this)"><i class="fas fa-user-edit"></i> <span class="nav-text">资料设置</span></div>
+        <div class="nav-item" onclick="switchView('resources', this)"><i class="fas fa-folder-open"></i> <span class="nav-text">资源题库</span></div>
+        <div class="nav-item" onclick="logout()" style="margin-top:auto; color:#EF4444; background:rgba(239,68,68,0.1)"><i class="fas fa-sign-out-alt"></i> <span class="nav-text">退出登录</span></div>
     </div>
 
     <div class="main">
+        <!-- 移动端顶部栏 -->
+        <div class="mobile-header" style="display:none; padding:16px; background:var(--bg-card); border-bottom:1px solid var(--border); margin:-20px -20px 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <button onclick="toggleMobileSidebar()" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:700;">教员工作台</span>
+                <button onclick="logout()" style="background:none; border:none; color:#EF4444; font-size:1rem; cursor:pointer;"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
         <div id="view-dashboard" class="view active">
             <div class="welcome-banner">
                 <div style="font-size:2rem; font-weight:800; margin-bottom:10px;" id="welcomeMsg">欢迎回来</div>
@@ -378,6 +666,20 @@
                 <div class="stat-card"><div style="font-size:0.9rem; color:var(--text-gray)">待履约课程</div><div class="stat-val" style="color:#3B82F6" id="dashClass">0</div></div>
                 <div class="stat-card"><div style="font-size:0.9rem; color:var(--text-gray)">累计服务学生</div><div class="stat-val" id="dashStudents">0</div></div>
             </div>
+            
+            <!-- 收入统计图表 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title"><i class="fas fa-chart-bar"></i> 收入统计趋势</div>
+                    <select id="chartPeriod" class="form-input" style="width:auto; padding:6px 12px; font-size:0.8rem;" onchange="updateIncomeChart()">
+                        <option value="week">近7天</option>
+                        <option value="month" selected>近30天</option>
+                        <option value="year">近一年</option>
+                    </select>
+                </div>
+                <div id="incomeChart" class="chart-container"></div>
+            </div>
+            
             <div class="card"><h3 style="margin-bottom:20px; color:var(--text-gray)">📌 紧急待办</h3><div id="todoList"></div></div>
         </div>
 
@@ -419,6 +721,19 @@
                     <div class="form-group full-width"><label class="form-label">荣誉奖项</label><textarea id="upHonors" class="form-input" rows="3"></textarea></div>
                 </div>
                 <div style="margin-top:30px; text-align:right;"><button class="btn btn-primary" onclick="saveProfile()" style="padding:12px 40px; font-size:1rem;">保存所有修改</button></div>
+            </div>
+        </div>
+
+        <div id="view-achievements" class="view">
+            <div class="page-title">🏆 成就墙</div>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3 style="margin:0;">我的成就</h3>
+                    <span style="color:var(--accent); font-weight:600;">
+                        已解锁 <span id="tutorUnlockedCount">0</span> / <span id="tutorTotalBadges">0</span>
+                    </span>
+                </div>
+                <div class="achievement-grid" id="tutorAchievementGrid"></div>
             </div>
         </div>
 
@@ -480,51 +795,63 @@
             btn.classList.add('active');
             if(id==='chat') loadContacts(); 
             if(id==='notifs') loadNotifs();
-            if(id==='hall') loadHall(); 
+            if(id==='hall') loadHall();
+            if(id==='achievements') loadTutorAchievements(); 
         }
 
-        // ✨✨✨ 核心修改：预约列表加载 (显示详细信息) ✨✨✨
+        // ✨✨✨ 核心修改：预约列表加载 (显示详细信息 + 彩色胶囊状态标签) ✨✨✨
         function loadBookings(){
             fetch(`api/teacher_api.php?action=get_bookings&name=${encodeURIComponent(teacher.name)}&_t=${Date.now()}`).then(r=>r.json()).then(res=>{
-                allBookings = res.data; // 保存数据到全局变量
+                allBookings = res.data;
                 let h='';
                 if(res.data.length===0) h='<p style="text-align:center;color:gray;padding:30px;">暂无预约记录</p>';
                 else res.data.forEach(b=>{
                     let btns='';
-                    let statusColor = '#10B981';
                     
-                    // ✨ 1. 区分线上/线下标签
+                    // ✨ 状态彩色胶囊标签
+                    let statusBadge = '';
+                    let statusClass = '';
+                    switch(b.status) {
+                        case '待确认': statusClass = 'status-pending'; break;
+                        case '已通过': statusClass = 'status-waiting'; break;
+                        case '已支付': statusClass = 'status-paid'; break;
+                        case '已完成': case '待评价': statusClass = 'status-completed'; break;
+                        case '已拒绝': statusClass = 'status-badge'; break;
+                        default: statusClass = 'status-badge';
+                    }
+                    statusBadge = `<span class="status-badge ${statusClass}"><i class="fas fa-circle" style="font-size:6px;"></i> ${b.status}</span>`;
+                    
+                    // ✨ 区分线上/线下标签
                     let typeBadge = b.class_type === '线下上门' 
                         ? `<span class="badge-offline"><i class="fas fa-home"></i> 线下上门</span>` 
                         : `<span class="badge-online"><i class="fas fa-laptop"></i> 线上上课</span>`;
 
-                    // ✨ 2. 显示备注/地址信息
+                    // ✨ 显示备注/地址信息
                     let reqInfo = b.requirement ? `<div class="req-box"><i class="fas fa-map-marker-alt" style="margin-right:5px;"></i> 备注/地址: ${b.requirement}</div>` : '';
 
-                    // 按钮逻辑
-                    if(b.status==='待确认') btns=`<button class="btn btn-primary" onclick="openContractModal(${b.id})">接单</button><button class="btn btn-danger" onclick="handle(${b.id},'已拒绝')">拒</button>`;
+                    // 按钮逻辑 - 使用脉冲动画进入教室按钮
+                    if(b.status==='待确认') btns=`<button class="btn btn-primary" onclick="openContractModal(${b.id})"><i class="fas fa-check-circle"></i> 接单</button><button class="btn btn-danger" onclick="handle(${b.id},'已拒绝')"><i class="fas fa-times"></i></button>`;
                     if(b.status==='已支付') {
                         btns = `
-                            <button class="btn btn-link" style="padding:6px 10px; font-size:0.8rem; border:1px solid var(--border);" onclick="window.open('contract.html?id=${b.id}', '_blank')"><i class="fas fa-file-contract"></i> 协议</button>
-                            <button class="btn" style="background:linear-gradient(90deg, #3B82F6, #2563EB); margin-right:10px;" onclick="enterClassroom(${b.id}, 'teacher', '${encodeURIComponent(teacher.name)}')"><i class="fas fa-video"></i> 教室</button> 
-                            <button class="btn btn-success" onclick="finish(${b.id})">✅ 完课</button>`;
+                            <button class="btn btn-link" style="padding:6px 10px; font-size:0.8rem;" onclick="window.open('contract.html?id=${b.id}', '_blank')"><i class="fas fa-file-contract"></i> 协议</button>
+                            <button class="btn btn-classroom" onclick="enterClassroom(${b.id}, 'teacher', '${encodeURIComponent(teacher.name)}')"><i class="fas fa-video"></i> 进入教室</button> 
+                            <button class="btn btn-success" onclick="finish(${b.id})"><i class="fas fa-check"></i> 完课</button>`;
                     }
-                    if(b.status==='已通过') { btns=`<span style="color:#F59E0B;font-size:0.9rem;">等待学生支付...</span>`; statusColor='#F59E0B'; }
-                    if(b.status==='已完成' || b.status==='待评价') btns=`<button class="btn btn-link" onclick="window.open('contract.html?id=${b.id}', '_blank')">查看协议</button>`;
-                    if(b.status==='已拒绝') statusColor='#EF4444';
+                    if(b.status==='已通过') { btns=`<span style="color:#F59E0B;font-size:0.85rem;"><i class="fas fa-hourglass-half"></i> 等待学生支付...</span>`; }
+                    if(b.status==='已完成' || b.status==='待评价') btns=`<button class="btn btn-link" onclick="window.open('contract.html?id=${b.id}', '_blank')"><i class="fas fa-file-alt"></i> 查看协议</button>`;
 
                     h+=`
                     <div class="list-item" style="display:block;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <div style="margin-bottom:5px;">
-                                    <strong>${b.user_phone}</strong> ${typeBadge}
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                            <div style="flex:1; min-width:200px;">
+                                <div style="margin-bottom:8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                    <strong style="font-size:1rem;">${b.user_phone}</strong> ${typeBadge} ${statusBadge}
                                 </div>
                                 <span style="font-size:0.85rem;color:#94A3B8">
-                                    <i class="far fa-clock"></i> ${b.lesson_time} · <span style="color:${statusColor}">${b.status}</span>
+                                    <i class="far fa-clock"></i> ${b.lesson_time}
                                 </span>
                             </div>
-                            <div style="margin-top:5px;">${btns}</div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">${btns}</div>
                         </div>
                         ${reqInfo}
                     </div>`;
@@ -605,6 +932,206 @@
         function loadResources(){fetch(`api/teacher_api.php?action=get_my_resources&phone=${teacher.phone}`).then(r=>r.json()).then(res=>{let h='';if(res.data.length===0)h='<p style="text-align:center;color:gray;padding:20px;">暂无</p>';else res.data.forEach(r=>{let p=parseFloat(r.price)>0?`<span style="color:#FCD34D">¥${r.price}</span>`:`<span style="color:#10B981">免费</span>`;h+=`<div class="list-item"><span>${r.title} ${p}</span><span style="color:#EF4444;cursor:pointer" onclick="delRes(${r.id})"><i class="fas fa-trash"></i></span></div>`;});document.getElementById('myResList').innerHTML=h;});}
         function previewImg(){let f=document.getElementById('upAvatar').files[0];if(f)document.getElementById('curAvatar').src=URL.createObjectURL(f);}
         function logout(){localStorage.removeItem('tutorId');location.href='teacher_login.html';}
+        
+        // ================ ECharts 收入统计图表 ================
+        let incomeChartInstance = null;
+        
+        function initIncomeChart() {
+            const chartDom = document.getElementById('incomeChart');
+            if (!chartDom) return;
+            
+            incomeChartInstance = echarts.init(chartDom, 'dark');
+            updateIncomeChart();
+            
+            // 响应窗口大小变化
+            window.addEventListener('resize', () => {
+                incomeChartInstance && incomeChartInstance.resize();
+            });
+        }
+        
+        function updateIncomeChart() {
+            if (!incomeChartInstance) return;
+            
+            const period = document.getElementById('chartPeriod')?.value || 'month';
+            
+            // 生成模拟数据（实际项目应从API获取）
+            let dates = [], incomes = [], lessons = [];
+            const today = new Date();
+            let days = period === 'week' ? 7 : period === 'month' ? 30 : 12;
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const d = new Date(today);
+                if (period === 'year') {
+                    d.setMonth(d.getMonth() - i);
+                    dates.push(`${d.getMonth() + 1}月`);
+                } else {
+                    d.setDate(d.getDate() - i);
+                    dates.push(`${d.getMonth() + 1}/${d.getDate()}`);
+                }
+                incomes.push(Math.floor(Math.random() * 500) + 100);
+                lessons.push(Math.floor(Math.random() * 5) + 1);
+            }
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross', crossStyle: { color: '#999' } },
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    borderColor: 'rgba(99, 102, 241, 0.3)',
+                    textStyle: { color: '#E2E8F0' }
+                },
+                legend: {
+                    data: ['收入 (¥)', '课时数'],
+                    textStyle: { color: '#94A3B8' },
+                    top: 0
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: [{
+                    type: 'category',
+                    data: dates,
+                    axisPointer: { type: 'shadow' },
+                    axisLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.2)' } },
+                    axisLabel: { color: '#94A3B8' }
+                }],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '收入',
+                        axisLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.2)' } },
+                        axisLabel: { color: '#94A3B8', formatter: '¥{value}' },
+                        splitLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.1)' } }
+                    },
+                    {
+                        type: 'value',
+                        name: '课时',
+                        axisLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.2)' } },
+                        axisLabel: { color: '#94A3B8' },
+                        splitLine: { show: false }
+                    }
+                ],
+                series: [
+                    {
+                        name: '收入 (¥)',
+                        type: 'bar',
+                        barWidth: '40%',
+                        itemStyle: {
+                            borderRadius: [6, 6, 0, 0],
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#F59E0B' },
+                                { offset: 1, color: '#D97706' }
+                            ])
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#FBBF24' },
+                                    { offset: 1, color: '#F59E0B' }
+                                ])
+                            }
+                        },
+                        data: incomes
+                    },
+                    {
+                        name: '课时数',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        smooth: true,
+                        lineStyle: { width: 3, color: '#6366F1' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+                                { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+                            ])
+                        },
+                        itemStyle: { color: '#6366F1' },
+                        data: lessons
+                    }
+                ]
+            };
+            
+            incomeChartInstance.setOption(option);
+        }
+        
+        // 页面加载完成后初始化图表
+        setTimeout(initIncomeChart, 500);
+        
+        // ================ 移动端侧边栏控制 ================
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('show');
+        }
+        
+        // ================ 桌面端侧边栏折叠 ================
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('collapsed');
+            
+            // 触发图表resize
+            setTimeout(() => {
+                incomeChartInstance && incomeChartInstance.resize();
+            }, 300);
+        }
+        
+        // ================ 移动端响应式处理 ================
+        function handleResize() {
+            const mobileHeader = document.querySelector('.mobile-header');
+            const mobileNav = document.querySelector('.mobile-nav');
+            if (window.innerWidth <= 1024) {
+                mobileHeader.style.display = 'block';
+                mobileNav.style.display = 'block';
+            } else {
+                mobileHeader.style.display = 'none';
+                mobileNav.style.display = 'none';
+            }
+        }
+        
+        window.addEventListener('resize', handleResize);
+        handleResize();
+        
+        // 移动端底部导航点击
+        function mobileNavClick(view, el) {
+            // 更新active状态
+            document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            
+            // 切换视图
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('view-' + view).classList.add('active');
+            
+            // 同步侧边栏状态
+            const navItems = document.querySelectorAll('.sidebar .nav-item');
+            navItems.forEach(n => {
+                if (n.innerText.includes(el.querySelector('span').innerText)) {
+                    n.classList.add('active');
+                }
+            });
+        }
     </script>
+    
+    <!-- 移动端底部导航 -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <div class="mobile-nav-item active" onclick="mobileNavClick('dashboard', this)">
+                <i class="fas fa-chart-pie"></i>
+                <span>概览</span>
+            </div>
+            <div class="mobile-nav-item" onclick="mobileNavClick('bookings', this)">
+                <i class="fas fa-calendar-check"></i>
+                <span>预约</span>
+            </div>
+            <div class="mobile-nav-item" onclick="mobileNavClick('chat', this)">
+                <i class="fas fa-comment-alt"></i>
+                <span>私信</span>
+            </div>
+            <div class="mobile-nav-item" onclick="mobileNavClick('profile', this)">
+                <i class="fas fa-user-edit"></i>
+                <span>资料</span>
+            </div>
+        </div>
+    </nav>
 </body>
 </html>
